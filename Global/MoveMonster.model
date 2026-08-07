@@ -26,9 +26,7 @@
         "MOD.Core.AIWanderComponent",
         "MOD.Core.StateComponent",
         "MOD.Core.HitComponent",
-        "MOD.Core.DamageSkinSpawnerComponent",
-        "script.Monster",
-        "script.MonsterAttack"
+        "MOD.Core.DamageSkinSpawnerComponent"
       ],
       "Properties": [
         {

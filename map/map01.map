@@ -6360,6 +6360,52 @@
           ],
           "@version": 1
         }
+      },
+      {
+        "id": "dcb52b25-d83a-430e-ab5b-dd02f2db285c",
+        "path": "/maps/map01/Empty",
+        "componentNames": "MOD.Core.TransformComponent,script.MinigameComponent",
+        "jsonString": {
+          "name": "Empty",
+          "path": "/maps/map01/Empty",
+          "nameEditable": true,
+          "enable": true,
+          "visible": true,
+          "localize": false,
+          "displayOrder": 4,
+          "pathConstraints": "///",
+          "revision": 1,
+          "origin": {
+            "type": "Model",
+            "entry_id": "mapempty",
+            "sub_entity_id": null,
+            "root_entity_id": "dcb52b25-d83a-430e-ab5b-dd02f2db285c",
+            "replaced_model_id": null
+          },
+          "modelId": "mapempty",
+          "@components": [
+            {
+              "@type": "MOD.Core.TransformComponent",
+              "Position": {
+                "x": 0.0316146873,
+                "y": 0.61714536,
+                "z": 999.999
+              },
+              "QuaternionRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "Enable": true
+            },
+            {
+              "@type": "script.MinigameComponent",
+              "Enable": true
+            }
+          ],
+          "@version": 1
+        }
       }
     ]
   }

@@ -5,19 +5,23 @@
 > **유지보수 규칙:** 프로젝트 코드를 생성·수정·삭제할 때는 같은 작업에서 이 문서도 반드시 함께 갱신한다. 코드와 문서가 다르면 실제 코드를 기준으로 문서를 바로잡는다.
 
 - 마지막 갱신일: 2026-08-07
-- 현재 요약 대상: `RootDesk/MyDesk/Minigame/_GameLogic.mlua`, `RootDesk/MyDesk/Minigame/MinigameComponent.mlua`
-- 현재 구현 단계: 미니게임 프레임워크의 최상위 공통 상태와 미니게임 기반 인터페이스 정의
+- 현재 활성 요약 대상: `RootDesk/MyDesk/_GameLogic.mlua`, `RootDesk/MyDesk/Minigame/MinigameComponent.mlua`, `RootDesk/MyDesk/Minigame/MinigameData.mlua`
+- 이전 경로: `RootDesk/MyDesk/Minigame/_GameLogic.mlua` (삭제 상태)
+- 현재 구현 단계: 미니게임 최상위 공통 상태, 기반 인터페이스와 미니게임 등록용 데이터 구조 정의
 
 ## 1. 구현 파일 현황
 
-| 파일 | 타입 | 역할 |
-|---|---|---|
-| `RootDesk/MyDesk/Minigame/_GameLogic.mlua` | `@Logic` | 선택된 미니게임, 플레이 모드, 로컬 점수, 제한시간, 플레이어 및 랭킹 정보를 관리하는 전역 Logic |
-| `RootDesk/MyDesk/Minigame/MinigameComponent.mlua` | `@Component` | 개별 미니게임이 공통으로 사용할 초기화·갱신·해제 인터페이스를 정의하는 기반 Component |
+| 파일 | 타입 | 현재 상태 | 역할 |
+|---|---|---|---|
+| `RootDesk/MyDesk/_GameLogic.mlua` | `@Logic` | 존재, Git ignore 대상 | 선택된 미니게임, 플레이 모드, 로컬 점수, 제한시간, 플레이어 및 랭킹 정보를 관리하는 전역 Logic |
+| `RootDesk/MyDesk/Minigame/MinigameComponent.mlua` | `@Component` | 존재, 구현 전 | 개별 미니게임이 공통으로 사용할 초기화·갱신·해제 인터페이스를 정의하는 기반 Component |
+| `RootDesk/MyDesk/Minigame/MinigameData.mlua` | `@Struct` | 신규 추가 | 미니게임 이름·ID와 해당 `MinigameComponent` 참조를 한 단위로 보관하는 데이터 구조 |
 
-현재 미니게임 프레임워크에는 `_GameLogic`과 기반 `MinigameComponent`가 존재한다. 두 클래스 사이를 연결할 `_MinigameManager`와 `MinigameRegistry`는 아직 구현되지 않았다.
+현재 활성 소스에는 `_GameLogic`, 기반 `MinigameComponent`, `MinigameData`가 존재한다. 이들을 연결할 `_MinigameManager`와 `MinigameRegistry`는 아직 구현되지 않았다.
 
 ## 2. `_GameLogic` 구조
+
+> **현재 경로:** `RootDesk/MyDesk/_GameLogic.mlua`. 이전 `RootDesk/MyDesk/Minigame/_GameLogic.mlua` 경로에서는 삭제되었으며, 클래스 구조는 기존과 동일하다.
 
 ```lua
 @Logic
@@ -61,7 +65,7 @@ script _GameLogic extends Logic
 script MinigameComponent extends Component
 ```
 
-`MinigameComponent`는 구체적인 미니게임들이 공통으로 따라야 할 최소 실행 인터페이스를 정의한다. 현재는 Property가 없으며, 세 Method 모두 시그니처와 설명만 존재하는 빈 기반 구현이다.
+`MinigameComponent`는 구체적인 미니게임들이 공통으로 따라야 할 최소 실행 인터페이스를 정의한다. 현재는 Property가 없으며, 세 Method 모두 시그니처만 존재하는 빈 기반 구현이다.
 
 ### Property
 
@@ -75,9 +79,34 @@ script MinigameComponent extends Component
 | `Update(number deltaTime)` | 실행 중인 미니게임의 프레임 단위 로직을 갱신한다. | 빈 메서드 |
 | `Release()` | 미니게임 종료 시 사용한 리소스와 상태를 정리한다. | 빈 메서드 |
 
-세 메서드에는 별도의 `@ExecSpace`가 지정되어 있지 않다. 향후 구체적인 미니게임 Component가 이 인터페이스를 확장하고, `_MinigameManager`가 현재 게임에 맞춰 호출하는 구조를 전제로 한다.
+세 메서드에는 설명 주석이나 별도의 `@ExecSpace`가 지정되어 있지 않다. 향후 구체적인 미니게임 Component가 이 인터페이스를 확장하고, `_MinigameManager`가 현재 게임에 맞춰 호출하는 구조를 전제로 한다.
 
-## 4. 책임 경계
+## 4. `MinigameData` 구조
+
+```lua
+@Struct
+script MinigameData
+```
+
+`MinigameData`는 미니게임 하나의 식별 정보와 실행 Component 참조를 함께 보관하는 데이터 구조다.
+
+### Property
+
+| 이름 | 타입 | 기본값 | 책임 |
+|---|---|---:|---|
+| `Name` | `string` | `""` | 미니게임 표시 이름을 저장한다. |
+| `ID` | `string` | `""` | 미니게임을 구분하는 ID를 저장한다. |
+| `GameComponent` | `MinigameComponent` | `nil` | 해당 미니게임의 실행 Component 참조를 저장한다. |
+
+### Method
+
+| 메서드 | 현재 동작 |
+|---|---|
+| `InitData(string _name, string _id, MinigameComponent _GameComponent)` | 전달받은 이름, ID, Component 참조를 각각 `Name`, `ID`, `GameComponent`에 저장한다. |
+
+현재 `GameEntity` Property는 존재하지 않는다. `InitData()` 안에 `GameComponent.Entity`를 저장하려던 코드가 주석으로만 남아 있다.
+
+## 5. 책임 경계
 
 ### `_GameLogic`이 담당하는 것
 
@@ -111,6 +140,20 @@ script MinigameComponent extends Component
 - `CurrentTime` 누적과 제한시간 종료 판정
 - `_GameLogic` 또는 `_MinigameManager`와의 실제 연결
 
+### `MinigameData`가 담당하는 것
+
+- 미니게임 표시 이름 보관
+- 미니게임 ID 보관
+- ID에 대응하는 `MinigameComponent` 참조 보관
+- `InitData()`를 통한 세 값의 일괄 초기화
+
+### `MinigameData`가 담당하지 않는 것
+
+- 미니게임 실행 및 lifecycle 호출
+- 미니게임 검색·등록·중복 ID 검증
+- `GameComponent` 또는 Entity 유효성 검사
+- 점수, 진행시간 및 플레이 모드 관리
+
 점수 처리의 의도된 흐름은 다음과 같다.
 
 ```text
@@ -120,21 +163,24 @@ UI 입력
   → _GameLogic.CurrentScore에 결과 저장
 ```
 
-## 5. 향후 확장 방향
+## 6. 향후 확장 방향
 
 ```text
 _GameLogic
   → _MinigameManager
     → MinigameRegistry
-      → MinigameComponent
+      → MinigameData
+        → MinigameComponent
 ```
 
 - `_MinigameManager`는 현재 실행 중인 미니게임과 `CurrentTime`을 관리할 예정이다.
 - `_GameLogic.OnUpdate(delta)`는 Manager의 갱신을 호출하고 `Manager.CurrentTime`과 `CurrentMaxTime`을 비교하는 역할로 확장될 예정이다.
 - 시간 제한에 도달하면 `_GameLogic.EndMinigame()`을 호출하는 흐름을 구성할 예정이다.
-- `MinigameComponent` 기반 인터페이스는 생성되었지만, `_MinigameManager`, Registry 및 구체적인 미니게임과의 연결은 구현되지 않았다.
+- `MinigameData`는 향후 Registry가 미니게임 ID와 실행 Component를 연결할 때 사용할 수 있는 기본 데이터 단위다.
+- `MinigameComponent` 기반 인터페이스와 `MinigameData`는 생성되었지만, `_MinigameManager`, Registry 및 구체적인 미니게임과의 연결은 구현되지 않았다.
+- `_GameLogic`은 새 경로에서 다시 활성화되었지만 현재 Git ignore 대상이므로 버전 관리 포함 여부를 별도로 확인해야 한다.
 
-## 6. 현재 불변 조건 및 주의사항
+## 7. 현재 불변 조건 및 주의사항
 
 - `PlayMode`는 문자열 `SINGLE` 또는 `MULTI`만 사용한다.
 - `CurrentMaxTime`은 `0`보다 커야 하며 기본값은 `60`초다.
@@ -145,8 +191,12 @@ _GameLogic
 - 현재 네트워크 동기화 및 서버 권한 처리는 구현하지 않았다.
 - `MinigameComponent`에는 Property가 없으며 세 Method는 모두 빈 플레이스홀더다.
 - `MinigameComponent.Update()`는 엔진 lifecycle `OnUpdate()`가 아니라 향후 Manager가 명시적으로 호출할 일반 Method다.
+- `MinigameData.GameComponent`의 기본값은 `nil`이며 현재 유효성 검사는 없다.
+- `MinigameData.InitData()`는 값 저장만 수행하고 등록이나 실행은 담당하지 않는다.
+- `_GameLogic.mlua`의 활성 경로는 `RootDesk/MyDesk/_GameLogic.mlua`다.
+- 이전 `RootDesk/MyDesk/Minigame/_GameLogic.mlua`는 삭제 상태이며, 새 경로의 파일은 현재 Git ignore 대상이다.
 
-## 7. 코드 변경 시 문서 동기화 체크리스트
+## 8. 코드 변경 시 문서 동기화 체크리스트
 
 프로젝트 코드를 변경할 때 다음 항목을 확인하고 이 문서를 함께 수정한다.
 
