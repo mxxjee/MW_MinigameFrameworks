@@ -1,0 +1,16 @@
+@Component
+script MinigameComponent extends Component
+	
+	---@description "미니게임 시작 전 필요한 데이터와 상태를 초기화한다."
+	method void Initialize(table gameData)
+	end
+	
+	---@description "실행 중인 미니게임의 프레임 단위 로직을 갱신한다."
+	method void Update(number deltaTime)
+	end
+	
+	---@description "미니게임 종료 시 사용한 리소스와 상태를 정리한다."
+	method void Release()
+	end
+	
+end
