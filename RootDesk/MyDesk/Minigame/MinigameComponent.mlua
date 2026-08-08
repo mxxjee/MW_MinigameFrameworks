@@ -2,15 +2,15 @@
 script MinigameComponent extends Component
 
 	method void Initialize(MinigameData gameData)
-		
+
 	end
 
 	method void Update(number deltaTime)
-		
+
 	end
 
 	method void Release()
-		
+
 	end
 
 end

@@ -5,13 +5,13 @@ script SelectWidgetUIComponent extends Component
 	method void Initialize(string gameName, Vector2 pos)
 		local TextEntity = self.Entity:GetChildByName("Name")
 		if isvalid(TextEntity) == false then return end
-		
+
 		local TextComp = TextEntity.TextGUIRendererComponent
 		TextComp.Text = gameName
-		
+
 		self.Entity.UITransformComponent.anchoredPosition = pos
-		
-		
+
+
 	end
 
 end

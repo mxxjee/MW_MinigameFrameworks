@@ -19,26 +19,26 @@ script GameLogic extends Logic
 		-- 현재 플레이할 미니게임 ID를 선택한다.
 		if gameId == "" then log_warning("[_GameLogic] 미니게임 ID가 비어 있어 선택할 수 없습니다.") return false
 		end
-		
+
 		-- 선택한 미니게임 씬으로 이동한다--
 		self.CurrentGameId = gameId
-		
+
 		---@type MinigameData
 		local GameData=_MinigameRegistry:GetMinigameData(gameId)
 		local player = _UserService.LocalPlayer
 		_TeleportService:TeleportToMapPosition( player, Vector3(0, 0, 0), GameData.MapName)
 		return true
-		
+
 	end
 
 	method void SetPlayMode(integer playMode)
 		-- 허용된 SINGLE 또는 MULTI 플레이 모드로 변경한다.
 		if playMode ~= _GameEnum.PlayMode.SINGLE and playMode ~= _GameEnum.PlayMode.MULTI then log_warning("[_GameLogic] 지원하지 않는 플레이 모드입니다: " .. playMode) return
 		end
-		
+
 		self.PlayMode = playMode
-		
-		
+
+
 	end
 
 	method void SetCurrentScore(number score)
@@ -62,7 +62,7 @@ script GameLogic extends Logic
 			log_warning("[_GameLogic] 최대 제한시간은 0보다 커야 합니다.")
 			return
 		end
-		
+
 		self.CurrentMaxTime = maxTime
 	end
 
@@ -72,7 +72,7 @@ script GameLogic extends Logic
 			log_warning("[_GameLogic] 상대 플레이어 ID가 비어 있어 설정할 수 없습니다.")
 			return
 		end
-		
+
 		self.OpponentPlayerId = playerId
 	end
 
@@ -89,7 +89,7 @@ script GameLogic extends Logic
 		if bResult == false then
 			return
 		end
-		
+
 		_MinigameManager:StartGame(self.CurrentGameId)
 	end
 
@@ -105,7 +105,7 @@ script GameLogic extends Logic
 		if _MinigameManager.IsPlaying == false then
 			return
 		end
-		
+
 		if _MinigameManager.CurrentTime >= self.CurrentMaxTime then
 			self:EndMinigame()
 		end
