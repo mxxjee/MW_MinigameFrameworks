@@ -5,9 +5,9 @@
 > **유지보수 규칙:** 프로젝트 코드를 생성·수정·삭제할 때는 같은 작업에서 이 문서도 반드시 함께 갱신한다. 코드와 문서가 다르면 실제 코드를 기준으로 문서를 바로잡는다.
 
 - 마지막 갱신일: 2026-08-07
-- 현재 활성 요약 대상: `RootDesk/MyDesk/_GameLogic.mlua`, `RootDesk/MyDesk/Minigame/MinigameComponent.mlua`, `RootDesk/MyDesk/Minigame/MinigameData.mlua`
+- 현재 활성 요약 대상: `RootDesk/MyDesk/_GameLogic.mlua`, `RootDesk/MyDesk/Minigame/MinigameComponent.mlua`, `RootDesk/MyDesk/Minigame/MinigameData.mlua`, `RootDesk/MyDesk/Minigame/MinigameRegistry.mlua`
 - 이전 경로: `RootDesk/MyDesk/Minigame/_GameLogic.mlua` (삭제 상태)
-- 현재 구현 단계: 미니게임 최상위 공통 상태, 기반 인터페이스와 미니게임 등록용 데이터 구조 정의
+- 현재 구현 단계: 미니게임 최상위 공통 상태, 기반 인터페이스, 등록 데이터와 중앙 Registry 정의
 
 ## 1. 구현 파일 현황
 
@@ -16,8 +16,9 @@
 | `RootDesk/MyDesk/_GameLogic.mlua` | `@Logic` | 존재, Git ignore 대상 | 선택된 미니게임, 플레이 모드, 로컬 점수, 제한시간, 플레이어 및 랭킹 정보를 관리하는 전역 Logic |
 | `RootDesk/MyDesk/Minigame/MinigameComponent.mlua` | `@Component` | 존재, 구현 전 | 개별 미니게임이 공통으로 사용할 초기화·갱신·해제 인터페이스를 정의하는 기반 Component |
 | `RootDesk/MyDesk/Minigame/MinigameData.mlua` | `@Struct` | 신규 추가 | 미니게임 이름·ID와 해당 `MinigameComponent` 참조를 한 단위로 보관하는 데이터 구조 |
+| `RootDesk/MyDesk/Minigame/MinigameRegistry.mlua` | `@Component` | 신규 구현, 엔티티 부착 필요 | 에디터 Component 참조를 받아 ID별 `MinigameData`를 중앙 등록하고 조회하는 Registry Component |
 
-현재 활성 소스에는 `_GameLogic`, 기반 `MinigameComponent`, `MinigameData`가 존재한다. 이들을 연결할 `_MinigameManager`와 `MinigameRegistry`는 아직 구현되지 않았다.
+현재 활성 소스에는 `_GameLogic`, 기반 `MinigameComponent`, `MinigameData`, `MinigameRegistry`가 존재한다. 실제 게임 실행을 담당할 `_MinigameManager`와 구체적인 미니게임은 아직 구현되지 않았다.
 
 ## 2. `_GameLogic` 구조
 
@@ -106,7 +107,59 @@ script MinigameData
 
 현재 `GameEntity` Property는 존재하지 않는다. `InitData()` 안에 `GameComponent.Entity`를 저장하려던 코드가 주석으로만 남아 있다.
 
-## 5. 책임 경계
+Entity가 필요하면 별도 저장 없이 `gameData.GameComponent.Entity`로 접근한다.
+
+## 5. `MinigameRegistry` 구조
+
+```lua
+@Component
+script MinigameRegistry extends Component
+```
+
+`MinigameRegistry`는 모든 미니게임의 등록 정보를 ID 기준으로 중앙 관리하는 Component다. 게임 실행이나 lifecycle 처리는 하지 않고 등록·검증·조회만 담당한다.
+
+전역 Logic singleton이 아니므로 사용하려면 모델 또는 맵의 엔티티에 이 Component를 부착해야 한다. `OnBeginPlay()` 실행과 Registry 상태의 수명은 부착된 엔티티의 생명주기를 따른다. 현재 작업에서는 모델·맵 부착까지 수행하지 않았다.
+
+### Property
+
+| 이름 | 타입 | 기본값 | 책임 |
+|---|---|---:|---|
+| `MinigameComponents` | `SyncTable<string, MinigameComponent>` | 엔진이 빈 컬렉션으로 초기화 | 에디터에서 미니게임 ID와 실제 Component 참조를 중앙 입력하는 용도다. `@Sync`는 사용하지 않는다. |
+| `MinigameDatas` | `table` | `{}` | 실제 Registry 조회용 저장소다. `MinigameDatas[id] = MinigameData` 형태로 저장한다. |
+
+실제 선언은 다음과 같다.
+
+```lua
+property SyncTable<string, MinigameComponent> MinigameComponents
+property table MinigameDatas = {}
+```
+
+`MinigameComponents`는 에디터 Component Reference 입력용이고, `MinigameDatas`는 실행 중 ID 조회에 사용하는 Registry 저장소다. 두 곳의 `GameComponent`는 복제본이 아니라 동일한 Component 참조다.
+
+### Lifecycle 및 Method
+
+| 메서드 | 현재 동작 |
+|---|---|
+| `OnBeginPlay()` | 모든 게임의 중앙 등록 위치다. 현재 구체적인 미니게임이 없으므로 실제 등록 호출 없이 향후 `RegisterMinigame()` 호출을 추가할 TODO만 존재한다. |
+| `RegisterMinigame(string name, string id, MinigameComponent gameComponent)` | 등록 데이터를 검증하고 `MinigameData`를 생성·초기화한 뒤 `MinigameDatas[id]`에 저장한다. 성공 시 `true`, 실패 시 `false`를 반환한다. |
+| `ValidateRegisterData(string id, MinigameComponent gameComponent)` | 빈 ID, nil `GameComponent`, 중복 ID만 검사한다. 실패 원인을 warning으로 기록한다. |
+| `GetMinigameData(string id)` | `MinigameDatas[id]`를 직접 조회해 `MinigameData` 또는 `nil`을 반환한다. 전체 table을 순회하지 않는다. |
+| `GetMinigameComponent(string id)` | `GetMinigameData(id)` 결과에서 `GameComponent`를 반환하며, 등록되지 않은 ID면 `nil`을 반환한다. |
+
+등록 흐름은 다음과 같다.
+
+```text
+OnBeginPlay
+  → MinigameComponents에서 ID별 Component 참조 확인
+  → RegisterMinigame(name, id, component)
+  → ValidateRegisterData(id, component)
+  → MinigameData 생성 및 InitData(...)
+  → MinigameDatas[id]에 저장
+```
+
+현재 `OnBeginPlay()`에는 등록할 구체적인 미니게임이 없으므로 예시 ID나 가상 Component를 임의로 등록하지 않는다.
+
+## 6. 책임 경계
 
 ### `_GameLogic`이 담당하는 것
 
@@ -154,6 +207,21 @@ script MinigameData
 - `GameComponent` 또는 Entity 유효성 검사
 - 점수, 진행시간 및 플레이 모드 관리
 
+### `MinigameRegistry`가 담당하는 것
+
+- 에디터에서 미니게임 ID별 `MinigameComponent` 참조 보관
+- `OnBeginPlay()` 한 곳에서 모든 미니게임을 중앙 등록
+- `MinigameData` 생성과 ID별 저장
+- 빈 ID, nil Component, 중복 ID 등록 검증
+- ID를 통한 `MinigameData` 및 `MinigameComponent` 조회
+
+### `MinigameRegistry`가 담당하지 않는 것
+
+- `MinigameComponent.Initialize()`, `Update()`, `Release()` 호출
+- `CurrentTime`, `CurrentScore`, `CurrentMaxTime`, `PlayMode`, `IsPlaying` 관리
+- 게임 시작·종료와 구체적인 미니게임 규칙
+- UI, Network, Matching 처리
+
 점수 처리의 의도된 흐름은 다음과 같다.
 
 ```text
@@ -163,7 +231,7 @@ UI 입력
   → _GameLogic.CurrentScore에 결과 저장
 ```
 
-## 6. 향후 확장 방향
+## 7. 향후 확장 방향
 
 ```text
 _GameLogic
@@ -176,11 +244,13 @@ _GameLogic
 - `_MinigameManager`는 현재 실행 중인 미니게임과 `CurrentTime`을 관리할 예정이다.
 - `_GameLogic.OnUpdate(delta)`는 Manager의 갱신을 호출하고 `Manager.CurrentTime`과 `CurrentMaxTime`을 비교하는 역할로 확장될 예정이다.
 - 시간 제한에 도달하면 `_GameLogic.EndMinigame()`을 호출하는 흐름을 구성할 예정이다.
-- `MinigameData`는 향후 Registry가 미니게임 ID와 실행 Component를 연결할 때 사용할 수 있는 기본 데이터 단위다.
-- `MinigameComponent` 기반 인터페이스와 `MinigameData`는 생성되었지만, `_MinigameManager`, Registry 및 구체적인 미니게임과의 연결은 구현되지 않았다.
+- `MinigameData`는 Registry가 미니게임 ID와 실행 Component를 연결하는 기본 데이터 단위다.
+- `MinigameRegistry`의 등록·검증·조회 기능은 구현되었지만, 구체적인 게임이 없어 `OnBeginPlay()`의 실제 등록 목록은 비어 있다.
+- 향후 `_MinigameManager`가 엔티티에 부착된 `MinigameRegistry` Component 참조를 통해 선택된 `MinigameComponent`를 조회하고 `Initialize()`, `Update()`, `Release()`를 호출한다.
+- `_MinigameManager` 및 구체적인 미니게임과의 실제 연결은 아직 구현되지 않았다.
 - `_GameLogic`은 새 경로에서 다시 활성화되었지만 현재 Git ignore 대상이므로 버전 관리 포함 여부를 별도로 확인해야 한다.
 
-## 7. 현재 불변 조건 및 주의사항
+## 8. 현재 불변 조건 및 주의사항
 
 - `PlayMode`는 문자열 `SINGLE` 또는 `MULTI`만 사용한다.
 - `CurrentMaxTime`은 `0`보다 커야 하며 기본값은 `60`초다.
@@ -193,10 +263,17 @@ _GameLogic
 - `MinigameComponent.Update()`는 엔진 lifecycle `OnUpdate()`가 아니라 향후 Manager가 명시적으로 호출할 일반 Method다.
 - `MinigameData.GameComponent`의 기본값은 `nil`이며 현재 유효성 검사는 없다.
 - `MinigameData.InitData()`는 값 저장만 수행하고 등록이나 실행은 담당하지 않는다.
+- `MinigameRegistry.MinigameComponents`의 최종 타입은 `SyncTable<string, MinigameComponent>`이며 `@Sync`와 기본값 리터럴을 사용하지 않는다.
+- `MinigameRegistry.MinigameDatas`만 실제 ID 조회용 Registry 저장소로 사용한다.
+- `ValidateRegisterData()`는 빈 ID, nil Component, 중복 ID 외의 검증을 추가하지 않는다.
+- 모든 실제 미니게임 등록은 `MinigameRegistry.OnBeginPlay()` 한 곳에 모은다.
+- 현재 `OnBeginPlay()`에는 구체적인 미니게임 등록 코드가 없고 TODO만 존재한다.
+- `MinigameRegistry`는 `@Component`이므로 전역 `_MinigameRegistry` singleton으로 접근하지 않는다.
+- Registry를 사용하려면 대상 엔티티에 Component를 부착하고, 향후 Manager에 해당 Component 참조를 연결해야 한다.
 - `_GameLogic.mlua`의 활성 경로는 `RootDesk/MyDesk/_GameLogic.mlua`다.
 - 이전 `RootDesk/MyDesk/Minigame/_GameLogic.mlua`는 삭제 상태이며, 새 경로의 파일은 현재 Git ignore 대상이다.
 
-## 8. 코드 변경 시 문서 동기화 체크리스트
+## 9. 코드 변경 시 문서 동기화 체크리스트
 
 프로젝트 코드를 변경할 때 다음 항목을 확인하고 이 문서를 함께 수정한다.
 

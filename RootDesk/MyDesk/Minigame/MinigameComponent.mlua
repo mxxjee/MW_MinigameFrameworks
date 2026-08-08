@@ -1,17 +1,16 @@
 @Component
 script MinigameComponent extends Component
-	
-	
+
 	method void Initialize(table gameData)
 		
 	end
-	
+
 	method void Update(number deltaTime)
 		
 	end
-	
+
 	method void Release()
 		
 	end
-	
+
 end

@@ -6363,11 +6363,11 @@
       },
       {
         "id": "dcb52b25-d83a-430e-ab5b-dd02f2db285c",
-        "path": "/maps/map01/Empty",
-        "componentNames": "MOD.Core.TransformComponent,script.MinigameComponent",
+        "path": "/maps/map01/MinigameRegistry",
+        "componentNames": "MOD.Core.TransformComponent",
         "jsonString": {
-          "name": "Empty",
-          "path": "/maps/map01/Empty",
+          "name": "MinigameRegistry",
+          "path": "/maps/map01/MinigameRegistry",
           "nameEditable": true,
           "enable": true,
           "visible": true,
@@ -6386,6 +6386,11 @@
           "@components": [
             {
               "@type": "MOD.Core.TransformComponent",
+              "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
               "Position": {
                 "x": 0.0316146873,
                 "y": 0.61714536,
@@ -6397,10 +6402,7 @@
                 "z": 0.0,
                 "w": 1.0
               },
-              "Enable": true
-            },
-            {
-              "@type": "script.MinigameComponent",
+              "ZRotation": 0.0,
               "Enable": true
             }
           ],
