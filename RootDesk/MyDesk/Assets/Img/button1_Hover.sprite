@@ -1,0 +1,23 @@
+{
+  "Id": "",
+  "GameId": "",
+  "EntryKey": "sprite://035811e521fd4eb9903540849e667676",
+  "ContentType": "x-mod/sprite",
+  "Content": "",
+  "Usage": 0,
+  "UsePublish": 1,
+  "UseService": 0,
+  "CoreVersion": "26.7.0.0",
+  "StudioVersion": "0.1.0.0",
+  "DynamicLoading": 0,
+  "ContentProto": {
+    "Use": "Json",
+    "Json": {
+      "upload_keyname": "15/fe/15fee06eb47244fdac92a2adf8ae1db3/sprite/035811e521fd4eb9903540849e667676/639217836685761726",
+      "upload_hash": "65646BFC4ECAC9220F0ED5FB5787942B8FCF5C5F1198E9F9FDDC8109E5744FF3",
+      "name": "button1_Hover",
+      "resource_guid": "035811e521fd4eb9903540849e667676",
+      "resource_version": "6a770c74471acbd915579bb3"
+    }
+  }
+}

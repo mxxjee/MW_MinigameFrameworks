@@ -1,14 +1,51 @@
 @Component
 script SelectSceneControllerComponent extends Component
-	property string SelectWidgetModelId = ""
+
+	@Sync
+	property Entity GameListEntity = nil
+
+	property string SelectWidgetModelId = "model://b9a29910-7633-405a-b5c4-1d7a4c7df643"
+
 	property number SlotSpacing = 300
-	
+
+	property integer CurrentIndex = 1
+
+	property integer MaxIndex = 0
+
+	property Vector2 TargetPosition = Vector2(0, 0)
+
 	property table GameList = {}
+
 	property table WidgetList = {}
-	
+
+	property boolean IsMoving = false
+
+	property number MoveSpeed = 10
+
 	@ExecSpace("ClientOnly")
 	method void Initialize()
 		
+		-- 슬롯 부모를 저장한다.
+		self.GameListEntity = _EntityService:GetEntityByPath("/ui/SelectGroup/GameList")
+		
+		if isvalid(self.GameListEntity) == false then return end
+		
+		-- 첫 번째 게임이 항상 가운데(0, 0)에 오도록 초기화
+		self.GameListEntity.UITransformComponent.anchoredPosition =
+		Vector2(0, 0)
+		
+		self.CurrentIndex = 1
+		self.TargetPosition = Vector2(0, 0)
+		self.IsMoving = false
+		
+		--저장된 데이터를 통해 슬롯을 생성한다--
+		self:Refresh_Slots()
+		
+	end
+
+	@ExecSpace("ClientOnly")
+	method void Refresh_Slots()
+		--슬롯 생성--
 		local slotParent = _EntityService:GetEntityByPath("/ui/SelectGroup/GameList")
 		if isvalid(slotParent) == false then
 			return
@@ -28,10 +65,7 @@ script SelectSceneControllerComponent extends Component
 			local pos = Vector2(index * self.SlotSpacing, 0)
 			
 			local widgetEntity = _SpawnService:SpawnByModelId(
-				self.SelectWidgetModelId,
-				"SelectWidget_" .. gameId,
-				Vector3.zero,
-				slotParent
+				self.SelectWidgetModelId, "SelectWidget_" .. gameId, Vector3.zero, slotParent
 			)
 			
 			if isvalid(widgetEntity) == false then continue end
@@ -47,7 +81,75 @@ script SelectSceneControllerComponent extends Component
 			table.insert(self.WidgetList, widgetEntity)
 			
 			index = index + 1
+			
+			self.MaxIndex=#self.GameList
 		end
 	end
-	
+
+	method void MoveToCurrentIdx()
+		-- 현재 선택된 슬롯이 항상 화면 중앙 x = 0에 오도록
+			-- 부모 GameList를 반대 방향으로 이동시킨다.
+			local targetX = -(self.CurrentIndex - 1) * self.SlotSpacing
+				
+			self.TargetPosition = Vector2(targetX, 0)
+			self.IsMoving = true
+	end
+
+	@ExecSpace("ClientOnly")
+	method void OnUpdate(number delta)
+		if self.IsMoving == false then return end
+				
+		if isvalid(self.GameListEntity) == false then return end
+				
+		local uiTransform =self.GameListEntity.UITransformComponent
+				
+		local currentPosition =uiTransform.anchoredPosition
+				
+		local nextPosition = Vector2.Lerp(currentPosition,self.TargetPosition,delta * self.MoveSpeed)
+				
+		uiTransform.anchoredPosition = nextPosition
+				
+		-- Lerp는 정확히 목표값에 닿지 않을 수 있으므로
+		-- 충분히 가까워지면 정확한 위치로 맞춘다.
+		if Vector2.Distance(nextPosition, self.TargetPosition) < 0.5 then
+					
+			uiTransform.anchoredPosition = self.TargetPosition
+			self.IsMoving = false
+		end
+	end
+
+	@EventSender("Service", "InputService")
+	handler HandleKeyDownEvent(KeyDownEvent event)
+		--------------- Native Event Sender Info ----------------
+		-- Sender: InputService
+		-- Space: Client
+		---------------------------------------------------------
+		
+		-- Parameters
+		-- local inputValue = event.inputValue
+		-- local key = event.key
+		---------------------------------------------------------
+		local key = event.key
+		
+				
+		-- 왼쪽
+		if key == KeyboardKey.LeftArrow then
+					
+		if self.CurrentIndex <= 1 then return end
+					
+		self.CurrentIndex =self.CurrentIndex - 1
+					
+		self:MoveToCurrentIdx()
+					
+		-- 오른쪽
+		elseif key == KeyboardKey.RightArrow then
+					
+		if self.CurrentIndex >= self.MaxIndex then return end
+					
+		self.CurrentIndex = self.CurrentIndex + 1
+					
+		self:MoveToCurrentIdx()
+		end
+	end
+
 end

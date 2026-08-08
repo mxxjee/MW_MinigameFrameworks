@@ -1,0 +1,23 @@
+{
+  "Id": "",
+  "GameId": "",
+  "EntryKey": "sprite://3eddb98d81844c309ff5537f9b518f5e",
+  "ContentType": "x-mod/sprite",
+  "Content": "",
+  "Usage": 0,
+  "UsePublish": 1,
+  "UseService": 0,
+  "CoreVersion": "26.7.0.0",
+  "StudioVersion": "0.1.0.0",
+  "DynamicLoading": 0,
+  "ContentProto": {
+    "Use": "Json",
+    "Json": {
+      "upload_keyname": "15/fe/15fee06eb47244fdac92a2adf8ae1db3/sprite/3eddb98d81844c309ff5537f9b518f5e/639217836685829073",
+      "upload_hash": "8A7B44A319BAB4AFEF4B513FC7C33D910F76E28A2660BDAD8AE355C819D76B12",
+      "name": "Loby",
+      "resource_guid": "3eddb98d81844c309ff5537f9b518f5e",
+      "resource_version": "6a770c746c1999f2c895a227"
+    }
+  }
+}

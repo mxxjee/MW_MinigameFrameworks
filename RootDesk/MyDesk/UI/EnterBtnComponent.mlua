@@ -27,6 +27,7 @@ script EnterBtnComponent extends Component
 			--서버와 매칭연결시도..
 		end
 		
+		_GameHelper:EnableUIGroup("/ui/LobbyGroup",false)
 		_GameHelper:EnableUIGroup("/ui/SelectButtonGroup",false)
 		
 	end

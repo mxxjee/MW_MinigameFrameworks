@@ -23,8 +23,8 @@
           "nameEditable": true,
           "enable": true,
           "visible": true,
-          "localize": false,
-          "displayOrder": 4,
+          "localize": true,
+          "displayOrder": 3,
           "pathConstraints": "//",
           "revision": 1,
           "origin": {
@@ -70,6 +70,11 @@
                 "x": 0.0,
                 "y": 0.0
               },
+              "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
               "Position": {
                 "x": 0.0,
                 "y": 0.0,
@@ -81,12 +86,13 @@
                 "z": 0.0,
                 "w": 1.0
               },
+              "ZRotation": 0.0,
               "Enable": true
             },
             {
               "@type": "MOD.Core.UIGroupComponent",
               "DefaultShow": false,
-              "GroupOrder": 4,
+              "GroupOrder": 3,
               "GroupType": 2,
               "Enable": true
             },
@@ -108,7 +114,7 @@
           "nameEditable": true,
           "enable": true,
           "visible": true,
-          "localize": false,
+          "localize": true,
           "displayOrder": 0,
           "pathConstraints": "///",
           "revision": 1,
@@ -155,6 +161,11 @@
                 "x": -0.000184276869,
                 "y": -2.56100368
               },
+              "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
               "Position": {
                 "x": -0.000183105469,
                 "y": -2.56097412,
@@ -166,6 +177,7 @@
                 "z": 0.0,
                 "w": 1.0
               },
+              "ZRotation": 0.0,
               "Enable": true
             },
             {
@@ -190,7 +202,7 @@
           "nameEditable": true,
           "enable": true,
           "visible": true,
-          "localize": false,
+          "localize": true,
           "displayOrder": 1,
           "pathConstraints": "///",
           "revision": 1,
@@ -216,12 +228,12 @@
               },
               "MobileOnly": false,
               "OffsetMax": {
-                "x": -628.8484,
-                "y": 281.85968
+                "x": 50.0,
+                "y": 50.0
               },
               "OffsetMin": {
-                "x": -728.8484,
-                "y": 181.8597
+                "x": -50.0,
+                "y": -50.0
               },
               "Pivot": {
                 "x": 0.5,
@@ -234,12 +246,17 @@
               "UIMode": 1,
               "UIVersion": 2,
               "anchoredPosition": {
-                "x": -678.8484,
-                "y": 231.8597
+                "x": 0.0,
+                "y": 0.0
+              },
+              "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
               },
               "Position": {
-                "x": -678.8484,
-                "y": 231.8597,
+                "x": 0.0,
+                "y": 0.0,
                 "z": 0.0
               },
               "QuaternionRotation": {
@@ -248,6 +265,7 @@
                 "z": 0.0,
                 "w": 1.0
               },
+              "ZRotation": 0.0,
               "Enable": true
             }
           ],

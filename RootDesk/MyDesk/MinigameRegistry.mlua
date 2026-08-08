@@ -1,14 +1,17 @@
 @Logic
 script MinigameRegistry extends Logic
-	
+
 	property table MinigameDatas = {}
-	
+
 	@ExecSpace("ClientOnly")
 	method void OnBeginPlay()
 		-- 첫 진입 ) 에디터에 연결된 모든 미니게임을 중앙에서 등록한다.
 		self:RegisterMinigame("버튼게임", "Button_Game", "ButtonGameScene")
+		self:RegisterMinigame("민거니 먹빵", "GunHee_Muckbang", "TestScene")
+		self:RegisterMinigame("민지꾸얌", "Minji_Game", "TestScene")
+		self:RegisterMinigame("쥬신뿌수기", "Jusin_Game", "TestScene")
 	end
-	
+
 	method boolean RegisterMinigame(string name, string id, string _mapName)
 		-- 검증 용
 		if self:ValidateRegisterData(id) == false then return false end
@@ -22,7 +25,7 @@ script MinigameRegistry extends Logic
 		
 		return true
 	end
-	
+
 	method boolean ValidateRegisterData(string id)
 		-- 빈 ID, nil Component, 중복 ID를 검사한다.
 		if id == "" then log_warning("[MinigameRegistry] ID가 비어있습니다.")return false end
@@ -31,7 +34,7 @@ script MinigameRegistry extends Logic
 		
 		return true
 	end
-	
+
 	method MinigameData GetMinigameData(string id)
 		-- ID를 Key로 MinigameData를 직접 조회한다.
 		local gameData = self.MinigameDatas[id]
@@ -40,5 +43,5 @@ script MinigameRegistry extends Logic
 		
 		return gameData
 	end
-	
+
 end
