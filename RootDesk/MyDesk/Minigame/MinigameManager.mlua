@@ -1,42 +1,28 @@
 @Logic
 script MinigameManager extends Logic
-	
-	property MinigameRegistry MinigameRegistryComp = nil
-	
+
 	property MinigameComponent CurrentGame = nil
-	
+
 	property number CurrentTime = 0
-	
+
 	property boolean IsPlaying = false
-	
-	@ExecSpace("ClientOnly")
-	method void SetRegistry(MinigameRegistry Comp)
-		-- MinigameRegistry가 부착된 Entity 참조를 저장한다.
-		self.MinigameRegistryComp = Comp
-	end
-	
+
 	@ExecSpace("ClientOnly")
 	method boolean StartGame(string gameId)
 		-- 등록된 미니게임을 조회해 로컬 실행 상태를 시작한다.
-		if self.MinigameRegistryComp == nil then log_warning("[_MinigameManager] RegistryComp가 설정되지 않았습니다.")return false
-		end
 		
-		local gameData = self.MinigameRegistryComp:GetMinigameData(gameId)
+		---@type MinigameData
+		local gameData = _MinigameRegistry:GetMinigameData(gameId)
 		if gameData == nil then log_warning("[_MinigameManager] 등록되지 않은 미니게임 ID입니다: " .. gameId)return false end
 		
-		if gameData.GameComponent == nil then
-			log_warning("[_MinigameManager] GameComponent가 설정되지 않았습니다: " .. gameId)
-			return false
-		end
-		
-		self.CurrentGame = gameData.GameComponent
+		--self.CurrentGame = gameData.
 		self.CurrentTime = 0
 		self.IsPlaying = true
 		self.CurrentGame:Initialize(gameData)
 		
 		return true
 	end
-	
+
 	@ExecSpace("ClientOnly")
 	method void Update(number deltaTime)
 		-- 실행 중인 미니게임의 시간과 프레임 갱신을 위임한다.
@@ -51,7 +37,7 @@ script MinigameManager extends Logic
 		self.CurrentTime = self.CurrentTime + deltaTime
 		self.CurrentGame:Update(deltaTime)
 	end
-	
+
 	@ExecSpace("ClientOnly")
 	method void EndGame()
 		-- 현재 미니게임을 해제하고 로컬 실행 상태를 초기화한다.
@@ -63,5 +49,5 @@ script MinigameManager extends Logic
 		self.CurrentTime = 0
 		self.IsPlaying = false
 	end
-	
+
 end

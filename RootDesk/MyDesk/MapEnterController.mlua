@@ -1,0 +1,12 @@
+@Component
+script MapEnterController extends Component
+
+	@ExecSpace("ClientOnly")
+	method void OnMapEnter(Entity enteredMap)
+		if enteredMap.Name=="SelectScene" then
+			_GameHelper:EnableUIGroup("/ui/SelectGroup",true)
+		end
+		
+	end
+
+end

@@ -1,0 +1,53 @@
+@Component
+script SelectSceneControllerComponent extends Component
+	property string SelectWidgetModelId = ""
+	property number SlotSpacing = 300
+	
+	property table GameList = {}
+	property table WidgetList = {}
+	
+	@ExecSpace("ClientOnly")
+	method void Initialize()
+		
+		local slotParent = _EntityService:GetEntityByPath("/ui/SelectGroup/GameList")
+		if isvalid(slotParent) == false then
+			return
+		end
+		
+		self.GameList = {}
+		self.WidgetList = {}
+		
+		local index = 0
+		
+		for gameId, gameData in pairs(_MinigameRegistry.MinigameDatas) do
+			
+			-- 이후 선택된 게임을 찾기 위해 데이터도 저장
+			table.insert(self.GameList, gameData)
+			
+			-- 0, 300, 600, 900 ... 가로 배치
+			local pos = Vector2(index * self.SlotSpacing, 0)
+			
+			local widgetEntity = _SpawnService:SpawnByModelId(
+				self.SelectWidgetModelId,
+				"SelectWidget_" .. gameId,
+				Vector3.zero,
+				slotParent
+			)
+			
+			if isvalid(widgetEntity) == false then continue end
+			
+			---@type SelectWidgetUIComponent
+			local widgetComp =
+			widgetEntity:GetComponent("script.SelectWidgetUIComponent")
+			
+			if isvalid(widgetComp) == false then continue end
+			
+			widgetComp:Initialize(gameData.Name, pos)
+			
+			table.insert(self.WidgetList, widgetEntity)
+			
+			index = index + 1
+		end
+	end
+	
+end

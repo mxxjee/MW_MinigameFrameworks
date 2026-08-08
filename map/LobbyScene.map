@@ -1,7 +1,7 @@
 {
   "Id": "",
   "GameId": "",
-  "EntryKey": "map://map01",
+  "EntryKey": "map://lobbyscene",
   "ContentType": "x-mod/map",
   "Content": "",
   "Usage": 0,
@@ -15,11 +15,11 @@
     "Entities": [
       {
         "id": "bdadf19a-cc27-4a45-99c6-7a439c858a1b",
-        "path": "/maps/map01",
+        "path": "/maps/LobbyScene",
         "componentNames": "MOD.Core.MapComponent,MOD.Core.FootholdComponent",
         "jsonString": {
-          "name": "map01",
-          "path": "/maps/map01",
+          "name": "LobbyScene",
+          "path": "/maps/LobbyScene",
           "nameEditable": false,
           "enable": true,
           "visible": true,
@@ -47,7 +47,7 @@
               "FootholdsByLayer": {
                 "1": [
                   {
-                    "Length": 1.27999973,
+                    "Length": 1.28000069,
                     "NextFootholdId": 2,
                     "PreviousFootholdId": 27,
                     "groupID": 1,
@@ -69,7 +69,7 @@
                       "y": -0.04000002
                     },
                     "EndPoint": {
-                      "x": -7.65000057,
+                      "x": -7.64999962,
                       "y": -0.04000002
                     },
                     "Variance": {
@@ -264,7 +264,7 @@
                     }
                   },
                   {
-                    "Length": 0.899999738,
+                    "Length": 0.9,
                     "NextFootholdId": 9,
                     "PreviousFootholdId": 7,
                     "groupID": 1,
@@ -286,7 +286,7 @@
                       "y": -0.04000002
                     },
                     "EndPoint": {
-                      "x": -1.35,
+                      "x": -1.34999979,
                       "y": -0.04000002
                     },
                     "Variance": {
@@ -437,11 +437,11 @@
                     "OwnerId": "c9a3018a-f6fa-4c4b-b91e-404ac5ce9858",
                     "Id": 13,
                     "StartPoint": {
-                      "x": 2.25,
+                      "x": 2.24999976,
                       "y": -0.04000002
                     },
                     "EndPoint": {
-                      "x": 3.15,
+                      "x": 3.14999986,
                       "y": -0.04000002
                     },
                     "Variance": {
@@ -530,11 +530,11 @@
                     "OwnerId": "c9a3018a-f6fa-4c4b-b91e-404ac5ce9858",
                     "Id": 16,
                     "StartPoint": {
-                      "x": 4.95000029,
+                      "x": 4.95,
                       "y": -0.04000002
                     },
                     "EndPoint": {
-                      "x": 5.85,
+                      "x": 5.84999943,
                       "y": -0.04000002
                     },
                     "Variance": {
@@ -574,7 +574,7 @@
                     }
                   },
                   {
-                    "Length": 1.27999973,
+                    "Length": 1.27999878,
                     "NextFootholdId": 19,
                     "PreviousFootholdId": 17,
                     "groupID": 1,
@@ -596,7 +596,7 @@
                       "y": -0.04000002
                     },
                     "EndPoint": {
-                      "x": 8.03,
+                      "x": 8.029999,
                       "y": -0.04000002
                     },
                     "Variance": {
@@ -623,11 +623,11 @@
                     "OwnerId": "c9a3018a-f6fa-4c4b-b91e-404ac5ce9858",
                     "Id": 19,
                     "StartPoint": {
-                      "x": 8.03,
+                      "x": 8.029999,
                       "y": -0.04000002
                     },
                     "EndPoint": {
-                      "x": 8.03,
+                      "x": 8.029999,
                       "y": -0.9
                     },
                     "Variance": {
@@ -654,11 +654,11 @@
                     "OwnerId": "c9a3018a-f6fa-4c4b-b91e-404ac5ce9858",
                     "Id": 20,
                     "StartPoint": {
-                      "x": 8.03,
+                      "x": 8.029999,
                       "y": -0.9000001
                     },
                     "EndPoint": {
-                      "x": 8.03,
+                      "x": 8.029999,
                       "y": -1.50000012
                     },
                     "Variance": {
@@ -685,11 +685,11 @@
                     "OwnerId": "c9a3018a-f6fa-4c4b-b91e-404ac5ce9858",
                     "Id": 21,
                     "StartPoint": {
-                      "x": 8.03,
+                      "x": 8.029999,
                       "y": -1.50000012
                     },
                     "EndPoint": {
-                      "x": 8.03,
+                      "x": 8.029999,
                       "y": -2.10000014
                     },
                     "Variance": {
@@ -716,11 +716,11 @@
                     "OwnerId": "c9a3018a-f6fa-4c4b-b91e-404ac5ce9858",
                     "Id": 22,
                     "StartPoint": {
-                      "x": 8.03,
+                      "x": 8.029999,
                       "y": -2.10000014
                     },
                     "EndPoint": {
-                      "x": 8.03,
+                      "x": 8.029999,
                       "y": -2.7
                     },
                     "Variance": {
@@ -747,12 +747,12 @@
                     "OwnerId": "c9a3018a-f6fa-4c4b-b91e-404ac5ce9858",
                     "Id": 23,
                     "StartPoint": {
-                      "x": 8.03,
-                      "y": -2.70000029
+                      "x": 8.029999,
+                      "y": -2.7
                     },
                     "EndPoint": {
-                      "x": 8.03,
-                      "y": -3.30000019
+                      "x": 8.029999,
+                      "y": -3.3
                     },
                     "Variance": {
                       "x": 0.0,
@@ -778,11 +778,11 @@
                     "OwnerId": "c9a3018a-f6fa-4c4b-b91e-404ac5ce9858",
                     "Id": 24,
                     "StartPoint": {
-                      "x": 8.03,
+                      "x": 8.029999,
                       "y": -3.30000019
                     },
                     "EndPoint": {
-                      "x": 8.03,
+                      "x": 8.029999,
                       "y": -3.9
                     },
                     "Variance": {
@@ -809,11 +809,11 @@
                     "OwnerId": "c9a3018a-f6fa-4c4b-b91e-404ac5ce9858",
                     "Id": 25,
                     "StartPoint": {
-                      "x": 8.03,
+                      "x": 8.029999,
                       "y": -3.90000033
                     },
                     "EndPoint": {
-                      "x": 8.03,
+                      "x": 8.029999,
                       "y": -4.50000048
                     },
                     "Variance": {
@@ -840,11 +840,11 @@
                     "OwnerId": "c9a3018a-f6fa-4c4b-b91e-404ac5ce9858",
                     "Id": 26,
                     "StartPoint": {
-                      "x": 8.03,
+                      "x": 8.029999,
                       "y": -4.5
                     },
                     "EndPoint": {
-                      "x": 8.03,
+                      "x": 8.029999,
                       "y": -5.10000038
                     },
                     "Variance": {
@@ -996,11 +996,11 @@
                     "Id": 31,
                     "StartPoint": {
                       "x": -8.93,
-                      "y": -3.30000019
+                      "y": -3.3
                     },
                     "EndPoint": {
                       "x": -8.93,
-                      "y": -2.70000029
+                      "y": -2.7
                     },
                     "Variance": {
                       "x": 0.0,
@@ -1110,11 +1110,11 @@
       },
       {
         "id": "7ee4456d-3399-46c6-b9eb-fbf5228839e1",
-        "path": "/maps/map01/Background",
+        "path": "/maps/LobbyScene/Background",
         "componentNames": "MOD.Core.BackgroundComponent",
         "jsonString": {
           "name": "Background",
-          "path": "/maps/map01/Background",
+          "path": "/maps/LobbyScene/Background",
           "nameEditable": false,
           "enable": true,
           "visible": true,
@@ -1143,11 +1143,11 @@
       },
       {
         "id": "21ab86fc-7e59-4230-acbb-881856f9bc30",
-        "path": "/maps/map01/MapleMapLayer",
+        "path": "/maps/LobbyScene/MapleMapLayer",
         "componentNames": "MOD.Core.MapLayerComponent",
         "jsonString": {
           "name": "MapleMapLayer",
-          "path": "/maps/map01/MapleMapLayer",
+          "path": "/maps/LobbyScene/MapleMapLayer",
           "nameEditable": false,
           "enable": true,
           "visible": true,
@@ -1179,11 +1179,11 @@
       },
       {
         "id": "c9a3018a-f6fa-4c4b-b91e-404ac5ce9858",
-        "path": "/maps/map01/TileMap",
+        "path": "/maps/LobbyScene/TileMap",
         "componentNames": "MOD.Core.TransformComponent,MOD.Core.TileMapComponent",
         "jsonString": {
           "name": "TileMap",
-          "path": "/maps/map01/TileMap",
+          "path": "/maps/LobbyScene/TileMap",
           "nameEditable": false,
           "enable": true,
           "visible": true,
@@ -6287,11 +6287,11 @@
       },
       {
         "id": "5acc8562-5a0a-4065-98f9-2806f15facca",
-        "path": "/maps/map01/SpawnLocation",
+        "path": "/maps/LobbyScene/SpawnLocation",
         "componentNames": "MOD.Core.TransformComponent,MOD.Core.SpriteRendererComponent,MOD.Core.SpawnLocationComponent",
         "jsonString": {
           "name": "SpawnLocation",
-          "path": "/maps/map01/SpawnLocation",
+          "path": "/maps/LobbyScene/SpawnLocation",
           "nameEditable": true,
           "enable": true,
           "visible": true,
@@ -6363,11 +6363,11 @@
       },
       {
         "id": "dcb52b25-d83a-430e-ab5b-dd02f2db285c",
-        "path": "/maps/map01/MinigameRegistry",
+        "path": "/maps/LobbyScene/MinigameRegistry",
         "componentNames": "MOD.Core.TransformComponent",
         "jsonString": {
           "name": "MinigameRegistry",
-          "path": "/maps/map01/MinigameRegistry",
+          "path": "/maps/LobbyScene/MinigameRegistry",
           "nameEditable": true,
           "enable": true,
           "visible": true,

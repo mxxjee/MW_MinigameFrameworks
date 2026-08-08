@@ -1,0 +1,23 @@
+{
+  "Id": "",
+  "GameId": "",
+  "EntryKey": "sprite://bb029d8bf50c4bcdb371cf1cb65a9103",
+  "ContentType": "x-mod/sprite",
+  "Content": "",
+  "Usage": 0,
+  "UsePublish": 1,
+  "UseService": 0,
+  "CoreVersion": "26.7.0.0",
+  "StudioVersion": "0.1.0.0",
+  "DynamicLoading": 0,
+  "ContentProto": {
+    "Use": "Json",
+    "Json": {
+      "upload_keyname": "15/fe/15fee06eb47244fdac92a2adf8ae1db3/sprite/bb029d8bf50c4bcdb371cf1cb65a9103/639217772519686061",
+      "upload_hash": "E889D9EF29FEEE4C975AAE0ADAF9131C7C82864915C51E7F1E5AE91490A0D424",
+      "name": "SelectScene_BG",
+      "resource_guid": "bb029d8bf50c4bcdb371cf1cb65a9103",
+      "resource_version": "6a76f3630b6d483fb494259c"
+    }
+  }
+}

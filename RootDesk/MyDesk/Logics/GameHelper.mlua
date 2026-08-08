@@ -1,0 +1,11 @@
+@Logic
+script GameHelper extends Logic
+
+	method void EnableUIGroup(string path, boolean bEnable)
+		local Group=_EntityService:GetEntityByPath(path)
+		if isvalid(Group) then
+			Group.Enable=bEnable
+		end
+	end
+
+end

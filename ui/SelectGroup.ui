@@ -1,7 +1,7 @@
 {
   "Id": "",
   "GameId": "",
-  "EntryKey": "ui://c1ee38e4-b61d-4299-a1dd-d7a9b11f55c5",
+  "EntryKey": "ui://92eeeee7-501b-4230-bc1a-f706c288f605",
   "ContentType": "x-mod/ui",
   "Content": "",
   "Usage": 0,
@@ -14,17 +14,17 @@
     "Use": "Binary",
     "Entities": [
       {
-        "id": "c1ee38e4-b61d-4299-a1dd-d7a9b11f55c5",
-        "path": "/ui/UIGroup",
+        "id": "92eeeee7-501b-4230-bc1a-f706c288f605",
+        "path": "/ui/SelectGroup",
         "componentNames": "MOD.Core.UITransformComponent,MOD.Core.UIGroupComponent,MOD.Core.CanvasGroupComponent",
         "jsonString": {
-          "name": "UIGroup",
-          "path": "/ui/UIGroup",
+          "name": "SelectGroup",
+          "path": "/ui/SelectGroup",
           "nameEditable": true,
           "enable": true,
           "visible": true,
-          "localize": true,
-          "displayOrder": 3,
+          "localize": false,
+          "displayOrder": 4,
           "pathConstraints": "//",
           "revision": 1,
           "origin": {
@@ -70,11 +70,6 @@
                 "x": 0.0,
                 "y": 0.0
               },
-              "Rotation": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-              },
               "Position": {
                 "x": 0.0,
                 "y": 0.0,
@@ -86,13 +81,12 @@
                 "z": 0.0,
                 "w": 1.0
               },
-              "ZRotation": 0.0,
               "Enable": true
             },
             {
               "@type": "MOD.Core.UIGroupComponent",
               "DefaultShow": false,
-              "GroupOrder": 3,
+              "GroupOrder": 4,
               "GroupType": 2,
               "Enable": true
             },
@@ -105,16 +99,16 @@
         }
       },
       {
-        "id": "7e1578b9-3dac-4549-bb56-677e384831ab",
-        "path": "/ui/UIGroup/UISprite",
+        "id": "aea718fa-05ac-410d-9bb9-215034a7d2c8",
+        "path": "/ui/SelectGroup/BG",
         "componentNames": "MOD.Core.UITransformComponent,MOD.Core.SpriteGUIRendererComponent",
         "jsonString": {
-          "name": "UISprite",
-          "path": "/ui/UIGroup/UISprite",
+          "name": "BG",
+          "path": "/ui/SelectGroup/BG",
           "nameEditable": true,
           "enable": true,
           "visible": true,
-          "localize": true,
+          "localize": false,
           "displayOrder": 0,
           "pathConstraints": "///",
           "revision": 1,
@@ -122,10 +116,92 @@
             "type": "Model",
             "entry_id": "uisprite",
             "sub_entity_id": null,
-            "root_entity_id": null,
+            "root_entity_id": "aea718fa-05ac-410d-9bb9-215034a7d2c8",
             "replaced_model_id": null
           },
           "modelId": "uisprite",
+          "@components": [
+            {
+              "@type": "MOD.Core.UITransformComponent",
+              "AlignmentOption": 15,
+              "AnchorsMax": {
+                "x": 1.0,
+                "y": 1.0
+              },
+              "AnchorsMin": {
+                "x": 0.0,
+                "y": 0.0
+              },
+              "MobileOnly": false,
+              "OffsetMax": {
+                "x": -0.000184276869,
+                "y": 3.14712524E-05
+              },
+              "OffsetMin": {
+                "x": -0.000184276869,
+                "y": -5.122039
+              },
+              "Pivot": {
+                "x": 0.5,
+                "y": 0.5
+              },
+              "RectSize": {
+                "x": 1920.0,
+                "y": 1085.12207
+              },
+              "UIMode": 1,
+              "UIVersion": 2,
+              "anchoredPosition": {
+                "x": -0.000184276869,
+                "y": -2.56100368
+              },
+              "Position": {
+                "x": -0.000183105469,
+                "y": -2.56097412,
+                "z": 0.0
+              },
+              "QuaternionRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "Enable": true
+            },
+            {
+              "@type": "MOD.Core.SpriteGUIRendererComponent",
+              "ImageRUID": {
+                "DataId": "bb029d8bf50c4bcdb371cf1cb65a9103"
+              },
+              "OverrideSorting": false,
+              "Enable": true
+            }
+          ],
+          "@version": 1
+        }
+      },
+      {
+        "id": "02221c0c-32ea-4352-b0fd-5f34657474d2",
+        "path": "/ui/SelectGroup/GameList",
+        "componentNames": "MOD.Core.UITransformComponent",
+        "jsonString": {
+          "name": "GameList",
+          "path": "/ui/SelectGroup/GameList",
+          "nameEditable": true,
+          "enable": true,
+          "visible": true,
+          "localize": false,
+          "displayOrder": 1,
+          "pathConstraints": "///",
+          "revision": 1,
+          "origin": {
+            "type": "Model",
+            "entry_id": "uiempty",
+            "sub_entity_id": null,
+            "root_entity_id": "02221c0c-32ea-4352-b0fd-5f34657474d2",
+            "replaced_model_id": null
+          },
+          "modelId": "uiempty",
           "@components": [
             {
               "@type": "MOD.Core.UITransformComponent",
@@ -140,12 +216,12 @@
               },
               "MobileOnly": false,
               "OffsetMax": {
-                "x": 50.0,
-                "y": 50.0
+                "x": -628.8484,
+                "y": 281.85968
               },
               "OffsetMin": {
-                "x": -50.0,
-                "y": -50.0
+                "x": -728.8484,
+                "y": 181.8597
               },
               "Pivot": {
                 "x": 0.5,
@@ -158,17 +234,12 @@
               "UIMode": 1,
               "UIVersion": 2,
               "anchoredPosition": {
-                "x": 0.0,
-                "y": 0.0
-              },
-              "Rotation": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
+                "x": -678.8484,
+                "y": 231.8597
               },
               "Position": {
-                "x": 0.0,
-                "y": 0.0,
+                "x": -678.8484,
+                "y": 231.8597,
                 "z": 0.0
               },
               "QuaternionRotation": {
@@ -177,15 +248,6 @@
                 "z": 0.0,
                 "w": 1.0
               },
-              "ZRotation": 0.0,
-              "Enable": true
-            },
-            {
-              "@type": "MOD.Core.SpriteGUIRendererComponent",
-              "ImageRUID": {
-                "DataId": ""
-              },
-              "OverrideSorting": false,
               "Enable": true
             }
           ],
