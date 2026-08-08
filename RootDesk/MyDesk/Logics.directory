@@ -1,0 +1,23 @@
+{
+  "Id": "",
+  "GameId": "",
+  "EntryKey": "directory://a33bfe22854d4b5d823e2fe2c898b56d",
+  "ContentType": "x-mod/directory",
+  "Content": "",
+  "Usage": 0,
+  "UsePublish": 1,
+  "UseService": 0,
+  "CoreVersion": "26.7.0.0",
+  "StudioVersion": "0.1.0.0",
+  "DynamicLoading": 0,
+  "ContentProto": {
+    "Use": "Json",
+    "Json": {
+      "entry_id": "directory://a33bfe22854d4b5d823e2fe2c898b56d",
+      "name": "Logics",
+      "lock": false,
+      "folding": false,
+      "nameEditable": true
+    }
+  }
+}

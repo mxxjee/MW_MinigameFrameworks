@@ -40,8 +40,6 @@ luac.out
 *.hex
 
 # Non-source files used in MSW
-*.codeblock
-*.directory
 *.scriptfile
 *.userdataset
 
