@@ -15,14 +15,15 @@ script _GameLogic extends Logic
 
 	property table MyRankingData = {}
 
-	method void SelectMinigame(string gameId)
+	method boolean SelectMinigame(string gameId)
 		-- 현재 플레이할 미니게임 ID를 선택한다.
 		if gameId == "" then
 			log_warning("[_GameLogic] 미니게임 ID가 비어 있어 선택할 수 없습니다.")
-			return
+			return false
 		end
 		
 		self.CurrentGameId = gameId
+		return true
 	end
 
 	method void SetPlayMode(string playMode)
@@ -75,12 +76,12 @@ script _GameLogic extends Logic
 		self.OpponentPlayerId = ""
 	end
 
-	method void StartMinigame()
+	method void StartMinigame(string GameID)
+		
 		-- 현재 선택된 미니게임의 시작을 요청한다.
-		if self.CurrentGameId == "" then
-			log_warning("[_GameLogic] 선택된 미니게임이 없어 시작할 수 없습니다.")
-			return
-		end
+		---@type boolean
+		local bResult = self:SelectMinigame(GameID)
+		if bResult == false then return end
 		
 		-- TODO: _MinigameManager 구현 후 CurrentGameId를 전달하여 미니게임 시작을 요청한다.
 	end

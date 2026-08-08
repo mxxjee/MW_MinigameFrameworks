@@ -1,15 +1,15 @@
 @Component
 script MinigameRegistry extends Component
-	
+
 	property SyncTable<string, MinigameComponent> MinigameComponents
-	
+
 	property table MinigameDatas = {}
-	
+
 	method void OnBeginPlay()
 		-- 에디터에 연결된 모든 미니게임을 중앙에서 등록한다.
 		-- TODO: 구체적인 미니게임 Component가 추가되면 이곳에서 RegisterMinigame()을 호출한다.
 	end
-	
+
 	method boolean RegisterMinigame(string name, string id, MinigameComponent gameComponent)
 		-- 검증된 미니게임 정보를 MinigameData로 생성하여 ID를 Key로 등록한다.
 		if self:ValidateRegisterData(id, gameComponent) == false then
@@ -22,7 +22,7 @@ script MinigameRegistry extends Component
 		
 		return true
 	end
-	
+
 	method boolean ValidateRegisterData(string id, MinigameComponent gameComponent)
 		-- 빈 ID, nil Component, 중복 ID를 검사한다.
 		if id == "" then
@@ -42,7 +42,7 @@ script MinigameRegistry extends Component
 		
 		return true
 	end
-	
+
 	method MinigameData GetMinigameData(string id)
 		-- ID를 Key로 MinigameData를 직접 조회한다.
 		local gameData = self.MinigameDatas[id]
@@ -53,7 +53,7 @@ script MinigameRegistry extends Component
 		
 		return gameData
 	end
-	
+
 	method MinigameComponent GetMinigameComponent(string id)
 		-- ID에 해당하는 MinigameData에서 실제 게임 Component를 반환한다.
 		local gameData = self:GetMinigameData(id)
@@ -64,5 +64,5 @@ script MinigameRegistry extends Component
 		
 		return gameData.GameComponent
 	end
-	
+
 end

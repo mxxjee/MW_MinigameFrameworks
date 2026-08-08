@@ -4,7 +4,7 @@
 >
 > **유지보수 규칙:** 프로젝트 코드를 생성·수정·삭제할 때는 같은 작업에서 이 문서도 반드시 함께 갱신한다. 코드와 문서가 다르면 실제 코드를 기준으로 문서를 바로잡는다.
 
-- 마지막 갱신일: 2026-08-07
+- 마지막 갱신일: 2026-08-08
 - 현재 활성 요약 대상: `RootDesk/MyDesk/_GameLogic.mlua`, `RootDesk/MyDesk/Minigame/MinigameComponent.mlua`, `RootDesk/MyDesk/Minigame/MinigameData.mlua`, `RootDesk/MyDesk/Minigame/MinigameRegistry.mlua`
 - 이전 경로: `RootDesk/MyDesk/Minigame/_GameLogic.mlua` (삭제 상태)
 - 현재 구현 단계: 미니게임 최상위 공통 상태, 기반 인터페이스, 등록 데이터와 중앙 Registry 정의
@@ -13,7 +13,7 @@
 
 | 파일 | 타입 | 현재 상태 | 역할 |
 |---|---|---|---|
-| `RootDesk/MyDesk/_GameLogic.mlua` | `@Logic` | 존재, Git ignore 대상 | 선택된 미니게임, 플레이 모드, 로컬 점수, 제한시간, 플레이어 및 랭킹 정보를 관리하는 전역 Logic |
+| `RootDesk/MyDesk/_GameLogic.mlua` | `@Logic` | 존재, Git 추적 중 | 선택된 미니게임, 플레이 모드, 로컬 점수, 제한시간, 플레이어 및 랭킹 정보를 관리하는 전역 Logic |
 | `RootDesk/MyDesk/Minigame/MinigameComponent.mlua` | `@Component` | 존재, 구현 전 | 개별 미니게임이 공통으로 사용할 초기화·갱신·해제 인터페이스를 정의하는 기반 Component |
 | `RootDesk/MyDesk/Minigame/MinigameData.mlua` | `@Struct` | 신규 추가 | 미니게임 이름·ID와 해당 `MinigameComponent` 참조를 한 단위로 보관하는 데이터 구조 |
 | `RootDesk/MyDesk/Minigame/MinigameRegistry.mlua` | `@Component` | 신규 구현, 엔티티 부착 필요 | 에디터 Component 참조를 받아 ID별 `MinigameData`를 중앙 등록하고 조회하는 Registry Component |
@@ -248,7 +248,7 @@ _GameLogic
 - `MinigameRegistry`의 등록·검증·조회 기능은 구현되었지만, 구체적인 게임이 없어 `OnBeginPlay()`의 실제 등록 목록은 비어 있다.
 - 향후 `_MinigameManager`가 엔티티에 부착된 `MinigameRegistry` Component 참조를 통해 선택된 `MinigameComponent`를 조회하고 `Initialize()`, `Update()`, `Release()`를 호출한다.
 - `_MinigameManager` 및 구체적인 미니게임과의 실제 연결은 아직 구현되지 않았다.
-- `_GameLogic`은 새 경로에서 다시 활성화되었지만 현재 Git ignore 대상이므로 버전 관리 포함 여부를 별도로 확인해야 한다.
+- `_GameLogic`은 새 경로에서 활성화되어 있으며 현재 Git에서 정상 추적 중이다.
 
 ## 8. 현재 불변 조건 및 주의사항
 
@@ -271,7 +271,7 @@ _GameLogic
 - `MinigameRegistry`는 `@Component`이므로 전역 `_MinigameRegistry` singleton으로 접근하지 않는다.
 - Registry를 사용하려면 대상 엔티티에 Component를 부착하고, 향후 Manager에 해당 Component 참조를 연결해야 한다.
 - `_GameLogic.mlua`의 활성 경로는 `RootDesk/MyDesk/_GameLogic.mlua`다.
-- 이전 `RootDesk/MyDesk/Minigame/_GameLogic.mlua`는 삭제 상태이며, 새 경로의 파일은 현재 Git ignore 대상이다.
+- 이전 `RootDesk/MyDesk/Minigame/_GameLogic.mlua`는 삭제 상태이며, 새 경로의 파일은 현재 Git에서 정상 추적 중이다.
 
 ## 9. 코드 변경 시 문서 동기화 체크리스트
 
