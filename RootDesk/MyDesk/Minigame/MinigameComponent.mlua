@@ -1,7 +1,7 @@
 @Component
 script MinigameComponent extends Component
 
-	method void Initialize(table gameData)
+	method void Initialize(MinigameData gameData)
 		
 	end
 
