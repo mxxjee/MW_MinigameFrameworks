@@ -42,3 +42,10 @@ luac.out
 # Non-source files used in MSW
 *.scriptfile
 *.userdataset
+
+# AI
+*.codex
+*.claude
+
+# VSCode
+.mswai/

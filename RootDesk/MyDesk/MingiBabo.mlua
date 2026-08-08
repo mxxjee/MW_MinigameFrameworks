@@ -1,0 +1,7 @@
+@Component
+script MingiBabo extends Component
+
+	@Sync
+	property string str = "민지바보 멍청이 똥개"
+
+end
