@@ -10,16 +10,16 @@ script MinigameManager extends Logic
 	@ExecSpace("ClientOnly")
 	method boolean StartGame(string gameId)
 		-- 등록된 미니게임을 조회해 로컬 실행 상태를 시작한다.
-
+		
 		---@type MinigameData
 		local gameData = _MinigameRegistry:GetMinigameData(gameId)
 		if gameData == nil then log_warning("[_MinigameManager] 등록되지 않은 미니게임 ID입니다: " .. gameId)return false end
-
+		
 		--self.CurrentGame = gameData.
 		self.CurrentTime = 0
 		self.IsPlaying = true
 		self.CurrentGame:Initialize(gameData)
-
+		
 		return true
 	end
 
@@ -29,11 +29,11 @@ script MinigameManager extends Logic
 		if self.IsPlaying == false then
 			return
 		end
-
+		
 		if self.CurrentGame == nil then
 			return
 		end
-
+		
 		self.CurrentTime = self.CurrentTime + deltaTime
 		self.CurrentGame:Update(deltaTime)
 	end
@@ -44,7 +44,7 @@ script MinigameManager extends Logic
 		if self.CurrentGame ~= nil then
 			self.CurrentGame:Release()
 		end
-
+		
 		self.CurrentGame = nil
 		self.CurrentTime = 0
 		self.IsPlaying = false

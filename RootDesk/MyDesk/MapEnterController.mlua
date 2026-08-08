@@ -7,7 +7,7 @@ script MapEnterController extends Component
 			self.Entity.SelectSceneControllerComponent:Initialize()
 			_GameHelper:EnableUIGroup("/ui/SelectGroup", true)
 		end
-
+		
 	end
 
 end

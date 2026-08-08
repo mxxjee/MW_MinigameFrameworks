@@ -11,8 +11,8 @@ script MinigameData
 		self.Name = _name
 		self.ID = _id
 		self.MapName = _mapName
-
-
+		
+		
 	end
 
 end

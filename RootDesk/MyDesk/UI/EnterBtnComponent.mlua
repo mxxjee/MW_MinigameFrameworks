@@ -9,27 +9,27 @@ script EnterBtnComponent extends Component
 		-- Sender: ButtonComponent
 		-- Space: Client
 		---------------------------------------------------------
-
+		
 		-- Parameters
 		-- local Entity = event.Entity
 		---------------------------------------------------------
 		if self.Mode==_GameEnum.PlayMode.SINGLE then
 		_GameLogic:SetPlayMode(self.Mode)
-
+		
 		local player = _UserService.LocalPlayer
 		_TeleportService:TeleportToMapPosition(
 		    player,
 		    Vector3(0, 0, 0),
 		    "SelectScene"
 		)
-
+		
 		else
 			--서버와 매칭연결시도..
 		end
-
+		
 		_GameHelper:EnableUIGroup("/ui/LobbyGroup",false)
 		_GameHelper:EnableUIGroup("/ui/SelectButtonGroup",false)
-
+		
 	end
 
 end

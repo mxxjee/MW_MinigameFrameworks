@@ -15,14 +15,14 @@ script MinigameRegistry extends Logic
 	method boolean RegisterMinigame(string name, string id, string _mapName)
 		-- 검증 용
 		if self:ValidateRegisterData(id) == false then return false end
-
+		
 		-- 검증 후 ) 데이터를 만들어 id값으로 데이터를 저장한다.
-
+		
 		---@type MinigameData
 		local gameData = MinigameData()
 		gameData:InitData(name, id, _mapName)
 		self.MinigameDatas[id] = gameData
-
+		
 		return true
 	end
 
@@ -30,17 +30,17 @@ script MinigameRegistry extends Logic
 		-- 빈 ID, nil Component, 중복 ID를 검사한다.
 		if id == "" then log_warning("[MinigameRegistry] ID가 비어있습니다.")return false end
 		if self.MinigameDatas[id] ~= nil then log_warning("[MinigameRegistry] 이미 등록된 ID입니다. ID: " .. id)return false end
-
-
+		
+		
 		return true
 	end
 
 	method MinigameData GetMinigameData(string id)
 		-- ID를 Key로 MinigameData를 직접 조회한다.
 		local gameData = self.MinigameDatas[id]
-
+		
 		if gameData == nil then return nil end
-
+		
 		return gameData
 	end
 
