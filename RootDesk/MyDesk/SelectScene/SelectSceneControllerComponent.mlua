@@ -1,42 +1,41 @@
 @Component
 script SelectSceneControllerComponent extends Component
-	
+
 	property Entity GameListEntity = nil
-	
+
 	property Entity BtnOK = nil
-	
+
 	property Entity BtnCancel = nil
-	
+
 	property TextComponent PopupMessage = nil
-	
+
 	@HideFromInspector
 	property string SelectWidgetModelId = "model://b9a29910-7633-405a-b5c4-1d7a4c7df643"
-	
+
 	@HideFromInspector
 	property number SlotSpacing = 300
-	
+
 	property integer CurrentIndex = 1
-	
+
 	property integer MaxIndex = 0
-	
+
 	property Vector2 TargetPosition = Vector2(0, 0)
-	
+
 	@HideFromInspector
 	property table GameList = {}
-	
+
 	@HideFromInspector
 	property table WidgetList = {}
-	
+
 	@HideFromInspector
 	property boolean IsMoving = false
-	
+
 	property number MoveSpeed = 30
-	
+
 	property Entity DescUI = "4a999140-707a-43f8-b2fa-683c3f898c1c"
-	
-	---@description "선택 팝업이 표시되어있는지 여부"
+
 	property boolean bShowPopup = false
-	
+
 	@ExecSpace("ClientOnly")
 	method void Initialize()
 		
@@ -59,7 +58,7 @@ script SelectSceneControllerComponent extends Component
 		self:SetDescription()
 		
 	end
-	
+
 	@ExecSpace("ClientOnly")
 	method void Refresh_Slots()
 		--슬롯 생성--
@@ -103,7 +102,7 @@ script SelectSceneControllerComponent extends Component
 		
 		self.MaxIndex = #self.GameList
 	end
-	
+
 	method void MoveToCurrentIdx()
 		-- 현재 선택된 슬롯이 항상 화면 중앙 x = 0에 오도록
 		-- 부모 GameList를 반대 방향으로 이동시킨다.
@@ -112,7 +111,7 @@ script SelectSceneControllerComponent extends Component
 		self.TargetPosition = Vector2(targetX, self.GameListEntity.UITransformComponent.anchoredPosition.y)
 		self.IsMoving = true
 	end
-	
+
 	@ExecSpace("ClientOnly")
 	method void OnUpdate(number delta)
 		if self.IsMoving == false then return end
@@ -133,21 +132,21 @@ script SelectSceneControllerComponent extends Component
 			
 		end
 	end
-	
+
 	method void OnReach()
 		local uiTransform = self.GameListEntity.UITransformComponent
 		uiTransform.anchoredPosition = self.TargetPosition
 		self.IsMoving = false
 		self:SetDescription()
 	end
-	
+
 	method void SetDescription()
 		
 		local gameId = self.GameList[self.CurrentIndex]
 		local TextComp = self.DescUI:GetChildByName("Text").TextComponent
 		TextComp.Text = _MinigameRegistry:GetMinigameData(gameId).Description
 	end
-	
+
 	method void OnSelect()
 		local gameId = self.GameList[self.CurrentIndex]
 		_GameLogic:SelectMinigame(gameId)
@@ -155,11 +154,12 @@ script SelectSceneControllerComponent extends Component
 		_GameHelper:EnableUIGroup("/ui/SelectGroup", false)
 		
 	end
-	
+
 	method void OnCancel()
 		_GameHelper:EnableUIGroup("/ui/PopupGroup", false)
+		self.bShowPopup=false
 	end
-	
+
 	@EventSender("Service", "InputService")
 	handler HandleKeyDownEvent(KeyDownEvent event)
 		--------------- Native Event Sender Info ----------------
@@ -173,10 +173,10 @@ script SelectSceneControllerComponent extends Component
 		---------------------------------------------------------
 		local key = event.key
 		
-		
+		-- 왼쪽,오른쪽 키 둘다 팝업이 켜져있는 경우에는 키가 안눌리도록 설정한다--
 		-- 왼쪽
 		if key == KeyboardKey.LeftArrow then
-			
+			if(self.bShowPopup) then return end
 			if self.CurrentIndex <= 1 then return end
 			
 			self.CurrentIndex = self.CurrentIndex - 1
@@ -185,7 +185,7 @@ script SelectSceneControllerComponent extends Component
 			
 			-- 오른쪽
 		elseif key == KeyboardKey.RightArrow then
-			
+			if(self.bShowPopup) then return end
 			if self.CurrentIndex >= self.MaxIndex then return end
 			
 			self.CurrentIndex = self.CurrentIndex + 1
@@ -194,11 +194,12 @@ script SelectSceneControllerComponent extends Component
 			
 			-- 선택
 		elseif key == KeyboardKey.Space then
+			self.bShowPopup=true
 			_GameHelper:EnableUIGroup("/ui/PopupGroup", true)
 			local gameId = self.GameList[self.CurrentIndex]
 			self.PopupMessage.Text = "[" .. _MinigameRegistry:GetMinigameData(gameId).Name .. "]게임으로\n이동하시겠습니까?"
 			
 		end
 	end
-	
+
 end
