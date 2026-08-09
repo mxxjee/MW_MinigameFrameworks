@@ -7,11 +7,13 @@ script MinigameData
 
 	property string MapName = ""
 
-	method void InitData(string _name, string _id, string _mapName)
+	property string Description = ""
+
+	method void InitData(string _name, string _id, string _mapName, string Desc)
 		self.Name = _name
 		self.ID = _id
 		self.MapName = _mapName
-		
+		self.Description=Desc
 		
 	end
 
