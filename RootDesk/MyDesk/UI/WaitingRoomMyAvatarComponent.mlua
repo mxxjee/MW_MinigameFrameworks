@@ -1,0 +1,77 @@
+@Component
+script WaitingRoomMyAvatarComponent extends Component
+
+	property boolean IsApplied = false
+
+	property boolean IsNicknameApplied = false
+
+	@ExecSpace("ClientOnly")
+	method void TryApplyLocalAvatar()
+		if self.IsApplied == true then
+			return
+		end
+		
+		local localPlayer = _UserService.LocalPlayer
+		if isvalid(localPlayer) == false then
+			return
+		end
+		
+		local costumeComponent = self.Entity.CostumeManagerComponent
+		if isvalid(costumeComponent) == false then
+			return
+		end
+		
+		local userId = localPlayer.PlayerComponent.UserId
+		if userId == nil or userId == "" then
+			return
+		end
+		
+		costumeComponent.UseCustomEquipOnly = false
+		costumeComponent.DefaultEquipUserId = userId
+		self.IsApplied = true
+	end
+
+	@ExecSpace("ClientOnly")
+	method void TryApplyLocalNickname()
+		if self.IsNicknameApplied == true then
+			return
+		end
+
+		local localPlayer = _UserService.LocalPlayer
+		if isvalid(localPlayer) == false then
+			return
+		end
+
+		local nickname = localPlayer.PlayerComponent.Nickname
+		if nickname == nil or nickname == "" then
+			return
+		end
+
+		local labelEntity = _EntityService:GetEntityByPath("/ui/WaitingRoomGroup/LeftPanel/MyLabel")
+		if isvalid(labelEntity) == false then
+			return
+		end
+
+		local textRenderer = labelEntity.TextGUIRendererComponent
+		if isvalid(textRenderer) == false then
+			return
+		end
+
+		textRenderer.Text = nickname
+		self.IsNicknameApplied = true
+		log("[WaitingRoomMyAvatarComponent] 대기실 플레이어 이름 표시: " .. nickname)
+	end
+
+	@ExecSpace("ClientOnly")
+	method void OnBeginPlay()
+		self:TryApplyLocalAvatar()
+		self:TryApplyLocalNickname()
+	end
+
+	@ExecSpace("ClientOnly")
+	method void OnUpdate(number delta)
+		self:TryApplyLocalAvatar()
+		self:TryApplyLocalNickname()
+	end
+
+end

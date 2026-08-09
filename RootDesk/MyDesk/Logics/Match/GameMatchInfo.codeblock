@@ -1,14 +1,14 @@
 {
   "Id": "",
   "GameId": "",
-  "EntryKey": "codeblock://bcf3ce89-363b-406e-a809-27b93a6b40cb",
+  "EntryKey": "codeblock://f9fa9f1b-8ca3-41e2-a276-367d5327fc08",
   "ContentType": "x-mod/codeblock",
   "Content": "",
   "Usage": 0,
   "UsePublish": 1,
   "UseService": 0,
   "CoreVersion": "26.7.0.0",
-  "StudioVersion": "0.1.0.0",
+  "StudioVersion": "",
   "DynamicLoading": 0,
   "ContentProto": {
     "Use": "Json",
@@ -22,10 +22,10 @@
         "Minor": 1
       },
       "Description": "",
-      "Id": "bcf3ce89-363b-406e-a809-27b93a6b40cb",
+      "Id": "f9fa9f1b-8ca3-41e2-a276-367d5327fc08",
       "Language": 1,
-      "Name": "MingiBabo",
-      "Type": 1,
+      "Name": "GameMatchInfo",
+      "Type": 9,
       "Source": 0,
       "Target": null
     }

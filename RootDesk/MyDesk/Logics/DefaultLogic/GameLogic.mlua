@@ -1,114 +1,15 @@
 @Logic
 script GameLogic extends Logic
 
-	property string CurrentGameId = ""
-
 	property integer PlayMode = 0
 
-	property number CurrentScore = 0
-
-	property number CurrentMaxTime = 60
-
-	property integer MyPlayerId = 0
-
-	property string OpponentPlayerId = ""
-
-	property table MyRankingData = {}
-
-	method boolean SelectMinigame(string gameId)
-		-- 현재 플레이할 미니게임 ID를 선택한다.
-		if gameId == "" then log_warning("[_GameLogic] 미니게임 ID가 비어 있어 선택할 수 없습니다.") return false
-		end
-		
-		-- 선택한 미니게임 씬으로 이동한다--
-		self.CurrentGameId = gameId
-		
-		---@type MinigameData
-		local GameData=_MinigameRegistry:GetMinigameData(gameId)
-		local player = _UserService.LocalPlayer
-		_TeleportService:TeleportToMapPosition( player, Vector3(0, 0, 0), GameData.MapName)
-		return true
-		
-	end
-
 	method void SetPlayMode(integer playMode)
-		-- 허용된 SINGLE 또는 MULTI 플레이 모드로 변경한다.
-		if playMode ~= _GameEnum.PlayMode.SINGLE and playMode ~= _GameEnum.PlayMode.MULTI then log_warning("[_GameLogic] 지원하지 않는 플레이 모드입니다: " .. playMode) return
+		if playMode ~= _GameEnum.PlayMode.SINGLE and playMode ~= _GameEnum.PlayMode.MULTI then
+			log_warning("[_GameLogic] 지원하지 않는 플레이 모드입니다: " .. playMode)
+			return
 		end
 		
 		self.PlayMode = playMode
-		
-		
-	end
-
-	method void SetCurrentScore(number score)
-		-- 현재 점수를 전달받은 값으로 설정한다.
-		self.CurrentScore = score
-	end
-
-	method void AddScore(number score)
-		-- 현재 점수에 전달받은 점수를 더한다.
-		self.CurrentScore = self.CurrentScore + score
-	end
-
-	method void ResetScore()
-		-- 현재 점수를 0으로 초기화한다.
-		self.CurrentScore = 0
-	end
-
-	method void SetCurrentMaxTime(number maxTime)
-		-- 현재 미니게임의 최대 제한시간을 변경한다.
-		if maxTime <= 0 then
-			log_warning("[_GameLogic] 최대 제한시간은 0보다 커야 합니다.")
-			return
-		end
-		
-		self.CurrentMaxTime = maxTime
-	end
-
-	method void SetOpponentPlayer(string playerId)
-		-- 멀티플레이 상대 플레이어의 ID를 설정한다.
-		if playerId == "" then
-			log_warning("[_GameLogic] 상대 플레이어 ID가 비어 있어 설정할 수 없습니다.")
-			return
-		end
-		
-		self.OpponentPlayerId = playerId
-	end
-
-	method void ClearOpponentPlayer()
-		-- 저장된 상대 플레이어 ID를 비운다.
-		self.OpponentPlayerId = ""
-	end
-
-	@ExecSpace("Client")
-	method void StartMinigame(string gameId)
-		-- 현재 선택된 미니게임의 시작을 로컬 실행 매니저에 요청한다.
-		---@type boolean
-		local bResult = self:SelectMinigame(gameId)
-		if bResult == false then
-			return
-		end
-		
-		_MinigameManager:StartGame(self.CurrentGameId)
-	end
-
-	method void EndMinigame()
-		-- 현재 미니게임의 종료 처리를 로컬 실행 매니저에 위임한다.
-		_MinigameManager:EndGame()
-	end
-
-	@ExecSpace("ClientOnly")
-	method void OnUpdate(number delta)
-		-- 로컬 미니게임을 갱신하고 제한 시간에 도달하면 종료한다.
-		_MinigameManager:Update(delta)
-		if _MinigameManager.IsPlaying == false then
-			return
-		end
-		
-		if _MinigameManager.CurrentTime >= self.CurrentMaxTime then
-			self:EndMinigame()
-		end
 	end
 
 end

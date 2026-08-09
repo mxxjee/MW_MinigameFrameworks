@@ -14,10 +14,10 @@
 ```text
 RootDesk/MyDesk/
 ├─ Logics/
-│  ├─ GameLogic.mlua
 │  ├─ DefaultLogic/
 │  │  ├─ GameEnum.mlua
-│  │  └─ GameHelper.mlua
+│  │  ├─ GameHelper.mlua
+│  │  └─ GameLogic.mlua
 │  └─ MinigameLogic/
 │     ├─ MinigameManager.mlua
 │     └─ MinigameRegistry.mlua
@@ -29,7 +29,7 @@ RootDesk/MyDesk/
 ├─ MapEnterController.mlua
 ├─ SelectSceneControllerComponent.mlua
 ├─ SelectWidgetUIComponent.mlua
-└─ Default/
+└─ ETC/
    ├─ Monster.mlua
    ├─ PlayerAttack.mlua
    ├─ PlayerHit.mlua
@@ -46,13 +46,13 @@ RootDesk/MyDesk/
 | `RootDesk/MyDesk/Minigame/MinigameManager.mlua` | `RootDesk/MyDesk/Logics/MinigameLogic/MinigameManager.mlua` |
 | `RootDesk/MyDesk/Minigame/MinigameRegistry.mlua` | `RootDesk/MyDesk/Logics/MinigameLogic/MinigameRegistry.mlua` |
 
-`GameLogic`은 `RootDesk/MyDesk/Logics/GameLogic.mlua`에 유지된다. `MinigameComponent`와 `MinigameData`는 `RootDesk/MyDesk/Minigame/`에 유지된다.
+`GameLogic`은 현재 `RootDesk/MyDesk/Logics/DefaultLogic/GameLogic.mlua`에 있다. `MinigameComponent`와 `MinigameData`는 `RootDesk/MyDesk/Minigame/`에 유지된다.
 
 ## 2. 클래스 현황
 
 | 파일 | 선언 | 전역 접근자 또는 사용 형태 | 책임 |
 |---|---|---|---|
-| `Logics/GameLogic.mlua` | `@Logic script GameLogic` | `_GameLogic` | 플레이 모드·점수·제한시간·선택 게임 상태와 시작/종료 진입점 |
+| `Logics/DefaultLogic/GameLogic.mlua` | `@Logic script GameLogic` | `_GameLogic` | 플레이 모드·점수·제한시간·선택 게임 상태와 시작/종료 진입점 |
 | `Logics/DefaultLogic/GameEnum.mlua` | `@Logic script GameEnum` | `_GameEnum` | 플레이 모드 enum 테이블 초기화 |
 | `Logics/DefaultLogic/GameHelper.mlua` | `@Logic script GameHelper` | `_GameHelper` | 경로로 UI Group을 찾아 활성화/비활성화 |
 | `Logics/MinigameLogic/MinigameRegistry.mlua` | `@Logic script MinigameRegistry` | `_MinigameRegistry` | 미니게임 이름·ID·맵 경로의 전역 등록 및 조회 |
@@ -268,17 +268,17 @@ _GameLogic:StartMinigame(gameId)
 
 마지막 `CurrentGame` 선택·할당 단계는 현재 구현되지 않았다.
 
-## 7. Default 지원 코드
+## 7. ETC 지원 코드
 
 | 파일 | 역할 |
 |---|---|
-| `Default/Monster.mlua` | 동기화 HP, 피격, 사망, 숨김/삭제, 선택적 Respawn |
-| `Default/PlayerAttack.mlua` | BoxShape 기반 일반 공격, 고정 피해·치명타 계산 |
-| `Default/PlayerHit.mlua` | 피격 면역 쿨다운 판정 |
-| `Default/UIPopup.mlua` | 확인/취소 Callback과 Tween 기반 Popup 표시 |
-| `Default/UIToast.mlua` | 시간·Alpha Tween 기반 Toast 표시 |
+| `ETC/Monster.mlua` | 동기화 HP, 피격, 사망, 숨김/삭제, 선택적 Respawn |
+| `ETC/PlayerAttack.mlua` | BoxShape 기반 일반 공격, 고정 피해·치명타 계산 |
+| `ETC/PlayerHit.mlua` | 피격 면역 쿨다운 판정 |
+| `ETC/UIPopup.mlua` | 확인/취소 Callback과 Tween 기반 Popup 표시 |
+| `ETC/UIToast.mlua` | 시간·Alpha Tween 기반 Toast 표시 |
 
-이 파일들은 현재 경로 이동 대상이 아니며 `RootDesk/MyDesk/Default/`에 유지된다.
+이 파일들은 현재 `RootDesk/MyDesk/ETC/`에 유지된다. 예전 `Default/` 기준 문서가 남아 있으면 현재 구조에 맞춰 `ETC/` 기준으로 해석해야 한다.
 
 ## 8. 현재 구현 상태와 남은 연결
 

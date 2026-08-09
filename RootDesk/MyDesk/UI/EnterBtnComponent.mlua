@@ -3,6 +3,8 @@ script EnterBtnComponent extends Component
 
 	property integer Mode = 0
 
+	property boolean IsWaitingRequestSent = false
+
 	@EventSender("Self")
 	handler HandleButtonClickEvent(ButtonClickEvent event)
 		--------------- Native Event Sender Info ----------------
@@ -10,26 +12,53 @@ script EnterBtnComponent extends Component
 		-- Space: Client
 		---------------------------------------------------------
 		
-		-- Parameters
-		-- local Entity = event.Entity
-		---------------------------------------------------------
-		if self.Mode==_GameEnum.PlayMode.SINGLE then
-		_GameLogic:SetPlayMode(self.Mode)
-		
-		local player = _UserService.LocalPlayer
-		_TeleportService:TeleportToMapPosition(
-		    player,
-		    Vector3(0, 0, 0),
-		    "SelectScene"
-		)
-		
-		else
-			--서버와 매칭연결시도..
+		if _UserService.LocalPlayer.CurrentMapName == "WaitingRoomScene" then
+			if self.IsWaitingRequestSent == true then
+				return
+			end
+
+			local userId = _UserService.LocalPlayer.PlayerComponent.UserId
+			if userId == nil or userId == "" then
+				log_warning("[EnterBtnComponent] 대기열 등록에 필요한 UserId가 없습니다.")
+				return
+			end
+
+			_GameMatchLogic:RegisterWaitingPlayerOnServer(userId)
+			self.IsWaitingRequestSent = true
+
+			local statusEntity = _EntityService:GetEntityByPath("/ui/WaitingRoomGroup/RightPanel/StatusText")
+			if isvalid(statusEntity) == true then
+				local textComponent = statusEntity.TextGUIRendererComponent
+				if isvalid(textComponent) == true then
+					textComponent.Text = "매칭 중..."
+				end
+			end
+			log("[EnterBtnComponent] 매칭 대기열 등록 요청: " .. userId)
+			self.Entity.Enable = false
+			return
 		end
 		
-		_GameHelper:EnableUIGroup("/ui/LobbyGroup",false)
-		_GameHelper:EnableUIGroup("/ui/SelectButtonGroup",false)
+		if self.Mode == _GameEnum.PlayMode.SINGLE then
+			_GameLogic:SetPlayMode(self.Mode)
+			
+			local player = _UserService.LocalPlayer
+			_TeleportService:TeleportToMapPosition(
+				player,
+				Vector3(0, 0, 0),
+				"SelectScene"
+			)
+		else
+			_GameLogic:SetPlayMode(self.Mode)
+			
+			_TeleportService:TeleportToMapPosition(
+				_UserService.LocalPlayer,
+				Vector3(0, 0, 0),
+				"WaitingRoomScene"
+			)
+		end
 		
+		_GameHelper:EnableUIGroup("/ui/LobbyGroup", false)
+		_GameHelper:EnableUIGroup("/ui/SelectButtonGroup", false)
 	end
 
 end

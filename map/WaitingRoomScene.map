@@ -1,7 +1,7 @@
 {
   "Id": "",
   "GameId": "",
-  "EntryKey": "map://buttongamescene",
+  "EntryKey": "map://waitingroomscene",
   "ContentType": "x-mod/map",
   "Content": "",
   "Usage": 0,
@@ -14,13 +14,13 @@
     "Use": "Binary",
     "Entities": [
       {
-        "id": "b7fe359f-be79-4292-bfee-c150a14062f1",
-        "path": "/maps/ButtonGameScene",
+        "id": "1bf9d3f5-6d93-4bf7-8c93-0f5c38ec67a1",
+        "path": "/maps/WaitingRoomScene",
         "componentNames": "MOD.Core.MapComponent,MOD.Core.FootholdComponent",
         "jsonString": {
-          "name": "ButtonGameScene",
-          "path": "/maps/ButtonGameScene",
-          "nameEditable": false,
+          "name": "WaitingRoomScene",
+          "path": "/maps/WaitingRoomScene",
+          "nameEditable": true,
           "enable": true,
           "visible": true,
           "localize": false,
@@ -45,12 +45,12 @@
         }
       },
       {
-        "id": "db9cab02-9fad-43f3-8095-c5344d577185",
-        "path": "/maps/ButtonGameScene/Background",
+        "id": "4a6a6d40-6906-4d56-bd0b-6398361eef16",
+        "path": "/maps/WaitingRoomScene/Background",
         "componentNames": "MOD.Core.BackgroundComponent",
         "jsonString": {
           "name": "Background",
-          "path": "/maps/ButtonGameScene/Background",
+          "path": "/maps/WaitingRoomScene/Background",
           "nameEditable": false,
           "enable": true,
           "visible": true,
@@ -71,12 +71,12 @@
         }
       },
       {
-        "id": "6a444967-86a2-4637-a131-86119d74f24b",
-        "path": "/maps/ButtonGameScene/MapleMapLayer",
+        "id": "3bb1af7e-fb26-42f9-a0c9-cd3f0fa814fd",
+        "path": "/maps/WaitingRoomScene/MapleMapLayer",
         "componentNames": "MOD.Core.MapLayerComponent",
         "jsonString": {
           "name": "MapleMapLayer",
-          "path": "/maps/ButtonGameScene/MapleMapLayer",
+          "path": "/maps/WaitingRoomScene/MapleMapLayer",
           "nameEditable": false,
           "enable": true,
           "visible": true,
@@ -107,12 +107,12 @@
         }
       },
       {
-        "id": "947d7727-e25a-49fb-b6d0-7c22eff138df",
-        "path": "/maps/ButtonGameScene/TileMap",
+        "id": "4c4f9c9c-5e79-4ee7-bd42-b2e2828d29f8",
+        "path": "/maps/WaitingRoomScene/TileMap",
         "componentNames": "MOD.Core.TransformComponent,MOD.Core.TileMapComponent",
         "jsonString": {
           "name": "TileMap",
-          "path": "/maps/ButtonGameScene/TileMap",
+          "path": "/maps/WaitingRoomScene/TileMap",
           "nameEditable": false,
           "enable": true,
           "visible": true,
@@ -159,6 +159,58 @@
                 "DataId": "9dfea3808bbd49a5877d8624df21b1c7"
               },
               "Tiles": [],
+              "Enable": true
+            }
+          ],
+          "@version": 1
+        }
+      },
+      {
+        "id": "dd1451c8-a70d-487c-8713-f81e6926b325",
+        "path": "/maps/WaitingRoomScene/WaitingRoomSceneController",
+        "componentNames": "MOD.Core.TransformComponent,script.MapEnterController",
+        "jsonString": {
+          "name": "WaitingRoomSceneController",
+          "path": "/maps/WaitingRoomScene/WaitingRoomSceneController",
+          "nameEditable": true,
+          "enable": true,
+          "visible": true,
+          "localize": false,
+          "displayOrder": 3,
+          "pathConstraints": "///",
+          "revision": 1,
+          "origin": {
+            "type": "Model",
+            "entry_id": "mapempty",
+            "sub_entity_id": null,
+            "root_entity_id": "dd1451c8-a70d-487c-8713-f81e6926b325",
+            "replaced_model_id": null
+          },
+          "modelId": "mapempty",
+          "@components": [
+            {
+              "@type": "MOD.Core.TransformComponent",
+              "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 999.999
+              },
+              "QuaternionRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "ZRotation": 0.0,
+              "Enable": true
+            },
+            {
+              "@type": "script.MapEnterController",
               "Enable": true
             }
           ],
