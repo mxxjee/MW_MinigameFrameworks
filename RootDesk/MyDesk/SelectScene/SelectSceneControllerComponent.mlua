@@ -1,34 +1,43 @@
 @Component
 script SelectSceneControllerComponent extends Component
-
+	
 	property Entity GameListEntity = nil
-
+	property Entity BtnOK = nil
+	property Entity BtnCancel = nil
+	
 	property string SelectWidgetModelId = "model://b9a29910-7633-405a-b5c4-1d7a4c7df643"
-
+	
+	@HideFromInspector
 	property number SlotSpacing = 300
-
+	
 	property integer CurrentIndex = 1
-
+	
 	property integer MaxIndex = 0
-
+	
 	property Vector2 TargetPosition = Vector2(0, 0)
-
+	
+	@HideFromInspector
 	property table GameList = {}
-
+	
+	@HideFromInspector
 	property table WidgetList = {}
-
+	
+	@HideFromInspector
 	property boolean IsMoving = false
-
+	
 	property number MoveSpeed = 30
-
+	
 	property Entity DescUI = "4a999140-707a-43f8-b2fa-683c3f898c1c"
-
+	
 	@ExecSpace("ClientOnly")
 	method void Initialize()
 		
+		--버튼 이벤트 연결--
+		self.BtnOK:ConnectEvent(ButtonClickEvent, self.OnSelect)
+		self.BtnCancel:ConnectEvent(ButtonClickEvent, self.OnCancel)
+		
 		-- 슬롯 부모를 저장한다.
 		self.GameListEntity = _EntityService:GetEntityByPath("/ui/SelectGroup/GameList")
-		
 		if isvalid(self.GameListEntity) == false then return end
 		
 		-- 초기값 설정 --
@@ -38,9 +47,11 @@ script SelectSceneControllerComponent extends Component
 		
 		--저장된 데이터를 통해 슬롯을 생성한다--
 		self:Refresh_Slots()
+		-- 설명 ui 갱신--
+		self:SetDescription()
 		
 	end
-
+	
 	@ExecSpace("ClientOnly")
 	method void Refresh_Slots()
 		--슬롯 생성--
@@ -61,7 +72,7 @@ script SelectSceneControllerComponent extends Component
 			table.insert(self.GameList, gameId)
 			
 			-- 0, 300, 600, 900 ... 가로 배치
-			local pos = Vector2(index * self.SlotSpacing, 0)
+			local pos = Vector2((index - 1) * self.SlotSpacing, 0)
 			
 			local widgetEntity = _SpawnService:SpawnByModelId(
 				self.SelectWidgetModelId, "SelectWidget_" .. gameId, Vector3.zero, slotParent
@@ -84,7 +95,7 @@ script SelectSceneControllerComponent extends Component
 		
 		self.MaxIndex = #self.GameList
 	end
-
+	
 	method void MoveToCurrentIdx()
 		-- 현재 선택된 슬롯이 항상 화면 중앙 x = 0에 오도록
 		-- 부모 GameList를 반대 방향으로 이동시킨다.
@@ -93,7 +104,7 @@ script SelectSceneControllerComponent extends Component
 		self.TargetPosition = Vector2(targetX, self.GameListEntity.UITransformComponent.anchoredPosition.y)
 		self.IsMoving = true
 	end
-
+	
 	@ExecSpace("ClientOnly")
 	method void OnUpdate(number delta)
 		if self.IsMoving == false then return end
@@ -114,16 +125,29 @@ script SelectSceneControllerComponent extends Component
 			
 		end
 	end
-
+	
 	method void OnReach()
 		local uiTransform = self.GameListEntity.UITransformComponent
 		uiTransform.anchoredPosition = self.TargetPosition
 		self.IsMoving = false
-		
-		local gameId=self.GameList[self.CurrentIndex]
-		log(gameId)
+		self:SetDescription()
 	end
-
+	
+	method void SetDescription()
+		
+		local gameId = self.GameList[self.CurrentIndex]
+		local TextComp = self.DescUI:GetChildByName("Text").TextComponent
+		TextComp.Text = _MinigameRegistry:GetMinigameData(gameId).Description
+	end
+	
+	method void OnSelect()
+		local gameId = self.GameList[self.CurrentIndex]
+		_GameLogic:SelectMinigame(gameId)
+	end
+	
+	method void OnCancel()
+		_GameHelper:EnableUIGroup("/ui/PopupGroup", false)
+	end
 	@EventSender("Service", "InputService")
 	handler HandleKeyDownEvent(KeyDownEvent event)
 		--------------- Native Event Sender Info ----------------
@@ -155,7 +179,11 @@ script SelectSceneControllerComponent extends Component
 			self.CurrentIndex = self.CurrentIndex + 1
 			
 			self:MoveToCurrentIdx()
+			
+			-- 선택
+		elseif key == KeyboardKey.Space then
+			_GameHelper:EnableUIGroup("/ui/PopupGroup", true)
 		end
 	end
-
+	
 end

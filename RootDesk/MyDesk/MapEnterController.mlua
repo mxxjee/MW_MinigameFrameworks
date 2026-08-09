@@ -3,6 +3,11 @@ script MapEnterController extends Component
 
 	@ExecSpace("ClientOnly")
 	method void OnMapEnter(Entity enteredMap)
+		--Select Scene에서 바로 play해서 테스트하는 경우에 문제가 되므로, 이 코드를 삽입함--
+		if(_MinigameRegistry.bInitailized==false) then
+			_MinigameRegistry:Initialize()
+		end
+		
 		if enteredMap.Name == "SelectScene" then
 			self.Entity.SelectSceneControllerComponent:Initialize()
 			_GameHelper:EnableUIGroup("/ui/SelectGroup", true)

@@ -17,8 +17,7 @@ script GameLogic extends Logic
 
 	method boolean SelectMinigame(string gameId)
 		-- 현재 플레이할 미니게임 ID를 선택한다.
-		if gameId == "" then log_warning("[_GameLogic] 미니게임 ID가 비어 있어 선택할 수 없습니다.") return false
-		end
+		if gameId == "" then log_warning("[_GameLogic] 미니게임 ID가 비어 있어 선택할 수 없습니다.") return false end
 		
 		-- 선택한 미니게임 씬으로 이동한다--
 		self.CurrentGameId = gameId

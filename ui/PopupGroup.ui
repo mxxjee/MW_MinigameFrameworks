@@ -24,7 +24,7 @@
           "enable": true,
           "visible": true,
           "localize": true,
-          "displayOrder": 1,
+          "displayOrder": 4,
           "pathConstraints": "//",
           "revision": 0,
           "origin": {
@@ -103,7 +103,7 @@
             {
               "@type": "MOD.Core.UIGroupComponent",
               "DefaultShow": false,
-              "GroupOrder": 1,
+              "GroupOrder": 4,
               "GroupType": 1,
               "Enable": true
             },
@@ -450,11 +450,11 @@
               "MobileOnly": false,
               "OffsetMax": {
                 "x": 389.999969,
-                "y": 216.440643
+                "y": 203.14
               },
               "OffsetMin": {
                 "x": -390.000031,
-                "y": -43.5593567
+                "y": -56.86
               },
               "Pivot": {
                 "x": 0.5,
@@ -473,7 +473,7 @@
               "UIVersion": 2,
               "anchoredPosition": {
                 "x": -2.11927636E-05,
-                "y": 86.44064
+                "y": 73.14
               },
               "Rotation": {
                 "x": 0.0,
@@ -482,7 +482,7 @@
               },
               "Position": {
                 "x": -2.11927636E-05,
-                "y": 86.44064,
+                "y": 73.14,
                 "z": 0.0
               },
               "QuaternionRotation": {
@@ -598,7 +598,7 @@
                 "bottom": 0
               },
               "SizeFit": false,
-              "Text": "팝업 메시지",
+              "Text": "[]게임으로 \n이동하시겠습니까?",
               "UseOutLine": false,
               "Enable": true
             }
