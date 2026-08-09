@@ -149,15 +149,23 @@ script SelectSceneControllerComponent extends Component
 
 	method void OnSelect()
 		local gameId = self.GameList[self.CurrentIndex]
-		_GameLogic:SelectMinigame(gameId)
 		_GameHelper:EnableUIGroup("/ui/PopupGroup", false)
 		_GameHelper:EnableUIGroup("/ui/SelectGroup", false)
-		
+		self:EnterSoloMinigame(gameId)
 	end
 
 	method void OnCancel()
 		_GameHelper:EnableUIGroup("/ui/PopupGroup", false)
 		self.bShowPopup=false
+	end
+
+	@ExecSpace("Server")
+	method void EnterSoloMinigame(string gameID)
+		 local userId = senderUserId
+		
+		 local roomKey = _GameLogic:MakeSoloRoomKey(userId)
+		
+		 _GameLogic:EnterMiniGameRoom({ gameID }, roomKey,{ userId })
 	end
 
 	@EventSender("Service", "InputService")
