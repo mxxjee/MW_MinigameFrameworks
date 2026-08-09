@@ -2,9 +2,14 @@
 script SelectSceneControllerComponent extends Component
 	
 	property Entity GameListEntity = nil
+	
 	property Entity BtnOK = nil
+	
 	property Entity BtnCancel = nil
 	
+	property TextComponent PopupMessage = nil
+	
+	@HideFromInspector
 	property string SelectWidgetModelId = "model://b9a29910-7633-405a-b5c4-1d7a4c7df643"
 	
 	@HideFromInspector
@@ -28,6 +33,9 @@ script SelectSceneControllerComponent extends Component
 	property number MoveSpeed = 30
 	
 	property Entity DescUI = "4a999140-707a-43f8-b2fa-683c3f898c1c"
+	
+	---@description "선택 팝업이 표시되어있는지 여부"
+	property boolean bShowPopup = false
 	
 	@ExecSpace("ClientOnly")
 	method void Initialize()
@@ -143,11 +151,15 @@ script SelectSceneControllerComponent extends Component
 	method void OnSelect()
 		local gameId = self.GameList[self.CurrentIndex]
 		_GameLogic:SelectMinigame(gameId)
+		_GameHelper:EnableUIGroup("/ui/PopupGroup", false)
+		_GameHelper:EnableUIGroup("/ui/SelectGroup", false)
+		
 	end
 	
 	method void OnCancel()
 		_GameHelper:EnableUIGroup("/ui/PopupGroup", false)
 	end
+	
 	@EventSender("Service", "InputService")
 	handler HandleKeyDownEvent(KeyDownEvent event)
 		--------------- Native Event Sender Info ----------------
@@ -183,6 +195,9 @@ script SelectSceneControllerComponent extends Component
 			-- 선택
 		elseif key == KeyboardKey.Space then
 			_GameHelper:EnableUIGroup("/ui/PopupGroup", true)
+			local gameId = self.GameList[self.CurrentIndex]
+			self.PopupMessage.Text = "[" .. _MinigameRegistry:GetMinigameData(gameId).Name .. "]게임으로\n이동하시겠습니까?"
+			
 		end
 	end
 	

@@ -228,6 +228,12 @@
                 "EntityId": "0f5de49b-2adc-409a-816d-15aa43df8e0d",
                 "Version2": false
               },
+              "PopupMessage": {
+                "IsRelative": false,
+                "ComponentId": "3606e39d-32de-427e-8d23-b38af810a3b4:TextComponent",
+                "UseNested": false
+              },
+              "SelectWidgetModelId": "model://b9a29910-7633-405a-b5c4-1d7a4c7df643",
               "SlotSpacing": 300.0,
               "IsMoving": false
             }
