@@ -1,6 +1,9 @@
 @Component
 script SelectWidgetUIComponent extends Component
 
+	@Sync
+	property MinigameComponent NewValue1 = nil
+
 	@ExecSpace("ClientOnly")
 	method void Initialize(string gameName, Vector2 pos)
 		local TextEntity = self.Entity:GetChildByName("Name")

@@ -3,6 +3,8 @@ script EnterBtnComponent extends Component
 
 	property integer Mode = 0
 
+	property boolean bSelected = false
+
 	@EventSender("Self")
 	handler HandleButtonClickEvent(ButtonClickEvent event)
 		--------------- Native Event Sender Info ----------------
@@ -27,8 +29,23 @@ script EnterBtnComponent extends Component
 			--서버와 매칭연결시도..
 		end
 		
+		self.bSelected=true
+		
+	end
+
+	@EventSender("Service", "ScreenTransitionService")
+	handler HandleFadeOutEndEvent(FadeOutEndEvent event)
+		--------------- Native Event Sender Info ----------------
+		-- Sender: ScreenTransitionService
+		-- Space: Client
+		---------------------------------------------------------
+		
+		--2번 호출막기--
+		if (self.bSelected==false) then return end
+		
 		_GameHelper:EnableUIGroup("/ui/LobbyGroup",false)
 		_GameHelper:EnableUIGroup("/ui/SelectButtonGroup",false)
+		self.bSelected=false
 		
 	end
 

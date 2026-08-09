@@ -149,9 +149,9 @@ script SelectSceneControllerComponent extends Component
 
 	method void OnSelect()
 		local gameId = self.GameList[self.CurrentIndex]
-		_GameHelper:EnableUIGroup("/ui/PopupGroup", false)
-		_GameHelper:EnableUIGroup("/ui/SelectGroup", false)
-		self:EnterSoloMinigame(gameId)
+		
+		 self:EnterSoloMinigame(gameId)
+		
 	end
 
 	method void OnCancel()
@@ -208,6 +208,17 @@ script SelectSceneControllerComponent extends Component
 			self.PopupMessage.Text = "[" .. _MinigameRegistry:GetMinigameData(gameId).Name .. "]게임으로\n이동하시겠습니까?"
 			
 		end
+	end
+
+	@EventSender("Service", "ScreenTransitionService")
+	handler HandleFadeOutStartEvent(FadeOutStartEvent event)
+		--------------- Native Event Sender Info ----------------
+		-- Sender: ScreenTransitionService
+		-- Space: Client
+		---------------------------------------------------------
+		log("FadeoutStart")
+		_GameHelper:EnableUIGroup("/ui/PopupGroup", false)
+		_GameHelper:EnableUIGroup("/ui/SelectGroup", false)
 	end
 
 end
