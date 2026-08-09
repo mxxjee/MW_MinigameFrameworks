@@ -241,7 +241,7 @@
               },
               "RectSize": {
                 "x": 535.1344,
-                "y": 137.501465
+                "y": 137.5015
               },
               "UIMode": 1,
               "UIScale": {
@@ -392,20 +392,20 @@
               },
               "MobileOnly": false,
               "OffsetMax": {
-                "x": 501.802979,
-                "y": -363.828583
+                "x": 580.209961,
+                "y": -345.576233
               },
               "OffsetMin": {
-                "x": 98.19701,
-                "y": -472.8254
+                "x": 45.075592,
+                "y": -483.077759
               },
               "Pivot": {
                 "x": 0.5,
                 "y": 0.5
               },
               "RectSize": {
-                "x": 403.606,
-                "y": 108.996826
+                "x": 535.1344,
+                "y": 137.5015
               },
               "UIMode": 1,
               "UIScale": {
@@ -415,8 +415,8 @@
               },
               "UIVersion": 2,
               "anchoredPosition": {
-                "x": 300.0,
-                "y": -418.327
+                "x": 312.6428,
+                "y": -414.327
               },
               "Rotation": {
                 "x": 0.0,
@@ -424,8 +424,8 @@
                 "z": 0.0
               },
               "Position": {
-                "x": 300.0,
-                "y": -418.327,
+                "x": 312.6428,
+                "y": -414.327,
                 "z": 0.0
               },
               "QuaternionRotation": {
@@ -445,7 +445,7 @@
             {
               "@type": "MOD.Core.SpriteGUIRendererComponent",
               "ImageRUID": {
-                "DataId": "c36f5882b66e404191907d7a1fafa575"
+                "DataId": "bbf304e3be9545cea6a0d7a6e6eba6c0"
               },
               "OverrideSorting": false,
               "SortingLayer": "MapLayer0",
@@ -488,12 +488,19 @@
                 "FadeDuration": 0.1
               },
               "ImageRUIDs": {
-                "HighlightedSprite": null,
-                "PressedSprite": null,
-                "SelectedSprite": null,
+                "HighlightedSprite": {
+                  "DataId": "cfc15cbb9c7243d0b6fe122a157d3a0f"
+                },
+                "PressedSprite": {
+                  "DataId": "cfc15cbb9c7243d0b6fe122a157d3a0f"
+                },
+                "SelectedSprite": {
+                  "DataId": "cfc15cbb9c7243d0b6fe122a157d3a0f"
+                },
                 "DisabledSprite": null
               },
               "OverrideSorting": false,
+              "Transition": 2,
               "Enable": true
             },
             {
