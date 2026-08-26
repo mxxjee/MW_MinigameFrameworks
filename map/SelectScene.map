@@ -215,7 +215,27 @@
             },
             {
               "@type": "script.SelectSceneControllerComponent",
-              "Enable": true
+              "Enable": true,
+              "BtnOK": {
+                "tempEntityId": null,
+                "IsRelative": false,
+                "EntityId": "94a274e4-4111-40f1-924d-c95a3a1f14d5",
+                "Version2": false
+              },
+              "BtnCancel": {
+                "tempEntityId": null,
+                "IsRelative": false,
+                "EntityId": "0f5de49b-2adc-409a-816d-15aa43df8e0d",
+                "Version2": false
+              },
+              "PopupMessage": {
+                "IsRelative": false,
+                "ComponentId": "3606e39d-32de-427e-8d23-b38af810a3b4:TextComponent",
+                "UseNested": false
+              },
+              "SelectWidgetModelId": "model://b9a29910-7633-405a-b5c4-1d7a4c7df643",
+              "SlotSpacing": 300.0,
+              "IsMoving": false
             }
           ],
           "@version": 1

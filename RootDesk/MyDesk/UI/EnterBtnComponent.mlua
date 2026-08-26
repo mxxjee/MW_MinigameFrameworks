@@ -3,6 +3,8 @@ script EnterBtnComponent extends Component
 
 	property integer Mode = 0
 
+	property boolean bSelected = false
+
 	property boolean IsWaitingRequestSent = false
 
 	@EventSender("Self")
@@ -57,8 +59,23 @@ script EnterBtnComponent extends Component
 			)
 		end
 		
-		_GameHelper:EnableUIGroup("/ui/LobbyGroup", false)
-		_GameHelper:EnableUIGroup("/ui/SelectButtonGroup", false)
+		self.bSelected=true
+		
+	end
+
+	@EventSender("Service", "ScreenTransitionService")
+	handler HandleFadeOutEndEvent(FadeOutEndEvent event)
+		--------------- Native Event Sender Info ----------------
+		-- Sender: ScreenTransitionService
+		-- Space: Client
+		---------------------------------------------------------
+		
+		--2번 호출막기--
+		if (self.bSelected==false) then return end
+		
+		_GameHelper:EnableUIGroup("/ui/LobbyGroup",false)
+		_GameHelper:EnableUIGroup("/ui/SelectButtonGroup",false)
+		self.bSelected=false
 	end
 
 end

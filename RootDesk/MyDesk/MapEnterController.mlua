@@ -3,7 +3,16 @@ script MapEnterController extends Component
 
 	@ExecSpace("ClientOnly")
 	method void OnMapEnter(Entity enteredMap)
-		if enteredMap.Name == "SelectScene" then
+		_ScreenTransitionService:SetFadeInOutEnable(true)
+		
+		--Select Scene에서 바로 play해서 테스트하는 경우에 문제가 되므로, 이 코드를 삽입함--
+		if(_MinigameRegistry.bInitailized==false) then
+			_MinigameRegistry:Initialize()
+		end
+		
+		if enteredMap.Name=="LobbyScene" then
+			_GameHelper:EnableUIGroup("/ui/LobbyGroup", true)
+		elseif enteredMap.Name == "SelectScene" then
 			self.Entity.SelectSceneControllerComponent:Initialize()
 			_GameHelper:EnableUIGroup("/ui/SelectGroup", true)
 			_GameHelper:EnableUIGroup("/ui/WaitingRoomGroup", false)

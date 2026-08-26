@@ -1,0 +1,224 @@
+@Component
+script SelectSceneControllerComponent extends Component
+
+	property Entity GameListEntity = nil
+
+	property Entity BtnOK = nil
+
+	property Entity BtnCancel = nil
+
+	property TextComponent PopupMessage = nil
+
+	@HideFromInspector
+	property string SelectWidgetModelId = "model://b9a29910-7633-405a-b5c4-1d7a4c7df643"
+
+	@HideFromInspector
+	property number SlotSpacing = 300
+
+	property integer CurrentIndex = 1
+
+	property integer MaxIndex = 0
+
+	property Vector2 TargetPosition = Vector2(0, 0)
+
+	@HideFromInspector
+	property table GameList = {}
+
+	@HideFromInspector
+	property table WidgetList = {}
+
+	@HideFromInspector
+	property boolean IsMoving = false
+
+	property number MoveSpeed = 30
+
+	property Entity DescUI = "4a999140-707a-43f8-b2fa-683c3f898c1c"
+
+	property boolean bShowPopup = false
+
+	@ExecSpace("ClientOnly")
+	method void Initialize()
+		
+		--버튼 이벤트 연결--
+		self.BtnOK:ConnectEvent(ButtonClickEvent, self.OnSelect)
+		self.BtnCancel:ConnectEvent(ButtonClickEvent, self.OnCancel)
+		
+		-- 슬롯 부모를 저장한다.
+		self.GameListEntity = _EntityService:GetEntityByPath("/ui/SelectGroup/GameList")
+		if isvalid(self.GameListEntity) == false then return end
+		
+		-- 초기값 설정 --
+		self.CurrentIndex = 1
+		self.TargetPosition = Vector2(0, self.GameListEntity.UITransformComponent.anchoredPosition.y)
+		self.IsMoving = false
+		
+		--저장된 데이터를 통해 슬롯을 생성한다--
+		self:Refresh_Slots()
+		-- 설명 ui 갱신--
+		self:SetDescription()
+		
+	end
+
+	@ExecSpace("ClientOnly")
+	method void Refresh_Slots()
+		--슬롯 생성--
+		local slotParent = _EntityService:GetEntityByPath("/ui/SelectGroup/GameList")
+		if isvalid(slotParent) == false then
+			return
+		end
+		
+		self.GameList = {}
+		self.WidgetList = {}
+		
+		local index = 0
+		
+		for index, gameId in pairs(_MinigameRegistry.MinigameOrders) do
+			
+			local gameData = _MinigameRegistry:GetMinigameData(gameId)
+			-- 이후 선택된 게임을 찾기 위해 데이터도 저장
+			table.insert(self.GameList, gameId)
+			
+			-- 0, 300, 600, 900 ... 가로 배치
+			local pos = Vector2((index - 1) * self.SlotSpacing, 0)
+			
+			local widgetEntity = _SpawnService:SpawnByModelId(
+				self.SelectWidgetModelId, "SelectWidget_" .. gameId, Vector3.zero, slotParent
+			)
+			
+			if isvalid(widgetEntity) == false then continue end
+			
+			---@type SelectWidgetUIComponent
+			local widgetComp =
+			widgetEntity:GetComponent("script.SelectWidgetUIComponent")
+			
+			if isvalid(widgetComp) == false then continue end
+			
+			widgetComp:Initialize(gameData.Name, pos)
+			
+			table.insert(self.WidgetList, widgetEntity)
+			
+			index = index + 1
+		end
+		
+		self.MaxIndex = #self.GameList
+	end
+
+	method void MoveToCurrentIdx()
+		-- 현재 선택된 슬롯이 항상 화면 중앙 x = 0에 오도록
+		-- 부모 GameList를 반대 방향으로 이동시킨다.
+		local targetX = -(self.CurrentIndex - 1) * self.SlotSpacing
+		
+		self.TargetPosition = Vector2(targetX, self.GameListEntity.UITransformComponent.anchoredPosition.y)
+		self.IsMoving = true
+	end
+
+	@ExecSpace("ClientOnly")
+	method void OnUpdate(number delta)
+		if self.IsMoving == false then return end
+		
+		if isvalid(self.GameListEntity) == false then return end
+		
+		
+		local uiTransform = self.GameListEntity.UITransformComponent
+		local currentPosition = uiTransform.anchoredPosition
+		local nextPosition = Vector2.Lerp(currentPosition, self.TargetPosition, delta * self.MoveSpeed)
+		uiTransform.anchoredPosition = nextPosition
+		
+		-- Lerp는 정확히 목표값에 닿지 않을 수 있으므로
+		-- 충분히 가까워지면 정확한 위치로 맞춘다.
+		if Vector2.Distance(nextPosition, self.TargetPosition) < 0.5 then
+			self:OnReach()
+			
+			
+		end
+	end
+
+	method void OnReach()
+		local uiTransform = self.GameListEntity.UITransformComponent
+		uiTransform.anchoredPosition = self.TargetPosition
+		self.IsMoving = false
+		self:SetDescription()
+	end
+
+	method void SetDescription()
+		
+		local gameId = self.GameList[self.CurrentIndex]
+		local TextComp = self.DescUI:GetChildByName("Text").TextComponent
+		TextComp.Text = _MinigameRegistry:GetMinigameData(gameId).Description
+	end
+
+	method void OnSelect()
+		local gameId = self.GameList[self.CurrentIndex]
+		
+		 self:EnterSoloMinigame(gameId)
+		
+	end
+
+	method void OnCancel()
+		_GameHelper:EnableUIGroup("/ui/PopupGroup", false)
+		self.bShowPopup=false
+	end
+
+	@ExecSpace("Server")
+	method void EnterSoloMinigame(string gameID)
+		 local userId = senderUserId
+		
+		 local roomKey = _GameLogic:MakeSoloRoomKey(userId)
+		
+		 _GameLogic:EnterMiniGameRoom({ gameID }, roomKey,{ userId })
+	end
+
+	@EventSender("Service", "InputService")
+	handler HandleKeyDownEvent(KeyDownEvent event)
+		--------------- Native Event Sender Info ----------------
+		-- Sender: InputService
+		-- Space: Client
+		---------------------------------------------------------
+		
+		-- Parameters
+		-- local inputValue = event.inputValue
+		-- local key = event.key
+		---------------------------------------------------------
+		local key = event.key
+		
+		-- 왼쪽,오른쪽 키 둘다 팝업이 켜져있는 경우에는 키가 안눌리도록 설정한다--
+		-- 왼쪽
+		if key == KeyboardKey.LeftArrow then
+			if(self.bShowPopup) then return end
+			if self.CurrentIndex <= 1 then return end
+			
+			self.CurrentIndex = self.CurrentIndex - 1
+			
+			self:MoveToCurrentIdx()
+			
+			-- 오른쪽
+		elseif key == KeyboardKey.RightArrow then
+			if(self.bShowPopup) then return end
+			if self.CurrentIndex >= self.MaxIndex then return end
+			
+			self.CurrentIndex = self.CurrentIndex + 1
+			
+			self:MoveToCurrentIdx()
+			
+			-- 선택
+		elseif key == KeyboardKey.Space then
+			self.bShowPopup=true
+			_GameHelper:EnableUIGroup("/ui/PopupGroup", true)
+			local gameId = self.GameList[self.CurrentIndex]
+			self.PopupMessage.Text = "[" .. _MinigameRegistry:GetMinigameData(gameId).Name .. "]게임으로\n이동하시겠습니까?"
+			
+		end
+	end
+
+	@EventSender("Service", "ScreenTransitionService")
+	handler HandleFadeOutStartEvent(FadeOutStartEvent event)
+		--------------- Native Event Sender Info ----------------
+		-- Sender: ScreenTransitionService
+		-- Space: Client
+		---------------------------------------------------------
+		log("FadeoutStart")
+		_GameHelper:EnableUIGroup("/ui/PopupGroup", false)
+		_GameHelper:EnableUIGroup("/ui/SelectGroup", false)
+	end
+
+end
