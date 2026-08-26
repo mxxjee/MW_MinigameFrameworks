@@ -5,10 +5,9 @@ script GameMatchLogic extends Logic
 	property integer GameMatchIndex = 0
 
 	@Sync
-	property SyncTable<string>  WaitingPlayers
+	property SyncTable<string> WaitingPlayers
 
-	--Server에 올려야하는데 기본 Table이라 못올림
-	property table  ActiveMatches = {}
+	property table ActiveMatches = {}
 
 	@Sync
 	property number MatchCheckInterval = 0.25
@@ -26,10 +25,9 @@ script GameMatchLogic extends Logic
 		return false
 	end
 
-
 	@ExecSpace("Server")
 	method boolean RegisterWaitingPlayerOnServer(string userId)
-	
+		
 		if userId == "" then
 			log_warning("[_GameMatchLogic] 플레이어 UserId가 비어 있어 대기열에 등록할 수 없습니다.")
 			return false
@@ -39,11 +37,11 @@ script GameMatchLogic extends Logic
 			log_warning("[_GameMatchLogic] 이미 대기열에 등록된 플레이어입니다: " .. userId)
 			return false
 		end
-
-
+		
+		
 		table.insert(self.WaitingPlayers, userId)
 		log("[_GameMatchLogic] 대기 플레이어 등록 완료: " .. userId)
-
+		
 		return true
 	end
 
@@ -59,7 +57,6 @@ script GameMatchLogic extends Logic
 		log("[_GameMatchLogic] 대기 취소 완료: " .. userId)
 		return true
 	end
-
 
 	@ExecSpace("Server")
 	method integer FindWaitingPlayerIndex(string userId)
@@ -85,7 +82,7 @@ script GameMatchLogic extends Logic
 		-- Match ID 생성 및 증가
 		matchInfo.MatchId = self.GameMatchIndex
 		self.GameMatchIndex = self.GameMatchIndex + 1
-
+		
 		matchInfo.Player1UserID = userId1
 		matchInfo.Player2UserID = userId2
 		matchInfo.MatchState = _GameEnum.MatchState.ACTIVE
@@ -93,7 +90,7 @@ script GameMatchLogic extends Logic
 		-- 매칭 정보 등록
 		self.ActiveMatches[matchInfo.MatchId] = matchInfo
 		log("[_GameMatchLogic] 매칭 연결 완료: " .. matchInfo.MatchId)
-
+		
 		self:ReceiveMatchedOpponent(userId2, userId1)
 		self:ReceiveMatchedOpponent(userId1, userId2)
 	end
@@ -101,31 +98,31 @@ script GameMatchLogic extends Logic
 	@ExecSpace("Client")
 	method void ReceiveMatchedOpponent(string opponentUserId)
 		log("[_GameMatchLogic] 상대 매칭 수신: " .. opponentUserId)
-
+		
 		local statusEntity = _EntityService:GetEntityByPath("/ui/WaitingRoomGroup/RightPanel/StatusText")
 		if isvalid(statusEntity) == false then
 			return
 		end
-
+		
 		local textRenderer = statusEntity.TextGUIRendererComponent
 		if isvalid(textRenderer) == false then
 			return
 		end
-
+		
 		textRenderer.Text = "상대와 매칭되었습니다."
 		local opponentEntity = _UserService:GetUserEntityByUserId(opponentUserId)
 		if isvalid(opponentEntity) == false then
 			log_warning("[_GameMatchLogic] 상대 플레이어를 찾을 수 없습니다: " .. opponentUserId)
 			return
 		end
-
+		
 		local opponentAvatar = _EntityService:GetEntityByPath("/ui/WaitingRoomGroup/RightPanel/OpponentAvatar")
 		local opponentLabel = _EntityService:GetEntityByPath("/ui/WaitingRoomGroup/RightPanel/OpponentLabel")
 		if isvalid(opponentAvatar) == false or isvalid(opponentLabel) == false then
 			log_warning("[_GameMatchLogic] 상대 표시 UI를 찾을 수 없습니다.")
 			return
 		end
-
+		
 		local costumeManager = opponentAvatar.CostumeManagerComponent
 		local labelRenderer = opponentLabel.TextGUIRendererComponent
 		if isvalid(costumeManager) == false or isvalid(labelRenderer) == false then
@@ -138,9 +135,9 @@ script GameMatchLogic extends Logic
 		costumeManager.UseCustomEquipOnly = false
 		costumeManager.DefaultEquipUserId = opponentUserId
 		labelRenderer.Text = opponentEntity.PlayerComponent.Nickname
-		opponentLabel.AvatarGUIRendererComponent.Color = Color(1,1,1,1)
-		opponentLabel.Enable = true
+		opponentAvatar.AvatarGUIRendererComponent.Color = Color(1,1,1,1)
 		opponentAvatar.Enable = true
+		opponentLabel.Enable = true
 		statusEntity.Enable = false
 		log("[_GameMatchLogic] 상대 아바타·이름 표시: " .. opponentEntity.PlayerComponent.Nickname)
 	end

@@ -47,6 +47,6 @@ luac.out
 *.codex
 *.claude
 
-# VSCode
-.mswai/
+# MSW AI local logs
+.mswai/logs/
 
