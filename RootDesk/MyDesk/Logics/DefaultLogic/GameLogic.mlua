@@ -156,6 +156,12 @@ script GameLogic extends Logic
 		  return roomKey
 	end
 
+	@ExecSpace("ClientOnly")
+	method void OnBeginPlay()
+		--싱글 룸에 들어가면 각 로직의 beginplay가 한번씩 더 불리므로, 싱글룸에 들어가서도 페이드인아웃이 적용되도록 설정
+		_ScreenTransitionService:SetFadeInOutEnable(true)
+	end
+
 	@EventSender("Service", "RoomService")
 	handler HandleRoomBeginEvent(RoomBeginEvent event)
 		--------------- Native Event Sender Info ----------------

@@ -150,7 +150,9 @@ script SelectSceneControllerComponent extends Component
 	method void OnSelect()
 		local gameId = self.GameList[self.CurrentIndex]
 		
-		 self:EnterSoloMinigame(gameId)
+		-- PrePare_SoloMinigame 으로 부터 페이드아웃 실행 후 이후 enter sologame 호출--
+		self:PrePare_SoloMinigame();
+		-- self:EnterSoloMinigame(gameId)
 		
 	end
 
@@ -165,7 +167,13 @@ script SelectSceneControllerComponent extends Component
 		
 		 local roomKey = _GameLogic:MakeSoloRoomKey(userId)
 		
-		 _GameLogic:EnterMiniGameRoom({ gameID }, roomKey,{ userId })
+		
+		-- _GameLogic:EnterMiniGameRoom({ gameID }, roomKey,{ userId })
+	end
+
+	@ExecSpace("ClientOnly")
+	method void PrePare_SoloMinigame()
+		_MyUILogic:FadeOut()
 	end
 
 	@EventSender("Service", "InputService")
@@ -216,7 +224,6 @@ script SelectSceneControllerComponent extends Component
 		-- Sender: ScreenTransitionService
 		-- Space: Client
 		---------------------------------------------------------
-		log("FadeoutStart")
 		_GameHelper:EnableUIGroup("/ui/PopupGroup", false)
 		_GameHelper:EnableUIGroup("/ui/SelectGroup", false)
 	end

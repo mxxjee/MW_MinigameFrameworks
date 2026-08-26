@@ -3,7 +3,7 @@ script MapEnterController extends Component
 
 	@ExecSpace("ClientOnly")
 	method void OnMapEnter(Entity enteredMap)
-		_ScreenTransitionService:SetFadeInOutEnable(true)
+		--_ScreenTransitionService:SetFadeInOutEnable(true)
 		
 		--Select Scene에서 바로 play해서 테스트하는 경우에 문제가 되므로, 이 코드를 삽입함--
 		if(_MinigameRegistry.bInitailized==false) then
