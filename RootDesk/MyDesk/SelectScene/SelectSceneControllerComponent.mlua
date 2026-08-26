@@ -72,7 +72,7 @@ script SelectSceneControllerComponent extends Component
 		
 		local index = 0
 		
-		for index, gameId in pairs(_MinigameRegistry.MinigameOrders) do
+		for index, gameId in pairs(_MinigameRegistry:GetMinigameOrders()) do
 			
 			local gameData = _MinigameRegistry:GetMinigameData(gameId)
 			-- 이후 선택된 게임을 찾기 위해 데이터도 저장

@@ -52,6 +52,14 @@ script MinigameRegistry extends Logic
 		return gameData
 	end
 
+	method table GetMinigameOrders()
+		if #self.MinigameOrders == 0 then
+			self:Initialize()
+		end
+		
+		return self.MinigameOrders
+	end
+
 	method void Initialize()
 		--이미 초기화되었으면 또 등록 X --
 		if (self.bInitailized) then return end

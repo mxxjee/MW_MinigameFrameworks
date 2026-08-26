@@ -1,6 +1,8 @@
 @Logic
 script GameLogic extends Logic
 
+	property string CurrentGameId = ""
+
 	property integer PlayMode = 0
 
 	property number CurrentScore = 0
@@ -13,25 +15,64 @@ script GameLogic extends Logic
 
 	property table MyRankingData = {}
 
-	method boolean SelectMinigame(string gameId)
-		-- 현재 플레이할 미니게임 ID를 선택한다.
-		if gameId == "" then log_warning("[_GameLogic] 미니게임 ID가 비어 있어 선택할 수 없습니다.") return false
-		end
+	@ExecSpace("Server")
+	method boolean SelectMinigame(string gameID, table userIds)
 		
-		-- 선택한 미니게임 씬으로 이동한다--
-		self.CurrentGameId = gameId
+		-- 현재 플레이할 미니게임 ID를 선택한다.--
+		if gameID == "" then log_warning("[_GameLogic] 미니게임 ID가 비어 있어 선택할 수 없습니다.")return false end
 		
-		---@type MinigameData
-		local GameData=_MinigameRegistry:GetMinigameData(gameId)
-		local player = _UserService.LocalPlayer
-		_TeleportService:TeleportToMapPosition( player, Vector3(0, 0, 0), GameData.MapName)
+		-- 현재 Room 안에서 해당 미니게임 Map으로 이동 --
+		local gameData = _MinigameRegistry:GetMinigameData(gameID)
+		
+		if #userIds == 0 then log_warning("[_GameLogic] 이동할 유저가 없습니다.")return false end
+		
+		-- 현재 플레이 중인 미니게임 갱신
+		self.CurrentGameId = gameID
+		
+		-- 현재 InstanceRoom을 유지하면서
+		-- 해당 미니게임 Map으로 이동
+		local roomKey = _RoomService.RoomKey
+		_RoomService:MoveUsersToInstanceRoom(roomKey, userIds, gameData.MapName)
+		
 		return true
 		
 	end
 
+	@ExecSpace("Server")
+	method boolean EnterMiniGameRoom(table gameIds, string roomKey, table userIds)
+		-- gameIds : 매치된 게임의 아이디들 , roomKey : 매칭키 , userIds:매칭한 두 사람 아이디들
+		-- 매칭이 완료된 이후 1번, 솔플의 경우 맵 선택 이후 1번 호출-- 
+		-- 게임 룸 최초 진입 시 호출--
+		if #gameIds == 0 then log_warning("[_GameLogic] 입장할 미니게임이 없습니다.")return false end
+		if roomKey == "" then log_warning("[_GameLogic] RoomKey가 비어 있습니다.")return false end
+		if #userIds == 0 then log_warning("[_GameLogic] 입장할 유저가 없습니다.")return false end
+		
+		local mapNames = {}
+		local code, memory = _RoomService:GetSharedMemory(roomKey)
+		local result = memory:SetVariableAndWait("CurrentGameId",gameIds[1])
+		
+		
+		-- 이번 Room에서 사용할 모든 미니게임 Map을 등록한다.
+		for _, gameId in ipairs(gameIds) do
+			---@type MinigameData
+			local gameData = _MinigameRegistry:GetMinigameData(gameId)
+			if gameData == nil then log_warning("[_GameLogic] 존재하지 않는 미니게임입니다. gameId : " .. gameId)return false end
+			table.insert(mapNames, gameData.MapName)
+		end
+		
+		-- InstanceRoom 생성
+		local room = _RoomService:CreateInstanceRoom(roomKey, mapNames)
+		if room == nil then log_warning("[_GameLogic] InstanceRoom 생성에 실패했습니다. RoomKey : " .. roomKey)return false end
+		
+		-- 최초진입만 EnterMiniGameRoom이 담당한다--
+		room:MoveUsers(userIds,mapNames[1])
+		
+		return true
+	end
+
 	method void SetPlayMode(integer playMode)
 		-- 허용된 SINGLE 또는 MULTI 플레이 모드로 변경한다.
-		if playMode ~= _GameEnum.PlayMode.SINGLE and playMode ~= _GameEnum.PlayMode.MULTI then log_warning("[_GameLogic] 지원하지 않는 플레이 모드입니다: " .. playMode) return
+		if playMode ~= _GameEnum.PlayMode.SINGLE and playMode ~= _GameEnum.PlayMode.MULTI then log_warning("[_GameLogic] 지원하지 않는 플레이 모드입니다: " .. playMode)return
 		end
 		
 		self.PlayMode = playMode
@@ -83,10 +124,10 @@ script GameLogic extends Logic
 	method void StartMinigame(string gameId)
 		-- 현재 선택된 미니게임의 시작을 로컬 실행 매니저에 요청한다.
 		---@type boolean
-		local bResult = self:SelectMinigame(gameId)
-		if bResult == false then
-			return
-		end
+		--local bResult = self:SelectMinigame(gameId)
+		--if bResult == false then
+		--return
+		--end
 		
 		_MinigameManager:StartGame(self.CurrentGameId)
 	end
@@ -109,7 +150,7 @@ script GameLogic extends Logic
 		end
 	end
 
-	@ExecSpace("ServerOnly")
+	@ExecSpace("Server")
 	method string MakeSoloRoomKey(string userId)
 		 local roomKey ="Solo_" ..userId .."_" ..tostring(DateTime.UtcNow.Elapsed)
 		  return roomKey
