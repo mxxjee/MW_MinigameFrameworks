@@ -25,8 +25,9 @@ script MinigameComponent extends Component
 		
 		
 		--싱글게임인 경우 바로 시작, 멀티게임인 경우 2인 레디 확인받고 시작 (동시시작)
-		if (_GameLogic.PlayMode==_GameEnum.PlayMode.SINGLE) then _GameLogic:StartGame(self.MinigameID)
+		if (_GameLogic.PlayMode=="SINGLE") then _GameLogic:StartGame(self.MinigameID)
 		else end
+		
 		
 		
 	end

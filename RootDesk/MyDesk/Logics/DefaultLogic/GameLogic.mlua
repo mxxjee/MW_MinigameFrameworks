@@ -3,7 +3,7 @@ script GameLogic extends Logic
 
 	property string CurrentGameId = ""
 
-	property string PlayMode = ""
+	property string PlayMode = "SINGLE"
 
 	property number CurrentScore = 0
 
@@ -167,11 +167,11 @@ script GameLogic extends Logic
 	end
 
 	method void PlayIntro(string gameID)
-		-- 로고와 카운트다운을 수행한다 -- 
-		
+		-- 로고와 카운트다운을 수행한다 --
+		_GameHelper:EnableUIGroup("/ui/GameIntroGroup",true)
 		
 		-- 연출이 끝났다면
-		self:StartGamePlay(gameID)
+		--self:StartGamePlay(gameID)
 	end
 
 	method void StartGame(string gameID)
@@ -202,8 +202,11 @@ script GameLogic extends Logic
 		--PlayMode도 연결--
 		result = memory:GetVariableAndWait("PlayMode")
 		if result.Code ~= SharedMemoryResultCode.OK then return end
-		else self.PlayMode=result.Info.Value
+		self.PlayMode=result.Info.Value 
+		log(self.PlayMode)
 		
+		--최초진입시에만 fadescreen을 건든다.--
+		_MyUILogic:SetBlack()
 		
 	end
 

@@ -60,4 +60,13 @@ script FadeScreenComponent extends Component
 		self.State=_GameEnum.FadeState.FADE_OUT
 	end
 
+	method void Set_Black()
+		_GameHelper:EnableUIGroup("/ui/FadeGroup", true)
+		
+		    self.Alpha = 1
+		    self.State = _GameEnum.FadeState.BLACK
+		
+		    self.Entity.SpriteGUIRendererComponent:SetAlpha(1)
+	end
+
 end

@@ -15,8 +15,9 @@ script EnterBtnComponent extends Component
 		-- Parameters
 		-- local Entity = event.Entity
 		---------------------------------------------------------
+		--클라이언트 영역의 변수 업데이트--
 		if self.Mode==_GameEnum.PlayMode.SINGLE then
-		--_GameLogic:SetPlayMode(self.Mode)
+		_GameLogic:SetPlayMode("SINGLE")
 		
 		local player = _UserService.LocalPlayer
 		_TeleportService:TeleportToMapPosition(
@@ -27,6 +28,7 @@ script EnterBtnComponent extends Component
 		
 		else
 			--서버와 매칭연결시도..
+			_GameLogic:SetPlayMode("MULTI")
 		end
 		
 		self.bSelected=true
