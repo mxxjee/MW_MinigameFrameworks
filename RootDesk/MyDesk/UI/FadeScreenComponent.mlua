@@ -35,14 +35,14 @@ script FadeScreenComponent extends Component
 		self.Entity.SpriteGUIRendererComponent:SetAlpha(self.Alpha)
 		
 		if self.Alpha <= 0 then
-			local event = MyFadeOutEvent()
-			self.Entity:SendEvent(event)
+		
 			self.State = _GameEnum.FadeState.NONE
 		end
 	end
 
 	method void OnFadeOutEnd()
-		
+			local event = MyFadeOutEvent()
+			self.Entity:SendEvent(event)
 	end
 
 	method void Update_Fade_Out(number delta)

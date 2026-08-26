@@ -148,7 +148,7 @@ script SelectSceneControllerComponent extends Component
 	end
 
 	method void OnSelect()
-		local gameId = self.GameList[self.CurrentIndex]
+		
 		
 		-- PrePare_SoloMinigame 으로 부터 페이드아웃 실행 후 이후 enter sologame 호출--
 		self:PrePare_SoloMinigame();
@@ -168,7 +168,7 @@ script SelectSceneControllerComponent extends Component
 		 local roomKey = _GameLogic:MakeSoloRoomKey(userId)
 		
 		
-		-- _GameLogic:EnterMiniGameRoom({ gameID }, roomKey,{ userId })
+		_GameLogic:EnterMiniGameRoom({ gameID }, roomKey,{ userId })
 	end
 
 	@ExecSpace("ClientOnly")
@@ -226,6 +226,13 @@ script SelectSceneControllerComponent extends Component
 		---------------------------------------------------------
 		_GameHelper:EnableUIGroup("/ui/PopupGroup", false)
 		_GameHelper:EnableUIGroup("/ui/SelectGroup", false)
+	end
+
+	@EventSender("Entity", "a1dc3e4b-0127-44b4-8a67-899e57ad1863")
+	handler HandleMyFadeOutEvent(MyFadeOutEvent event)
+		log("MyFadeOutEvent")
+		local gameId = self.GameList[self.CurrentIndex]
+		self:EnterSoloMinigame(gameId)
 	end
 
 end
