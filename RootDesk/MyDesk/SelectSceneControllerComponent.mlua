@@ -70,13 +70,15 @@ script SelectSceneControllerComponent extends Component
 		
 			if isvalid(widgetEntity) == false then continue end
 		
-			---@type SelectWidgetUIComponent
-			local widgetComp =
-			widgetEntity:GetComponent("script.SelectWidgetUIComponent")
-		
-			if isvalid(widgetComp) == false then continue end
-		
-			widgetComp:Initialize(gameData.Name, pos)
+			local nameEntity = widgetEntity:GetChildByName("Name")
+			if isvalid(nameEntity) then
+				local textComp = nameEntity.TextGUIRendererComponent
+				if isvalid(textComp) then
+					textComp.Text = gameData.Name
+				end
+			end
+			
+			widgetEntity.UITransformComponent.anchoredPosition = pos
 		
 			table.insert(self.WidgetList, widgetEntity)
 		

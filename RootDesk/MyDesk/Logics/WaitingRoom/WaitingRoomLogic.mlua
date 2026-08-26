@@ -3,19 +3,8 @@ script WaitingRoomLogic extends Logic
 
 	property string WaitingMapName = "WaitingRoomScene"
 
-	property number MatchCheckInterval = 0.25
-
-	property number MatchCheckElapsed = 0
-
-	property number CountdownRemain = 3
-
-	property table CurrentMatchPayload = {}
-
 	@ExecSpace("ClientOnly")
 	method void Initialize()
-		self.MatchCheckElapsed = 0
-		self.CountdownRemain = 3
-		self.CurrentMatchPayload = {}
 	end
 
 	@ExecSpace("ClientOnly")
@@ -43,46 +32,6 @@ script WaitingRoomLogic extends Logic
 	end
 
 	@ExecSpace("ClientOnly")
-	method void ShowWaitingState()
-		log("[WaitingRoomLogic] 매칭 중... 상대를 기다리는 중입니다.")
-	end
-
-	@ExecSpace("ClientOnly")
-	method void ShowMatchedOpponent(table payload)
-		if payload == nil then
-			return
-		end
-		
-		local localUserId = _UserService.LocalPlayer.PlayerComponent.UserId
-		if payload.Player1UserId == localUserId then
-			log("[WaitingRoomLogic] 상대 연결 완료: " .. (payload.Player2UserId or ""))
-		else
-			log("[WaitingRoomLogic] 상대 연결 완료: " .. (payload.Player1UserId or ""))
-		end
-	end
-
-	@ExecSpace("ClientOnly")
-	method void BeginCountdown(table payload)
-		if payload == nil then
-			return
-		end
-		
-		self.CurrentMatchPayload = payload
-		self.CountdownRemain = 3
-		self.CurrentMatchPayload.State = _GameEnum.MatchState.COUNTDOWN
-		self:ShowMatchedOpponent(payload)
-	end
-	
-	@ExecSpace("ClientOnly")
-	method void StartMatchedGameFromPayload()
-		if self.CurrentMatchPayload == nil then
-			return
-		end
-		
-		self.CurrentMatchPayload.State = _GameEnum.MatchState.PLAYING
-	end
-
-	@ExecSpace("ClientOnly")
 	method void OnUpdate(number delta)
 		local localPlayer = _UserService.LocalPlayer
 		if isvalid(localPlayer) == false then
@@ -93,39 +42,6 @@ script WaitingRoomLogic extends Logic
 		
 		if localPlayer.CurrentMapName ~= self.WaitingMapName then
 			return
-		end
-		
-		self.MatchCheckElapsed = self.MatchCheckElapsed + delta
-		if self.MatchCheckElapsed >= self.MatchCheckInterval then
-			self.MatchCheckElapsed = 0
-			
-			if self.CurrentMatchPayload == nil or next(self.CurrentMatchPayload) == nil then
-				self:ShowWaitingState()
-			end
-		end
-		
-		if _GameLogic.HasPendingMatchedPayload == true then
-			local payload = _GameLogic:ConsumePendingMatchedPayload()
-			if payload ~= nil then
-				if payload.State == _GameEnum.MatchState.ACTIVE then
-					self:BeginCountdown(payload)
-				else
-					self.CurrentMatchPayload = payload
-				end
-			end
-		end
-		
-		if self.CurrentMatchPayload == nil or next(self.CurrentMatchPayload) == nil then
-			return
-		end
-		
-		if self.CurrentMatchPayload.State ~= _GameEnum.MatchState.COUNTDOWN then
-			return
-		end
-		
-		self.CountdownRemain = self.CountdownRemain - delta
-		if self.CountdownRemain <= 0 then
-			self:StartMatchedGameFromPayload()
 		end
 	end
 

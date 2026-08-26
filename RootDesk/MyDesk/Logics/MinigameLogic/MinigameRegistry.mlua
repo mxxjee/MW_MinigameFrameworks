@@ -6,13 +6,13 @@ script MinigameRegistry extends Logic
 	@ExecSpace("ClientOnly")
 	method void OnBeginPlay()
 		-- 첫 진입 ) 에디터에 연결된 모든 미니게임을 중앙에서 등록한다.
-		self:RegisterMinigame("버튼게임", "Button_Game", "ButtonGameScene")
-		self:RegisterMinigame("민거니 먹빵", "GunHee_Muckbang", "TestScene")
-		self:RegisterMinigame("민지꾸얌", "Minji_Game", "TestScene")
-		self:RegisterMinigame("쥬신뿌수기", "Jusin_Game", "TestScene")
+		self:RegisterMinigame("버튼게임", "Button_Game", "ButtonGameScene", "")
+		self:RegisterMinigame("민거니 먹빵", "GunHee_Muckbang", "TestScene", "")
+		self:RegisterMinigame("민지꾸얌", "Minji_Game", "TestScene", "")
+		self:RegisterMinigame("쥬신뿌수기", "Jusin_Game", "TestScene", "")
 	end
 
-	method boolean RegisterMinigame(string name, string id, string _mapName)
+	method boolean RegisterMinigame(string name, string id, string _mapName, string desc)
 		-- 검증 용
 		if self:ValidateRegisterData(id) == false then return false end
 		
@@ -20,7 +20,7 @@ script MinigameRegistry extends Logic
 		
 		---@type MinigameData
 		local gameData = MinigameData()
-		gameData:InitData(name, id, _mapName)
+		gameData:InitData(name, id, _mapName, desc)
 		self.MinigameDatas[id] = gameData
 		
 		return true
