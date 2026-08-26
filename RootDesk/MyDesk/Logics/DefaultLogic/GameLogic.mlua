@@ -3,7 +3,7 @@ script GameLogic extends Logic
 
 	property string CurrentGameId = ""
 
-	property integer PlayMode = 0
+	property string PlayMode = ""
 
 	property number CurrentScore = 0
 
@@ -51,6 +51,8 @@ script GameLogic extends Logic
 		local code, memory = _RoomService:GetSharedMemory(roomKey)
 		local result = memory:SetVariableAndWait("CurrentGameId",gameIds[1])
 		
+		--playMode도 보내야함--
+		result = memory:SetVariableAndWait("PlayMode",self.PlayMode)
 		
 		-- 이번 Room에서 사용할 모든 미니게임 Map을 등록한다.
 		for _, gameId in ipairs(gameIds) do
@@ -70,9 +72,9 @@ script GameLogic extends Logic
 		return true
 	end
 
-	method void SetPlayMode(integer playMode)
+	method void SetPlayMode(string playMode)
 		-- 허용된 SINGLE 또는 MULTI 플레이 모드로 변경한다.
-		if playMode ~= _GameEnum.PlayMode.SINGLE and playMode ~= _GameEnum.PlayMode.MULTI then log_warning("[_GameLogic] 지원하지 않는 플레이 모드입니다: " .. playMode)return
+		if playMode ~= "SINGLE" and playMode ~= "MULTI" then log_warning("[_GameLogic] 지원하지 않는 플레이 모드입니다: " .. playMode)return
 		end
 		
 		self.PlayMode = playMode
@@ -121,7 +123,7 @@ script GameLogic extends Logic
 	end
 
 	@ExecSpace("Client")
-	method void StartMinigame(string gameId)
+	method void StartGamePlay(string gameId)
 		-- 현재 선택된 미니게임의 시작을 로컬 실행 매니저에 요청한다.
 		---@type boolean
 		--local bResult = self:SelectMinigame(gameId)
@@ -129,6 +131,8 @@ script GameLogic extends Logic
 		--return
 		--end
 		
+		
+		--실제 미니게임을 수행(시간흐름)
 		_MinigameManager:StartGame(self.CurrentGameId)
 	end
 
@@ -162,6 +166,19 @@ script GameLogic extends Logic
 		_ScreenTransitionService:SetFadeInOutEnable(true)
 	end
 
+	method void PlayIntro(string gameID)
+		-- 로고와 카운트다운을 수행한다 -- 
+		
+		
+		-- 연출이 끝났다면
+		self:StartGamePlay(gameID)
+	end
+
+	method void StartGame(string gameID)
+		self:PlayIntro(gameID)
+		
+	end
+
 	@EventSender("Service", "RoomService")
 	handler HandleRoomBeginEvent(RoomBeginEvent event)
 		--------------- Native Event Sender Info ----------------
@@ -181,6 +198,13 @@ script GameLogic extends Logic
 		
 		self.CurrentGameId = result.Info.Value
 		log(self.CurrentGameId)
+		
+		--PlayMode도 연결--
+		result = memory:GetVariableAndWait("PlayMode")
+		if result.Code ~= SharedMemoryResultCode.OK then return end
+		else self.PlayMode=result.Info.Value
+		
+		
 	end
 
 end

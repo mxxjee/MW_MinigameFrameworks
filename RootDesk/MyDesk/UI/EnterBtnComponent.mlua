@@ -16,7 +16,7 @@ script EnterBtnComponent extends Component
 		-- local Entity = event.Entity
 		---------------------------------------------------------
 		if self.Mode==_GameEnum.PlayMode.SINGLE then
-		_GameLogic:SetPlayMode(self.Mode)
+		--_GameLogic:SetPlayMode(self.Mode)
 		
 		local player = _UserService.LocalPlayer
 		_TeleportService:TeleportToMapPosition(

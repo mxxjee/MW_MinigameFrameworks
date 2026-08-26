@@ -1,6 +1,8 @@
 @Component
 script MinigameComponent extends Component
 
+	property string MinigameID = ""
+
 	method void Initialize(MinigameData gameData)
 		
 	end
@@ -10,6 +12,22 @@ script MinigameComponent extends Component
 	end
 
 	method void Release()
+		
+	end
+
+	@ExecSpace("ClientOnly")
+	method void OnBeginPlay()
+		-- 현재 게임을 설정 -- 
+		if (_GameLogic.CurrentGameId~=self.MinigameID) then
+			_MinigameManager.CurrentGame=self
+			_GameLogic.CurrentGameId=self.MinigameID
+		end
+		
+		
+		--싱글게임인 경우 바로 시작, 멀티게임인 경우 2인 레디 확인받고 시작 (동시시작)
+		if (_GameLogic.PlayMode==_GameEnum.PlayMode.SINGLE) then _GameLogic:StartGame(self.MinigameID)
+		else end
+		
 		
 	end
 
