@@ -23,13 +23,15 @@ script MinigameComponent extends Component
 			return
 		end
 		
+		-- Client 영역의 변수--
 		_MinigameManager.CurrentGame = self
 		_GameLogic.CurrentGameId = self.MinigameID
 		
-		--싱글게임인 경우 바로 시작, 멀티게임인 경우 2인 레디 확인받고 시작 (동시시작)
-		if _GameLogic.PlayMode == "SINGLE" then
-			_GameLogic:PlayIntro(self.MinigameID)
-		end
+		-- 미니게임 레디 이벤트 발송 : 이 안에서 클라이언트 변수들이 다 동기화되었는지 체크하고, 
+		-- SINLGE 인 경우 바로 게임시작을, MULTI인 경우 2인 레디를 서버에 보낸다 --
+		_GameLogic:Request_ReadyMinigame()
+		
+		
 	end
 
 end

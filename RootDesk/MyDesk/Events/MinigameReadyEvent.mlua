@@ -1,0 +1,4 @@
+@Event
+script MinigameReadyEvent extends EventType
+
+end

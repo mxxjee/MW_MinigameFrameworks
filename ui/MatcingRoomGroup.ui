@@ -394,13 +394,8 @@
               },
               "MobileOnly": false,
               "OffsetMax": {
-<<<<<<< HEAD:ui/WaitingRoomGroup.ui
-                "x": -60.1016846,
-                "y": -842.573
-=======
                 "x": -195.854462,
                 "y": -667.2892
->>>>>>> 1443381025cf307d33c25d04f71ef98f9e7a9ba1:ui/MatcingRoomGroup.ui
               },
               "OffsetMin": {
                 "x": 920.335449,
@@ -411,13 +406,8 @@
                 "y": 0.0
               },
               "RectSize": {
-<<<<<<< HEAD:ui/WaitingRoomGroup.ui
-                "x": 588.37085,
-                "y": 203.255676
-=======
                 "x": 803.810059,
                 "y": 277.680054
->>>>>>> 1443381025cf307d33c25d04f71ef98f9e7a9ba1:ui/MatcingRoomGroup.ui
               },
               "UIMode": 1,
               "UIScale": {

@@ -1,21 +1,21 @@
 @Component
 script DropGameComponent extends MinigameComponent
-	
+
 	method void Initialize(MinigameData gameData)
 		
 	end
-	
+
 	method void Update(number deltaTime)
 		
 	end
-	
+
 	method void Release()
 		
 	end
-	
-	
+
+	@ExecSpace("ClientOnly")
 	method void OnBeginPlay()
 		__base:OnBeginPlay()
 	end
-	
+
 end

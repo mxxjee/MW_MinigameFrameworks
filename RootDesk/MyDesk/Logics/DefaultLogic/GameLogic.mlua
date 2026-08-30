@@ -3,7 +3,7 @@ script GameLogic extends Logic
 
 	property string CurrentGameId = ""
 
-	property string PlayMode = "SINGLE"
+	property string PlayMode = "NONE"
 
 	property number CurrentScore = 0
 
@@ -73,6 +73,7 @@ script GameLogic extends Logic
 		return true
 	end
 
+	@ExecSpace("Client")
 	method void SetPlayMode(string playMode)
 		-- 허용된 SINGLE 또는 MULTI 플레이 모드로 변경한다.
 		if playMode ~= "SINGLE" and playMode ~= "MULTI" then log_warning("[_GameLogic] 지원하지 않는 플레이 모드입니다: " .. playMode)return
@@ -182,7 +183,7 @@ script GameLogic extends Logic
 	method string Make_InstanceRoomKey(table userIds)
 		local strKey = ""
 			
-		for strID in pairs(userIds) do
+		for i,strID in ipairs(userIds) do
 			strKey = strKey .. strID
 		end
 		
@@ -194,6 +195,11 @@ script GameLogic extends Logic
 		
 	end
 
+	@ExecSpace("Client")
+	method void Request_ReadyMinigame()
+		self:SendEvent(MinigameReadyEvent())
+	end
+
 	@EventSender("Service", "RoomService")
 	handler HandleRoomBeginEvent(RoomBeginEvent event)
 		
@@ -201,17 +207,13 @@ script GameLogic extends Logic
 		-- Sender: RoomService
 		-- Space: Server
 		---------------------------------------------------------
-		--룸 첫 진입 시 룸 안 영역에서 GameLogic의 변수를 업데이트한다--
+		--룸 첫 진입 시 룸 안 영역에서 GameLogic의 변수를 업데이트한다 (동기화 작업)--
 		local roomKey = _RoomService.RoomKey
-		
 		local code, memory = _RoomService:GetSharedMemory(roomKey)
-		
 		if code ~= SharedMemoryResultCode.OK then return end
 		
 		local result = memory:GetVariableAndWait("CurrentGameId")
-		
 		if result.Code ~= SharedMemoryResultCode.OK then return end
-		
 		self.CurrentGameId = result.Info.Value
 		log(self.CurrentGameId)
 		
@@ -219,10 +221,35 @@ script GameLogic extends Logic
 		result = memory:GetVariableAndWait("PlayMode")
 		if result.Code ~= SharedMemoryResultCode.OK then return end
 		self.PlayMode=result.Info.Value 
-		log(self.PlayMode)
 		
-		--최초진입시에만 fadescreen을 건든다.--
-		--_MyUILogic:SetBlack()
+		--PlayMode client에도 연결--
+		self:SetPlayMode(self.PlayMode)
+		
+		--동기화 이후 최초 진입하여 게임 시작 알리기--
+		self:Request_ReadyMinigame()
+		
+		
+	end
+
+	@EventSender("Self")
+	handler HandleMinigameReadyEvent(MinigameReadyEvent event)
+		-- space : Client --
+		-- 미니게임 데이터가 다 연동되었는지 체크한다 -- 
+		-- 1. 플레이모드 연동체크--
+		if (self.PlayMode=="NONE") then return end
+		
+		-- 2. 플레이 모드에 따른 분기 -- 
+		--싱글게임인 경우 바로 시작, 멀티게임인 경우 2인 레디 확인받고 시작 (동시시작)
+		if _GameLogic.PlayMode == "SINGLE" then
+			if self.CurrentGameId~="" then
+			_GameLogic:PlayIntro(self.CurrentGameId)
+			end
+		elseif _GameLogic.PlayMode=="MULTI" then
+			if self.CurrentGameId~="" then
+			-- 서버 영역에 나 레디됐음 보내기 --
+			-- 서버함수로 레디됐음 호출 --
+			end
+		end
 		
 	end
 
