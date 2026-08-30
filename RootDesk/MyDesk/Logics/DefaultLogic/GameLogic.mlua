@@ -206,7 +206,7 @@ script GameLogic extends Logic
 		log(self.PlayMode)
 		
 		--최초진입시에만 fadescreen을 건든다.--
-		_MyUILogic:SetBlack()
+		--_MyUILogic:SetBlack()
 		
 	end
 
