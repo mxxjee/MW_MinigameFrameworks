@@ -1,7 +1,7 @@
 {
   "Id": "",
   "GameId": "",
-  "EntryKey": "sprite://abd44d9cc95843aaa39bbb534e9af0c0",
+  "EntryKey": "sprite://bc8ff69d81274bcb839c94ed4da79428",
   "ContentType": "x-mod/sprite",
   "Content": "",
   "Usage": 0,
@@ -13,11 +13,11 @@
   "ContentProto": {
     "Use": "Json",
     "Json": {
-      "upload_keyname": "0d/13/0d13d5dd0b2f471f88f6c281753684b1/sprite/abd44d9cc95843aaa39bbb534e9af0c0/639234252143986329",
-      "upload_hash": "6C5B7F1199DF9B85C73A9208F488F5BC0DB36E31F154C6161A4A4F87CBDC030E",
+      "upload_keyname": "0d/13/0d13d5dd0b2f471f88f6c281753684b1/sprite/bc8ff69d81274bcb839c94ed4da79428/639236688044344782",
+      "upload_hash": "BDBEE4A6AAB8CF75C13FF64327D2D1D905A82C661023470A2BF60528A918D856",
       "name": "Player_Card",
-      "resource_guid": "abd44d9cc95843aaa39bbb534e9af0c0",
-      "resource_version": "6a9018bed43d0c8ffe65b842"
+      "resource_guid": "bc8ff69d81274bcb839c94ed4da79428",
+      "resource_version": "6a93d044b9028dbcc07949d2"
     }
   }
 }

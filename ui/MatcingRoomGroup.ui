@@ -864,7 +864,7 @@
             {
               "@type": "MOD.Core.SpriteGUIRendererComponent",
               "ImageRUID": {
-                "DataId": "abd44d9cc95843aaa39bbb534e9af0c0"
+                "DataId": "bc8ff69d81274bcb839c94ed4da79428"
               },
               "OverrideSorting": false,
               "SortingLayer": "MapLayer0",
