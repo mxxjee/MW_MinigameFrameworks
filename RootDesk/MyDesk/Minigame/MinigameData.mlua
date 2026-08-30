@@ -1,22 +1,28 @@
 @Struct
 script MinigameData
-	
+
 	property string Name = ""
-	
+
 	property string ID = ""
-	
+
 	property string MapName = ""
-	
+
 	property string Description = ""
-	
+
 	property string LogoGUID = ""
-	
-	method void InitData(string _name, string _id, string _mapName, string Desc, string logoGUID)
-		self.Name = _name
-		self.ID = _id
-		self.MapName = _mapName
-		self.Description = Desc
-		self.LogoGUID = logoGUID
+
+	property integer EndType = 1
+
+	property number MaxTime = 0
+
+	method void InitData(string _name, string _id, string _mapName, string Desc, string logoGUID, integer endType, number maxTime)
+		self.Name = _name		-- 게임 이름 (UI 표시용)
+		self.ID = _id			-- 게임 ID
+		self.MapName = _mapName -- 게임 진행할 씬 이름
+		self.Description = Desc -- 게임설명
+		self.LogoGUID = logoGUID -- 게임 로고 GUID
+		self.EndType=endType -- 게임 종료 조건 (TIME_ONLY : 시간제 , CONDITION_ONLY : 도달용)
+		self.MaxTime=maxTime -- 게임 최대 시간
 	end
-	
+
 end

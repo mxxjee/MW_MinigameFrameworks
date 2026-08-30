@@ -93,7 +93,7 @@ script MinigameIntroLogic extends Logic
 		self.IntroUI = nil
 		
 		
-		_GameLogic:StartGamePlay(gameId)
+		_GameLogic:ReportGameReady_Server()
 		
 		-- 다음 미니게임 인트로를 다시 시작할 수 있도록 완료 상태를 초기화합니다.
 		self.IntroState = "IDLE"

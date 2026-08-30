@@ -15,8 +15,42 @@ script GameLogic extends Logic
 
 	property table MyRankingData = {}
 
+	property integer introReadyCnt = 0
+
+	property integer GameReadyCnt = 0
+
+	property number ReserveServerTime = 0
+
+	property boolean IsReservedGamePlay = false
+
+	@ExecSpace("ClientOnly")
+	method void OnBeginPlay()
+		--싱글 룸에 들어가면 각 로직의 beginplay가 한번씩 더 불리므로, 싱글룸에 들어가서도 페이드인아웃이 적용되도록 설정
+		_ScreenTransitionService:SetFadeInOutEnable(true)
+	end
+
+	@ExecSpace("ClientOnly")
+	method void OnUpdate(number delta)
+		-- 서버 동시 시작 -- 
+		if self.IsReservedGamePlay==true and _UtilLogic.ServerElapsedSeconds >= self.ReserveServerTime then
+			self:StartGamePlay(self.CurrentGameId)
+			self.IsReservedGamePlay=false
+		end
+		
+		-- 로컬 미니게임을 갱신하고 제한 시간에 도달하면 종료한다.
+		_MinigameManager:Update(delta)
+		if _MinigameManager.IsPlaying == false then
+			return
+		end
+		
+		if _MinigameManager.CurrentTime >= self.CurrentMaxTime then
+			self:EndMinigame()
+		end
+	end
+
 	@ExecSpace("Server")
 	method boolean SelectMinigame(string gameID, table userIds)
+		self:Reset_Values_Server()
 		
 		-- 현재 플레이할 미니게임 ID를 선택한다.--
 		if gameID == "" then log_warning("[_GameLogic] 미니게임 ID가 비어 있어 선택할 수 없습니다.")return false end
@@ -40,6 +74,8 @@ script GameLogic extends Logic
 
 	@ExecSpace("Server")
 	method boolean EnterMiniGameRoom(table gameIds, string roomKey, table userIds, string PlayMode)
+		self:Reset_Values_Server()
+		
 		-- gameIds : 매치된 게임의 아이디들 , roomKey : 매칭키 , userIds:매칭한 두 사람 아이디들
 		-- 매칭이 완료된 이후 1번, 솔플의 경우 맵 선택 이후 1번 호출-- 
 		-- 게임 룸 최초 진입 시 호출--
@@ -74,14 +110,34 @@ script GameLogic extends Logic
 	end
 
 	@ExecSpace("Client")
-	method void SetPlayMode(string playMode)
-		-- 허용된 SINGLE 또는 MULTI 플레이 모드로 변경한다.
-		if playMode ~= "SINGLE" and playMode ~= "MULTI" then log_warning("[_GameLogic] 지원하지 않는 플레이 모드입니다: " .. playMode)return
+	method void Request_ReadyIntro()
+		self:SendEvent(MinigameIntroReadyEvent())
+	end
+
+	@ExecSpace("Client")
+	method void PlayIntro(string gameID)
+		-- UI 접근과 이벤트 순서 제어는 전용 인트로 Logic에 위임한다.
+		local result = _MinigameIntroLogic:BeginIntro(gameID)
+		if result == false then
+			log_warning("[_GameLogic] 미니게임 인트로 시작에 실패했습니다. gameId: " .. gameID)
+		end
+	end
+
+	@ExecSpace("Client")
+	method void StartGamePlay(string gameId)
+		-- 현재 선택된 미니게임의 시작을 로컬 실행 매니저에 요청한다.
+		if gameId == "" then
+			log_warning("[_GameLogic] 시작할 미니게임 ID가 비어 있습니다.")
+			return
 		end
 		
-		self.PlayMode = playMode
+		self.CurrentGameId = gameId
+		-- 인트로의 START 이미지 출력이 끝난 뒤 실제 미니게임을 수행한다.
+		local result = _MinigameManager:StartGame(gameId)
 		
-		
+		if result == false then
+			log_warning("[_GameLogic] 미니게임 시작에 실패했습니다. gameId: " .. gameId)
+		end
 	end
 
 	method void SetCurrentScore(number score)
@@ -124,60 +180,15 @@ script GameLogic extends Logic
 		self.OpponentPlayerId = ""
 	end
 
-	@ExecSpace("Client")
-	method void StartGamePlay(string gameId)
-		-- 현재 선택된 미니게임의 시작을 로컬 실행 매니저에 요청한다.
-		if gameId == "" then
-			log_warning("[_GameLogic] 시작할 미니게임 ID가 비어 있습니다.")
-			return
-		end
-		
-		self.CurrentGameId = gameId
-		-- 인트로의 START 이미지 출력이 끝난 뒤 실제 미니게임을 수행한다.
-		local result = _MinigameManager:StartGame(gameId)
-		
-		if result == false then
-			log_warning("[_GameLogic] 미니게임 시작에 실패했습니다. gameId: " .. gameId)
-		end
-	end
-
 	method void EndMinigame()
 		-- 현재 미니게임의 종료 처리를 로컬 실행 매니저에 위임한다.
 		_MinigameManager:EndGame()
-	end
-
-	@ExecSpace("ClientOnly")
-	method void OnUpdate(number delta)
-		-- 로컬 미니게임을 갱신하고 제한 시간에 도달하면 종료한다.
-		_MinigameManager:Update(delta)
-		if _MinigameManager.IsPlaying == false then
-			return
-		end
-		
-		if _MinigameManager.CurrentTime >= self.CurrentMaxTime then
-			self:EndMinigame()
-		end
 	end
 
 	@ExecSpace("Server")
 	method string MakeSoloRoomKey(string userId)
 		 local roomKey ="Solo_" ..userId .."_" ..tostring(DateTime.UtcNow.Elapsed)
 		  return roomKey
-	end
-
-	@ExecSpace("ClientOnly")
-	method void OnBeginPlay()
-		--싱글 룸에 들어가면 각 로직의 beginplay가 한번씩 더 불리므로, 싱글룸에 들어가서도 페이드인아웃이 적용되도록 설정
-		_ScreenTransitionService:SetFadeInOutEnable(true)
-	end
-
-	@ExecSpace("ClientOnly")
-	method void PlayIntro(string gameID)
-		-- UI 접근과 이벤트 순서 제어는 전용 인트로 Logic에 위임한다.
-		local result = _MinigameIntroLogic:BeginIntro(gameID)
-		if result == false then
-			log_warning("[_GameLogic] 미니게임 인트로 시작에 실패했습니다. gameId: " .. gameID)
-		end
 	end
 
 	method string Make_InstanceRoomKey(table userIds)
@@ -191,13 +202,76 @@ script GameLogic extends Logic
 	end
 
 	@ExecSpace("Client")
-	method void Get_PlayMode()
+	method void Set_PlayMode(string playMode)
+		-- 허용된 SINGLE 또는 MULTI 플레이 모드로 변경한다.
+		if playMode ~= "SINGLE" and playMode ~= "MULTI" then log_warning("[_GameLogic] 지원하지 않는 플레이 모드입니다: " .. playMode)return
+		end
+		
+		self.PlayMode = playMode
+		
 		
 	end
 
 	@ExecSpace("Client")
-	method void Request_ReadyMinigame()
-		self:SendEvent(MinigameReadyEvent())
+	method void Get_PlayMode()
+		
+	end
+
+	@ExecSpace("Server")
+	method void Reset_Values_Server()
+		self.introReadyCnt=0
+		self.GameReadyCnt=0
+	end
+
+	@ExecSpace("Server")
+	method void ReportIntroReady_Server()
+		if self.CurrentGameId ~= self.CurrentGameId then return end
+		if self.PlayMode=="NONE" then return end
+		
+		--레디 개수 증가--
+		self.introReadyCnt+=1
+		
+		local MaxCnt=0
+		if self.PlayMode=="SINGLE" then
+			MaxCnt=1
+		else
+			MaxCnt=2
+		end
+		
+		if(self.introReadyCnt==MaxCnt) then 
+			self:PlayIntro(self.CurrentGameId)
+			log(self.PlayMode.."에서 인트로를 실행합니다.")
+		end 
+		
+	end
+
+	@ExecSpace("Server")
+	method void ReportGameReady_Server()
+		if self.CurrentGameId ~= self.CurrentGameId then return end
+		if self.PlayMode=="NONE" then return end
+		
+		--레디 개수 증가--
+		self.GameReadyCnt+=1
+		
+		local MaxCnt=0
+		if self.PlayMode=="SINGLE" then
+			MaxCnt=1
+		else
+			MaxCnt=2
+		end
+		
+		if(self.GameReadyCnt==MaxCnt) then 
+			local ServerTime=_UtilLogic.ServerElapsedSeconds+0.5 -- 동시에 시작하기 위한 서버시간
+			
+			self:ReserveGameStart_Client(ServerTime)
+			log(self.PlayMode.."에서 게임을 실행합니다.")
+		end 
+	end
+
+	@ExecSpace("Client")
+	method void ReserveGameStart_Client(number startServerTime)
+		self.ReserveServerTime=startServerTime
+		self.IsReservedGamePlay=true
 	end
 
 	@EventSender("Service", "RoomService")
@@ -215,7 +289,7 @@ script GameLogic extends Logic
 		local result = memory:GetVariableAndWait("CurrentGameId")
 		if result.Code ~= SharedMemoryResultCode.OK then return end
 		self.CurrentGameId = result.Info.Value
-		log(self.CurrentGameId)
+		--log(self.CurrentGameId)
 		
 		--PlayMode도 연결--
 		result = memory:GetVariableAndWait("PlayMode")
@@ -223,34 +297,37 @@ script GameLogic extends Logic
 		self.PlayMode=result.Info.Value 
 		
 		--PlayMode client에도 연결--
-		self:SetPlayMode(self.PlayMode)
+		self:Set_PlayMode(self.PlayMode)
 		
 		--동기화 이후 최초 진입하여 게임 시작 알리기--
-		self:Request_ReadyMinigame()
+		self:Request_ReadyIntro()
 		
 		
 	end
 
 	@EventSender("Self")
-	handler HandleMinigameReadyEvent(MinigameReadyEvent event)
+	handler HandleMinigameIntroReadyEvent(MinigameIntroReadyEvent event)
 		-- space : Client --
 		-- 미니게임 데이터가 다 연동되었는지 체크한다 -- 
 		-- 1. 플레이모드 연동체크--
 		if (self.PlayMode=="NONE") then return end
 		
 		-- 2. 플레이 모드에 따른 분기 -- 
-		--싱글게임인 경우 바로 시작, 멀티게임인 경우 2인 레디 확인받고 시작 (동시시작)
+		-- 인트로 재생 : 레디 확인받고 시작 (동시시작)
+		-- 서버 영역에 나 레디됐음 보내기 --
 		if _GameLogic.PlayMode == "SINGLE" then
 			if self.CurrentGameId~="" then
-			_GameLogic:PlayIntro(self.CurrentGameId)
+			self:ReportIntroReady_Server()
+				
+			--_GameLogic:PlayIntro(self.CurrentGameId)
 			end
 		elseif _GameLogic.PlayMode=="MULTI" then
 			if self.CurrentGameId~="" then
-			-- 서버 영역에 나 레디됐음 보내기 --
-			-- 서버함수로 레디됐음 호출 --
+			self:ReportIntroReady_Server()
+			
+			
 			end
 		end
-		
 	end
 
 end

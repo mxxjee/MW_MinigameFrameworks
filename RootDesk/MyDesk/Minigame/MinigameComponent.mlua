@@ -27,9 +27,9 @@ script MinigameComponent extends Component
 		_MinigameManager.CurrentGame = self
 		_GameLogic.CurrentGameId = self.MinigameID
 		
-		-- 미니게임 레디 이벤트 발송 : 이 안에서 클라이언트 변수들이 다 동기화되었는지 체크하고, 
+		-- 미니게임 인트로 준비완료 이벤트 발송 : 이 안에서 클라이언트 변수들이 다 동기화되었는지 체크하고, 
 		-- SINLGE 인 경우 바로 게임시작을, MULTI인 경우 2인 레디를 서버에 보낸다 --
-		_GameLogic:Request_ReadyMinigame()
+		_GameLogic:Request_ReadyIntro()
 		
 		
 	end

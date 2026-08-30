@@ -24,7 +24,7 @@
       "Description": "",
       "Id": "74f1561c-7502-4563-ae75-d897d9b5869f",
       "Language": 1,
-      "Name": "MinigameReadyEvent",
+      "Name": "MinigameIntroReadyEvent",
       "Type": 3,
       "Source": 0,
       "Target": null
