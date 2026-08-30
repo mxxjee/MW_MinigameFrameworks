@@ -24,7 +24,7 @@
           "enable": true,
           "visible": true,
           "localize": true,
-          "displayOrder": 5,
+          "displayOrder": 6,
           "pathConstraints": "//",
           "revision": 0,
           "origin": {
@@ -103,7 +103,7 @@
             {
               "@type": "MOD.Core.UIGroupComponent",
               "DefaultShow": false,
-              "GroupOrder": 5,
+              "GroupOrder": 6,
               "GroupType": 1,
               "Enable": true
             },
@@ -307,7 +307,7 @@
               "MobileOnly": false,
               "OffsetMax": {
                 "x": -60.1016846,
-                "y": -842.573242
+                "y": -842.573
               },
               "OffsetMin": {
                 "x": 1271.52747,
@@ -319,7 +319,7 @@
               },
               "RectSize": {
                 "x": 588.37085,
-                "y": 203.255432
+                "y": 203.255676
               },
               "UIMode": 1,
               "UIScale": {

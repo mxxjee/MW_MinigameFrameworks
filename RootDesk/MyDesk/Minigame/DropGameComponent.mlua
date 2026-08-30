@@ -1,6 +1,6 @@
 @Component
 script DropGameComponent extends MinigameComponent
-	
+
 	method void Initialize(MinigameData gameData)
 		
 	end

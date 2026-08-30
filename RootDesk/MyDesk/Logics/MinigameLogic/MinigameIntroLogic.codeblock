@@ -1,7 +1,7 @@
 {
   "Id": "",
   "GameId": "",
-  "EntryKey": "codeblock://3ca9a421-6324-482f-af01-e9ff1c06e39c",
+  "EntryKey": "codeblock://dc5927c6-0de0-4123-a962-00e17f42851f",
   "ContentType": "x-mod/codeblock",
   "Content": "",
   "Usage": 0,
@@ -22,12 +22,12 @@
         "Minor": 1
       },
       "Description": "",
-      "Id": "3ca9a421-6324-482f-af01-e9ff1c06e39c",
+      "Id": "dc5927c6-0de0-4123-a962-00e17f42851f",
       "Language": 1,
-      "Name": "DropGameComponent",
-      "Type": 1,
+      "Name": "MinigameIntroLogic",
+      "Type": 5,
       "Source": 0,
-      "Target": "codeblock://3a7384e5-9f6b-4375-a07c-fa40dde3e143"
+      "Target": null
     }
   }
 }

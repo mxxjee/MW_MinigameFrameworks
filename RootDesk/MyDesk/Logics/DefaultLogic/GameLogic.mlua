@@ -125,15 +125,18 @@ script GameLogic extends Logic
 	@ExecSpace("Client")
 	method void StartGamePlay(string gameId)
 		-- 현재 선택된 미니게임의 시작을 로컬 실행 매니저에 요청한다.
-		---@type boolean
-		--local bResult = self:SelectMinigame(gameId)
-		--if bResult == false then
-		--return
-		--end
+		if gameId == "" then
+			log_warning("[_GameLogic] 시작할 미니게임 ID가 비어 있습니다.")
+			return
+		end
 		
+		self.CurrentGameId = gameId
+		-- 인트로의 START 이미지 출력이 끝난 뒤 실제 미니게임을 수행한다.
+		local result = _MinigameManager:StartGame(gameId)
 		
-		--실제 미니게임을 수행(시간흐름)
-		_MinigameManager:StartGame(self.CurrentGameId)
+		if result == false then
+			log_warning("[_GameLogic] 미니게임 시작에 실패했습니다. gameId: " .. gameId)
+		end
 	end
 
 	method void EndMinigame()
@@ -166,17 +169,13 @@ script GameLogic extends Logic
 		_ScreenTransitionService:SetFadeInOutEnable(true)
 	end
 
+	@ExecSpace("ClientOnly")
 	method void PlayIntro(string gameID)
-		-- 로고와 카운트다운을 수행한다 --
-		_GameHelper:EnableUIGroup("/ui/GameIntroGroup",true)
-		
-		-- 연출이 끝났다면
-		--self:StartGamePlay(gameID)
-	end
-
-	method void StartGame(string gameID)
-		self:PlayIntro(gameID)
-		
+		-- UI 접근과 이벤트 순서 제어는 전용 인트로 Logic에 위임한다.
+		local result = _MinigameIntroLogic:BeginIntro(gameID)
+		if result == false then
+			log_warning("[_GameLogic] 미니게임 인트로 시작에 실패했습니다. gameId: " .. gameID)
+		end
 	end
 
 	@EventSender("Service", "RoomService")

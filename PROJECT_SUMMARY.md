@@ -4,12 +4,12 @@
 >
 > **유지보수 규칙:** mLua 코드나 관련 UI·맵 구성을 생성·수정·삭제·이동할 때는 같은 작업에서 이 문서도 반드시 갱신한다. 문서와 코드가 다르면 실제 코드를 기준으로 바로잡는다.
 
-- 마지막 점검일: 2026-08-18
+- 마지막 점검일: 2026-08-30
 - 확인 브랜치: `Minji_Branch`
-- 확인 HEAD: `d630769` (`ADD: Spirte`)
+- 확인 HEAD: `fd391f5` (`Fix: 머지 완료`) + 현재 작업 트리
 - 분석 기준: 현재 작업 트리의 mLua, Map, UI, Model, Sprite 리소스
-- 현재 단계: **로비 → 게임 선택 → 확인 팝업 → 사용자별 싱글 Instance Room 생성·입장** 구현
-- 아직 미완성: 실제 `MinigameComponent` 선택·실행, `MULTI` 매칭, 미구현 게임 맵 3개
+- 현재 단계: **로비/선택/대기실 → Instance Room 입장 → 로컬 미니게임 인트로 → 실제 게임 시작** 흐름 연결 중
+- 아직 미완성: `MULTI` Instance Room 이동·두 사용자 준비 확인·동시 시작 신호, 구체 미니게임 본체, 등록 게임의 실제 로고 RUID
 
 ## 1. 현재 활성 구조
 
@@ -34,16 +34,23 @@ RootDesk/MyDesk/
 │  │  ├─ GameHelper.mlua
 │  │  └─ GameLogic.mlua
 │  └─ MinigameLogic/
+│     ├─ MinigameIntroLogic.mlua
 │     ├─ MinigameManager.mlua
 │     └─ MinigameRegistry.mlua
 ├─ Minigame/
+│  ├─ DropGameComponent.mlua
 │  ├─ MinigameComponent.mlua
 │  └─ MinigameData.mlua
 ├─ SelectScene/
 │  ├─ SelectSceneControllerComponent.mlua
 │  └─ SelectWidgetUIComponent.mlua
 ├─ UI/
-│  └─ EnterBtnComponent.mlua
+│  ├─ EnterBtnComponent.mlua
+│  ├─ MinigameIntroUIComponent.mlua
+│  └─ WaitingRoomMyAvatarComponent.mlua
+├─ Events/
+│  ├─ MinigameLogoEndEvent.mlua
+│  └─ MinigameCountdownEndEvent.mlua
 ├─ MapEnterController.mlua
 ├─ SelectSceneControllerComponent.mlua
 ├─ SelectWidgetUIComponent.mlua
@@ -72,13 +79,17 @@ RootDesk/MyDesk/
 
 | 파일 | 선언 | 전역 접근/부착 위치 | 현재 책임 |
 |---|---|---|---|
-| `Logics/GameLogic.mlua` | `@Logic script GameLogic` | `_GameLogic` | 플레이 모드·점수·제한시간·선택 게임 상태와 시작/종료 진입점 |
+| `Logics/DefaultLogic/GameLogic.mlua` | `@Logic script GameLogic` | `_GameLogic` | 플레이 모드·점수·제한시간·선택 게임 상태와 인트로/실제 게임 시작 진입점 |
 | `Logics/DefaultLogic/GameEnum.mlua` | `@Logic script GameEnum` | `_GameEnum` | 플레이 모드 enum 테이블 초기화 |
 | `Logics/DefaultLogic/GameHelper.mlua` | `@Logic script GameHelper` | `_GameHelper` | 경로로 UI Group을 찾아 활성화/비활성화 |
 | `Logics/MinigameLogic/MinigameRegistry.mlua` | `@Logic script MinigameRegistry` | `_MinigameRegistry` | 미니게임 이름·ID·맵 경로의 전역 등록 및 조회 |
 | `Logics/MinigameLogic/MinigameManager.mlua` | `@Logic script MinigameManager` | `_MinigameManager` | 로컬 미니게임 Component와 경과시간·실행 여부 관리 |
+| `Logics/MinigameLogic/MinigameIntroLogic.mlua` | `@Logic script MinigameIntroLogic` | `_MinigameIntroLogic` | 로컬 인트로 상태 관리, UI Component 획득, 로고/카운트다운 이벤트 연결 |
 | `Minigame/MinigameData.mlua` | `@Struct script MinigameData` | `MinigameData()` | 미니게임 이름·ID·MapName 저장 |
 | `Minigame/MinigameComponent.mlua` | `@Component script MinigameComponent` | 엔티티 부착/상속 기반 | 미니게임 초기화·갱신·해제 인터페이스 |
+| `UI/MinigameIntroUIComponent.mlua` | `@Component` | `/ui/GameIntroGroup` | 로고·카운트다운·START 연출과 단계 종료 이벤트 발행 |
+| `Events/MinigameLogoEndEvent.mlua` | `@Event` | `GameIntroGroup` Entity Event | 로고 Fade Out 완료 알림 |
+| `Events/MinigameCountdownEndEvent.mlua` | `@Event` | `GameIntroGroup` Entity Event | START 이미지 출력 완료 알림 |
 | `UI/EnterBtnComponent.mlua` | `@Component` | UI 버튼 부착 | 싱글/멀티 진입 분기와 선택 화면 이동 |
 | `MapEnterController.mlua` | `@Component` | 맵 진입 엔티티 부착 | SelectScene 진입 시 선택 화면 초기화 |
 | `SelectSceneControllerComponent.mlua` | `@Component` | 선택 화면 Controller | Registry 기반 선택 위젯 생성 |
@@ -115,7 +126,7 @@ ClientOnly `OnBeginPlay()`에서 다음 값을 만든다.
 | 이름 | 타입 | 기본값 | 역할 |
 |---|---|---:|---|
 | `CurrentGameId` | `string` | `""` | 현재 룸에서 선택된 게임 ID |
-| `PlayMode` | `integer` | `0` | `SINGLE` 또는 `MULTI` |
+| `PlayMode` | `string` | `"SINGLE"` | `SINGLE` 또는 `MULTI` |
 | `CurrentScore` | `number` | `0` | 현재 점수 |
 | `CurrentMaxTime` | `number` | `60` | 제한시간 |
 | `MyPlayerId` | `integer` | `0` | 로컬 플레이어 ID 저장 자리 |
@@ -135,11 +146,13 @@ ClientOnly `OnBeginPlay()`에서 다음 값을 만든다.
 
 | 메서드 | 현재 동작 |
 |---|---|
-| `SetPlayMode(integer playMode)` | `_GameEnum.PlayMode.SINGLE/MULTI`만 허용한다. |
+| `SetPlayMode(string playMode)` | 문자열 `SINGLE/MULTI`만 허용한다. |
 | `SetCurrentScore/AddScore/ResetScore` | 점수를 설정·가산·초기화한다. |
 | `SetCurrentMaxTime(number maxTime)` | 0보다 큰 제한시간만 허용한다. |
 | `SetOpponentPlayer/ClearOpponentPlayer` | 상대 ID를 설정·초기화한다. |
-| `StartMinigame(string gameId)` | Client 실행 Method. 현재 `gameId` 인자를 사용하지 않고 `_MinigameManager:StartGame(self.CurrentGameId)`만 호출한다. |
+| `PlayIntro(string gameId)` | ClientOnly. `_MinigameIntroLogic:BeginIntro(gameId)`에 인트로를 위임한다. |
+| `StartGame(string gameId)` | Client 실행 Method. SINGLE 로컬 흐름과 향후 MULTI 서버 신호가 공유하는 인트로 시작 진입점이다. |
+| `StartGamePlay(string gameId)` | Client 실행 Method. 인트로 완료 후 전달받은 `gameId`로 `_MinigameManager:StartGame(gameId)`을 호출한다. |
 | `EndMinigame()` | `_MinigameManager:EndGame()`에 종료를 위임한다. |
 | `OnUpdate(number delta)` | ClientOnly에서 Manager를 갱신하고 제한시간 도달 시 종료한다. |
 
@@ -192,7 +205,47 @@ Registry는 Entity에 부착하는 Component가 아니라 전역 `@Logic`이며 
 | `Update(number deltaTime)` | 실행 중이고 `CurrentGame`이 있을 때 시간을 누적하고 `Update()`를 호출한다. |
 | `EndGame()` | `Release()` 호출 후 Component·시간·상태를 초기화한다. |
 
-`StartGame()` 내부의 실제 `CurrentGame` 할당 코드는 주석 상태다. 따라서 외부에서 Component를 먼저 넣지 않으면 `CurrentGame:Initialize()`에서 nil 접근이 발생하는 미완성 구조다.
+현재는 `MinigameComponent.OnBeginPlay()`가 ClientOnly에서 자신을 `CurrentGame`으로 등록한다. `MinigameManager.StartGame()`도 Component가 등록되지 않은 경우 `false`를 반환하도록 방어한다.
+
+### 3.6 `MinigameIntroLogic`
+
+`MinigameIntroLogic`은 GameLogic과 UI 구현을 분리하는 Client 인트로 조정 계층이다.
+
+| Property | 타입 | 기본값 | 역할 |
+|---|---|---|---|
+| `IntroUI` | `MinigameIntroUIComponent` | `nil` | 현재 클라이언트의 구체 인트로 UI Component |
+| `CurrentGameId` | `string` | `""` | 현재 인트로가 진행 중인 게임 ID |
+| `IntroState` | `string` | `"IDLE"` | `IDLE → LOGO → COUNTDOWN → COMPLETED` 단계 상태 |
+
+`BeginIntro(gameId)`는 Registry에서 `MinigameData`를 구체 타입으로 조회하고 `/ui/GameIntroGroup`에서 `MinigameIntroUIComponent`를 구체 타입으로 얻는다. UI를 초기화한 뒤 `PlayLogo(gameData.LogoGUID)`를 호출한다. 진행 중 중복 호출은 거부해 Timer와 실제 게임 시작이 두 번 실행되지 않도록 한다.
+
+`GameIntroGroup`은 기본 비활성 UI라 첫 활성화 시 `MinigameIntroUIComponent.OnBeginPlay()`가 인트로 호출보다 늦게 실행될 수 있다. 이때 로고를 다시 끄는 초기화 경합을 막기 위해 `OnBeginPlay()`에서는 자식 UI 상태를 변경하지 않고 카운트다운 애니메이션 종료 이벤트만 연결한다. `BeginIntro() → Reset() → PlayLogo()`가 상태를 전담하며, `PlayLogo()`와 `PlayCountdown()`은 대상 Entity의 `Visible`과 `Enable`을 함께 켜고 단계 종료와 `Reset()`에서는 둘을 함께 끈다.
+
+Registry의 `LogoGUID`가 빈 문자열이면 `PlayLogo()`는 UI Editor에 설정된 기본 `ImageRUID`를 유지한다. 게임별 `LogoGUID`가 등록된 경우에만 해당 RUID로 교체한다.
+
+카운트다운은 더 이상 `3`, `2`, `1` RUID를 Timer로 하나씩 교체하지 않는다. `CountDown` Entity에 설정된 단일 `3 → 2 → 1` 애니메이션 클립을 `SpriteAnimClipPlayType.Onetime`으로 첫 프레임부터 재생하고, `SpriteGUIAnimPlayerEndEvent`를 실제로 받은 시점에 `CountdownStartRUID`로 교체해 START 이미지를 표시한다. START 표시 시간(`StartImageDuration`)이 끝나면 `MinigameCountdownEndEvent`를 전송한다. `CountdownStartRUID`는 `GameIntroGroup`의 `MinigameIntroUIComponent` Inspector에서 실제 START 이미지 RUID를 연결해야 한다.
+
+이벤트 수신 대상은 `GameIntroGroup` Entity ID `8f88597a-523d-471b-a665-86636c31ff2e`다.
+
+```text
+_GameLogic:StartGame(gameId)
+  → _GameLogic:PlayIntro(gameId)
+  → _MinigameIntroLogic:BeginIntro(gameId)
+  → MinigameIntroUIComponent:PlayLogo(LogoGUID)
+  → 로고 Fade Out 완료
+  → MinigameLogoEndEvent
+  → MinigameIntroLogic: HandleMinigameLogoEndEvent
+  → MinigameIntroUIComponent:PlayCountdown()
+  → 단일 3 → 2 → 1 Sprite Animation 재생
+  → SpriteGUIAnimPlayerEndEvent
+  → START 이미지
+  → MinigameCountdownEndEvent
+  → MinigameIntroLogic: HandleMinigameCountdownEndEvent
+  → _GameLogic:StartGamePlay(gameId)
+  → _MinigameManager:StartGame(gameId)
+```
+
+SINGLE은 로컬 `MinigameComponent.OnBeginPlay()`에서 현재 게임을 등록한 뒤 `StartGame()`으로 진입한다. MULTI에서는 두 사용자가 같은 Instance Room에서 준비됐음을 서버가 확인한 후, 각 사용자 클라이언트에 같은 `StartGame(gameId)` 신호를 보내야 한다. 실제 UI·Timer·인트로 상태는 ClientOnly이므로 각 사용자의 로컬 UI에서 독립적으로 실행된다. 서버 준비 확인과 동시 시작 신호는 아직 구현되지 않았다.
 
 ## 4. 미니게임 데이터와 기반 Component
 
@@ -204,8 +257,9 @@ Registry는 Entity에 부착하는 Component가 아니라 전역 `@Logic`이며 
 | `ID` | `string` | `""` |
 | `MapName` | `string` | `""` |
 | `Description` | `string` | `""` |
+| `LogoGUID` | `string` | `""` |
 
-`InitData(name, id, mapName, Desc)`가 네 값을 저장한다. 실제 실행 Component 참조는 보관하지 않는다.
+`InitData(name, id, mapName, Desc, logoGUID)`가 다섯 값을 저장한다. 실제 실행 Component 참조는 보관하지 않는다.
 
 ### 4.2 `MinigameComponent`
 
@@ -214,6 +268,7 @@ Registry는 Entity에 부착하는 Component가 아니라 전역 `@Logic`이며 
 | 초기화 | `Initialize(MinigameData gameData)` | 빈 기반 Method |
 | 갱신 | `Update(number deltaTime)` | 빈 기반 Method |
 | 해제 | `Release()` | 빈 기반 Method |
+| 로컬 등록/인트로 진입 | `OnBeginPlay()` | ClientOnly에서 Manager에 자신을 등록하고 SINGLE이면 `_GameLogic:StartGame()` 호출. MULTI는 서버 시작 신호를 대기한다. |
 
 구체 미니게임이 이 Component를 상속하거나 동일 인터페이스를 구현하고 Manager에 연결하는 단계가 남아 있다.
 
@@ -341,8 +396,12 @@ _GameLogic:StartMinigame(gameId)
 - `MinigameData`는 `Name`, `ID`, `MapName`만 저장한다.
 - 선택 화면은 Registry 데이터로 위젯을 생성하고 이름을 표시한다.
 - 선택 위젯의 클릭·게임 ID 전달·`StartMinigame()` 연결은 아직 없다.
-- `MinigameManager.CurrentGame`을 실제 `MinigameComponent`로 설정하는 경로가 아직 없다.
-- `StartGame()`의 현재 `CurrentGame:Initialize(gameData)` 호출은 Component 할당 전에는 사용할 수 없다.
+- `MinigameComponent.OnBeginPlay()`가 로컬 `MinigameManager.CurrentGame`을 설정한다.
+- 인트로는 `MinigameLogoEndEvent → PlayCountdown → MinigameCountdownEndEvent → StartGamePlay` 순서로 연결됐다.
+- 카운트다운은 단일 `3 → 2 → 1` Sprite Animation의 `SpriteGUIAnimPlayerEndEvent`가 도착한 뒤 START 이미지로 전환한다.
+- MULTI에서 두 사용자 준비 완료를 확인하고 두 클라이언트에 `StartGame(gameId)`을 보내는 서버 시작 신호는 아직 없다.
+- Registry에 등록된 현재 `LogoGUID`가 모두 빈 문자열이므로 실제 로고 리소스 연결이 필요하다.
+- `MinigameIntroUIComponent.CountdownStartRUID`가 빈 문자열이면 START 이미지로 교체할 리소스가 없으므로 UI Editor Inspector에서 실제 START 이미지 RUID를 지정해야 한다.
 - `GameLogic.SelectMinigame()`은 Registry 조회 결과가 `nil`인지 확인하기 전에 `GameData.MapName`을 사용한다.
 - MULTI 플레이의 서버 매칭·상대 연결은 TODO다.
 - 실제 점수 산정 규칙과 랭킹 데이터 스키마는 아직 없다.
@@ -358,14 +417,18 @@ _GameLogic:StartMinigame(gameId)
 - `MinigameComponent.Initialize()` 매개변수: `MinigameData`
 - `SelectSceneControllerComponent.widgetComp`: `SelectWidgetUIComponent`
 
-현재 실행 코드의 `GetComponent()` 호출은 `SelectSceneControllerComponent.mlua` 한 곳이다. 반환값에는 실제 Custom Method `Initialize()`의 소유 타입인 `SelectWidgetUIComponent` Annotation이 지정되어 있다.
+현재 실행 코드의 `GetComponent()` 호출은 두 곳이다.
 
-번들 mLua LSP `1.1.4`로 다음 11개 활성 프레임워크 파일을 검사했으며 diagnostic/error/warning은 모두 0건이었다.
+- `SelectSceneControllerComponent.widgetComp`: `SelectWidgetUIComponent`
+- `MinigameIntroLogic.introUI`: `MinigameIntroUIComponent`
 
-- `GameLogic`, `GameEnum`, `GameHelper`
-- `MinigameManager`, `MinigameRegistry`
-- `MinigameComponent`, `MinigameData`
-- `MapEnterController`, `SelectSceneControllerComponent`, `SelectWidgetUIComponent`, `EnterBtnComponent`
+둘 다 획득한 사용자 정의 Component의 Custom Method 소유 타입과 local Annotation이 일치하며, `Component` 또는 `any`로 낮추지 않았다. `MinigameIntroLogic.IntroUI` Property도 저장 단계부터 `MinigameIntroUIComponent` 구체 타입이다.
+
+mLua Extension `1.1.7`의 진단 엔진으로 `GameLogic`, `MinigameIntroLogic`, `MinigameManager`, `MinigameRegistry`, `MinigameComponent`, `DropGameComponent`, `MinigameData`, `MinigameIntroUIComponent`, `MinigameLogoEndEvent`, `MinigameCountdownEndEvent`를 분석했으며 diagnostic 0건, provider error 0건이었다.
+
+로고 표시 수정 후 `GameLogic`, `MinigameIntroLogic`, `MinigameIntroUIComponent`를 다시 분석했으며 diagnostic 0건, provider error 0건이었다.
+
+단일 카운트다운 Sprite Animation 종료 이벤트 방식으로 변경한 뒤에도 같은 세 파일을 mLua Extension `1.1.7` 진단 엔진으로 다시 분석했으며 diagnostic 0건, provider error 0건이었다.
 
 Codex 환경에서는 사용자의 VS Code Problems 패널 자체를 직접 읽지 못했다. 따라서 “VS Code Problems 오류 없음”이라고 단정하지 않으며, 위 결과는 번들 mLua LSP 진단 기준이다.
 

@@ -14,8 +14,8 @@ script MinigameManager extends Logic
 		---@type MinigameData
 		local gameData = _MinigameRegistry:GetMinigameData(gameId)
 		if gameData == nil then log_warning("[_MinigameManager] 등록되지 않은 미니게임 ID입니다: " .. gameId)return false end
+		if self.CurrentGame == nil then log_warning("[_MinigameManager] 현재 미니게임 Component가 등록되지 않았습니다.")return false end
 		
-		--self.CurrentGame = gameData.
 		self.CurrentTime = 0
 		self.IsPlaying = true
 		self.CurrentGame:Initialize(gameData)
@@ -30,9 +30,12 @@ script MinigameManager extends Logic
 			return
 		end
 		
+		
 		if self.CurrentGame == nil then
 			return
 		end
+		
+		log("현재 미니게임:"..self.CurrentGame.MinigameID.."플레잉중..")
 		
 		self.CurrentTime = self.CurrentTime + deltaTime
 		self.CurrentGame:Update(deltaTime)

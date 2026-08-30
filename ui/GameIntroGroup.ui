@@ -21,10 +21,10 @@
           "name": "GameIntroGroup",
           "path": "/ui/GameIntroGroup",
           "nameEditable": true,
-          "enable": false,
+          "enable": true,
           "visible": true,
           "localize": true,
-          "displayOrder": 6,
+          "displayOrder": 7,
           "pathConstraints": "//",
           "revision": 1,
           "origin": {
@@ -92,7 +92,7 @@
             {
               "@type": "MOD.Core.UIGroupComponent",
               "DefaultShow": false,
-              "GroupOrder": 6,
+              "GroupOrder": 7,
               "GroupType": 2,
               "Enable": true
             },
@@ -114,6 +114,12 @@
                 "IsRelative": false,
                 "EntityId": "c1a76d32-c11b-4541-b490-d9fce42174d7",
                 "Version2": false
+              },
+              "StartUI": {
+                "tempEntityId": null,
+                "IsRelative": false,
+                "EntityId": "36070dfe-0ba0-48f8-b689-68dff7acfbab",
+                "Version2": false
               }
             }
           ],
@@ -128,8 +134,8 @@
           "name": "Bg",
           "path": "/ui/GameIntroGroup/Bg",
           "nameEditable": true,
-          "enable": true,
-          "visible": true,
+          "enable": false,
+          "visible": false,
           "localize": true,
           "displayOrder": 0,
           "pathConstraints": "///",
@@ -338,26 +344,26 @@
               },
               "MobileOnly": false,
               "OffsetMax": {
-                "x": 208.425858,
-                "y": 52.2452354
+                "x": 95.60866,
+                "y": 197.403
               },
               "OffsetMin": {
-                "x": -193.679459,
-                "y": -79.63824
+                "x": -170.527847,
+                "y": -184.9164
               },
               "Pivot": {
                 "x": 0.5,
                 "y": 0.5
               },
               "RectSize": {
-                "x": 402.105316,
-                "y": 131.883469
+                "x": 266.1365,
+                "y": 382.3194
               },
               "UIMode": 1,
               "UIVersion": 2,
               "anchoredPosition": {
-                "x": 7.3732,
-                "y": -13.6965
+                "x": -37.4596,
+                "y": 6.2433
               },
               "Rotation": {
                 "x": 0.0,
@@ -365,8 +371,98 @@
                 "z": 0.0
               },
               "Position": {
-                "x": 7.3732,
-                "y": -13.6965,
+                "x": -37.4596,
+                "y": 6.2433,
+                "z": 0.0
+              },
+              "QuaternionRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "ZRotation": 0.0,
+              "Enable": true
+            },
+            {
+              "@type": "MOD.Core.SpriteGUIRendererComponent",
+              "AnimClipPlayType": 0,
+              "ImageRUID": {
+                "DataId": "8311116da94a437082c324a05af0e02d"
+              },
+              "OverrideSorting": false,
+              "PlayRate": 1.0,
+              "Enable": true
+            }
+          ],
+          "@version": 1
+        }
+      },
+      {
+        "id": "36070dfe-0ba0-48f8-b689-68dff7acfbab",
+        "path": "/ui/GameIntroGroup/Start",
+        "componentNames": "MOD.Core.UITransformComponent,MOD.Core.SpriteGUIRendererComponent",
+        "jsonString": {
+          "name": "Start",
+          "path": "/ui/GameIntroGroup/Start",
+          "nameEditable": true,
+          "enable": true,
+          "visible": true,
+          "localize": true,
+          "displayOrder": 3,
+          "pathConstraints": "///",
+          "revision": 1,
+          "origin": {
+            "type": "Model",
+            "entry_id": "uisprite",
+            "sub_entity_id": null,
+            "root_entity_id": "36070dfe-0ba0-48f8-b689-68dff7acfbab",
+            "replaced_model_id": null
+          },
+          "modelId": "uisprite",
+          "@components": [
+            {
+              "@type": "MOD.Core.UITransformComponent",
+              "AlignmentOption": 0,
+              "AnchorsMax": {
+                "x": 0.5,
+                "y": 0.5
+              },
+              "AnchorsMin": {
+                "x": 0.5,
+                "y": 0.5
+              },
+              "MobileOnly": false,
+              "OffsetMax": {
+                "x": 532.173157,
+                "y": 185.865356
+              },
+              "OffsetMin": {
+                "x": -532.173157,
+                "y": -185.865356
+              },
+              "Pivot": {
+                "x": 0.5,
+                "y": 0.5
+              },
+              "RectSize": {
+                "x": 1064.34631,
+                "y": 371.7307
+              },
+              "UIMode": 1,
+              "UIVersion": 2,
+              "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+              },
+              "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "Position": {
+                "x": 0.0,
+                "y": 0.0,
                 "z": 0.0
               },
               "QuaternionRotation": {
@@ -385,7 +481,6 @@
                 "DataId": "1dea1763a5fb4c5da2e06411183dbca8"
               },
               "OverrideSorting": false,
-              "PlayRate": 1.0,
               "Enable": true
             }
           ],
