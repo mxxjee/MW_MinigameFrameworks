@@ -1,0 +1,23 @@
+{
+  "Id": "",
+  "GameId": "",
+  "EntryKey": "sprite://631bf66c1f36430ebfb6ddc8b171579f",
+  "ContentType": "x-mod/sprite",
+  "Content": "",
+  "Usage": 0,
+  "UsePublish": 1,
+  "UseService": 0,
+  "CoreVersion": "26.7.0.0",
+  "StudioVersion": "0.1.0.0",
+  "DynamicLoading": 0,
+  "ContentProto": {
+    "Use": "Json",
+    "Json": {
+      "upload_keyname": "0d/13/0d13d5dd0b2f471f88f6c281753684b1/sprite/631bf66c1f36430ebfb6ddc8b171579f/639233397967656829",
+      "upload_hash": "4654F48064EBA6490B202A1A901BEC6AE4C63F07FA1093AA7BB797972EBF3FD5",
+      "name": "Drop_Logo",
+      "resource_guid": "631bf66c1f36430ebfb6ddc8b171579f",
+      "resource_version": "6a8ecb14076ca3015d77ef03"
+    }
+  }
+}

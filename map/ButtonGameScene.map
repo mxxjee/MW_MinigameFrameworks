@@ -20,7 +20,7 @@
         "jsonString": {
           "name": "ButtonGameScene",
           "path": "/maps/ButtonGameScene",
-          "nameEditable": false,
+          "nameEditable": true,
           "enable": true,
           "visible": true,
           "localize": false,
@@ -1435,6 +1435,59 @@
                 }
               ],
               "Enable": true
+            }
+          ],
+          "@version": 1
+        }
+      },
+      {
+        "id": "b5a5ec91-06d7-4931-84c3-8b2dda49648c",
+        "path": "/maps/ButtonGameScene/DropGameEntity",
+        "componentNames": "MOD.Core.TransformComponent,script.DropGameComponent",
+        "jsonString": {
+          "name": "DropGameEntity",
+          "path": "/maps/ButtonGameScene/DropGameEntity",
+          "nameEditable": true,
+          "enable": true,
+          "visible": true,
+          "localize": false,
+          "displayOrder": 3,
+          "pathConstraints": "///",
+          "revision": 1,
+          "origin": {
+            "type": "Model",
+            "entry_id": "mapempty",
+            "sub_entity_id": null,
+            "root_entity_id": "b5a5ec91-06d7-4931-84c3-8b2dda49648c",
+            "replaced_model_id": null
+          },
+          "modelId": "mapempty",
+          "@components": [
+            {
+              "@type": "MOD.Core.TransformComponent",
+              "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "Position": {
+                "x": 0.002571869,
+                "y": 0.00295729632,
+                "z": 999.999
+              },
+              "QuaternionRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "ZRotation": 0.0,
+              "Enable": true
+            },
+            {
+              "@type": "script.DropGameComponent",
+              "Enable": true,
+              "MinigameID": "Drop_Game"
             }
           ],
           "@version": 1

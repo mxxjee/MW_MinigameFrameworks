@@ -1,11 +1,9 @@
 @Logic
 script GameEnum extends Logic
-
-	property table PlayMode = {
-		SINGLE = 0,
-		MULTI = 1
-	}
-
+	
+	property table PlayMode = {}
+	property table FadeState = {}
+	
 	property table MatchState = {
 		WAITING = 0,
 		ACTIVE = 1,
@@ -13,5 +11,24 @@ script GameEnum extends Logic
 		PLAYING = 3,
 		FINISH = 4
 	}
-
+	
+	@ExecSpace("ClientOnly")
+	method void OnBeginPlay()
+		self.PlayMode = enum({
+			SINGLE = 0,
+			MULTI = 1})
+		
+		
+		--페이드인 상태
+		self.FadeState = enum({
+			NONE = 0,
+			FADE_OUT = 1,
+			BLACK = 2,
+			FADE_IN = 3})
+		
+		
+	end
+	
+	
+	
 end

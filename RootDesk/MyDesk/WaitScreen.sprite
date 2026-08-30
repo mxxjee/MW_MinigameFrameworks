@@ -1,0 +1,23 @@
+{
+  "Id": "",
+  "GameId": "",
+  "EntryKey": "sprite://65d1176a579d4a038fd244d990a64a4c",
+  "ContentType": "x-mod/sprite",
+  "Content": "",
+  "Usage": 0,
+  "UsePublish": 1,
+  "UseService": 0,
+  "CoreVersion": "26.7.0.0",
+  "StudioVersion": "0.1.0.0",
+  "DynamicLoading": 0,
+  "ContentProto": {
+    "Use": "Json",
+    "Json": {
+      "upload_keyname": "0d/13/0d13d5dd0b2f471f88f6c281753684b1/sprite/65d1176a579d4a038fd244d990a64a4c/639233420616808109",
+      "upload_hash": "7A150C962E973EE6257C884DF01EDC9D594C6AA0390105BB5D96ED39BA23BD7A",
+      "name": "WaitScreen",
+      "resource_guid": "65d1176a579d4a038fd244d990a64a4c",
+      "resource_version": "6a8ed3ed5d0dc263f83f3e85"
+    }
+  }
+}

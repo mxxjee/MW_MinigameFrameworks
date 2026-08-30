@@ -1,0 +1,4 @@
+@Event
+script MinigameCountdownEndEvent extends EventType
+
+end

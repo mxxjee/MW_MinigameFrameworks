@@ -1,19 +1,22 @@
 @Struct
 script MinigameData
-
+	
 	property string Name = ""
-
+	
 	property string ID = ""
-
+	
 	property string MapName = ""
-
+	
 	property string Description = ""
-
-	method void InitData(string _name, string _id, string _mapName, string Desc)
+	
+	property string LogoGUID = ""
+	
+	method void InitData(string _name, string _id, string _mapName, string Desc, string logoGUID)
 		self.Name = _name
 		self.ID = _id
 		self.MapName = _mapName
 		self.Description = Desc
+		self.LogoGUID = logoGUID
 	end
-
+	
 end

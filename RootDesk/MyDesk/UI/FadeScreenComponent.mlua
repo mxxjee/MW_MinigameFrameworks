@@ -1,0 +1,72 @@
+@Component
+script FadeScreenComponent extends Component
+
+	property integer State = 0
+
+	property SpriteGUIRendererComponentRef Renderer = "a1dc3e4b-0127-44b4-8a67-899e57ad1863"
+
+	property number FadeSpeed = 2
+
+	property number Alpha = 0
+
+	method void FadeIn()
+		_GameHelper:EnableUIGroup("/ui/FadeGroup",true)
+		self.State=_GameEnum.FadeState.FADE_IN
+	end
+
+	@ExecSpace("ClientOnly")
+	method void OnUpdate(number delta)
+		if (self.State==_GameEnum.FadeState.NONE) then return 
+		
+		elseif (self.State==_GameEnum.FadeState.FADE_IN) then self:Update_Fade_In(delta) 
+		
+		elseif (self.State==_GameEnum.FadeState.FADE_OUT) then self:Update_Fade_Out(delta) end
+		
+		
+	end
+
+	@ExecSpace("ClientOnly")
+	method void OnBeginPlay()
+		self.State=_GameEnum.FadeState.NONE
+	end
+
+	method void Update_Fade_In(number delta)
+		self.Alpha = math.max(self.Alpha - delta * self.FadeSpeed, 0)
+		self.Entity.SpriteGUIRendererComponent:SetAlpha(self.Alpha)
+		
+		if self.Alpha <= 0 then
+		
+			self.State = _GameEnum.FadeState.NONE
+		end
+	end
+
+	method void OnFadeOutEnd()
+			local event = MyFadeOutEvent()
+			self.Entity:SendEvent(event)
+	end
+
+	method void Update_Fade_Out(number delta)
+		self.Alpha = math.min(self.Alpha + delta * self.FadeSpeed, 1)
+		self.Entity.SpriteGUIRendererComponent:SetAlpha(self.Alpha)
+		
+		if self.Alpha >= 1 then
+				self.State = _GameEnum.FadeState.BLACK
+				self:OnFadeOutEnd()
+			end
+	end
+
+	method void Fade_Out()
+		_GameHelper:EnableUIGroup("/ui/FadeGroup",true)
+		self.State=_GameEnum.FadeState.FADE_OUT
+	end
+
+	method void Set_Black()
+		_GameHelper:EnableUIGroup("/ui/FadeGroup", true)
+		
+		    self.Alpha = 1
+		    self.State = _GameEnum.FadeState.BLACK
+		
+		    self.Entity.SpriteGUIRendererComponent:SetAlpha(1)
+	end
+
+end

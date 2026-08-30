@@ -1,0 +1,4 @@
+@Event
+script MyFadeOutEvent extends EventType
+
+end

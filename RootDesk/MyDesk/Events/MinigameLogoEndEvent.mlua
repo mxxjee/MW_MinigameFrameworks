@@ -1,0 +1,4 @@
+@Event
+script MinigameLogoEndEvent extends EventType
+
+end

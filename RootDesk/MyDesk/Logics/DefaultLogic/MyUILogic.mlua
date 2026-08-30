@@ -1,0 +1,40 @@
+@Logic
+script MyUILogic extends Logic
+
+	method void FadeIn()
+		local FadeGroup = _EntityService:GetEntityByPath("/ui/FadeGroup")
+		if isvalid(FadeGroup)==false then return end
+		
+		local FadeScreen=FadeGroup:GetChildByName("FadeScreen")
+		if isvalid(FadeScreen)==false then return end
+		
+		local Comp=FadeScreen.FadeScreenComponent
+		if isvalid(Comp)==false then return end
+		Comp:FadeIn()
+	end
+
+	method void FadeOut()
+		local FadeGroup = _EntityService:GetEntityByPath("/ui/FadeGroup")
+		if isvalid(FadeGroup)==false then return end
+		
+		local FadeScreen=FadeGroup:GetChildByName("FadeScreen")
+		if isvalid(FadeScreen)==false then return end
+		
+		local Comp=FadeScreen.FadeScreenComponent
+		if isvalid(Comp)==false then return end
+		Comp:Fade_Out()
+	end
+
+	method void SetBlack()
+		local FadeGroup = _EntityService:GetEntityByPath("/ui/FadeGroup")
+		if isvalid(FadeGroup)==false then return end
+		
+		local FadeScreen=FadeGroup:GetChildByName("FadeScreen")
+		if isvalid(FadeScreen)==false then return end
+		
+		local Comp=FadeScreen.FadeScreenComponent
+		if isvalid(Comp)==false then return end
+		Comp:Set_Black()
+	end
+
+end

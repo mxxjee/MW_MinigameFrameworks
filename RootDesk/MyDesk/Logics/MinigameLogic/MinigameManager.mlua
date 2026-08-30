@@ -48,6 +48,7 @@ script MinigameManager extends Logic
 		self.CurrentGame = nil
 		self.CurrentTime = 0
 		self.IsPlaying = false
+		
 	end
 
 end

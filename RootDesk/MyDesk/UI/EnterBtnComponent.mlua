@@ -1,12 +1,12 @@
 @Component
 script EnterBtnComponent extends Component
-
+	
 	property integer Mode = 0
-
+	
 	property boolean bSelected = false
-
+	
 	property boolean IsWaitingRequestSent = false
-
+	
 	@EventSender("Self")
 	handler HandleButtonClickEvent(ButtonClickEvent event)
 		--------------- Native Event Sender Info ----------------
@@ -33,7 +33,7 @@ script EnterBtnComponent extends Component
 		end
 		
 		if self.Mode == _GameEnum.PlayMode.SINGLE then
-			_GameLogic:SetPlayMode(self.Mode)
+			_GameLogic:SetPlayMode("SINGLE")
 			
 			local player = _UserService.LocalPlayer
 			_TeleportService:TeleportToMapPosition(
@@ -42,7 +42,7 @@ script EnterBtnComponent extends Component
 				"SelectScene"
 			)
 		else
-			_GameLogic:SetPlayMode(self.Mode)
+			_GameLogic:SetPlayMode("MULTI")
 			
 			_TeleportService:TeleportToMapPosition(
 				_UserService.LocalPlayer,
@@ -51,10 +51,10 @@ script EnterBtnComponent extends Component
 			)
 		end
 		
-		self.bSelected=true
+		self.bSelected = true
 		
 	end
-
+	
 	@EventSender("Service", "ScreenTransitionService")
 	handler HandleFadeOutEndEvent(FadeOutEndEvent event)
 		--------------- Native Event Sender Info ----------------
@@ -63,11 +63,11 @@ script EnterBtnComponent extends Component
 		---------------------------------------------------------
 		
 		--2번 호출막기--
-		if (self.bSelected==false) then return end
+		if (self.bSelected == false) then return end
 		
-		_GameHelper:EnableUIGroup("/ui/LobbyGroup",false)
-		_GameHelper:EnableUIGroup("/ui/SelectButtonGroup",false)
-		self.bSelected=false
+		_GameHelper:EnableUIGroup("/ui/LobbyGroup", false)
+		_GameHelper:EnableUIGroup("/ui/SelectButtonGroup", false)
+		self.bSelected = false
 	end
-
+	
 end
