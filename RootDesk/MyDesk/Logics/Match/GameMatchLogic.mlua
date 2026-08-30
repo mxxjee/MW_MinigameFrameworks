@@ -92,12 +92,12 @@ script GameMatchLogic extends Logic
 		log("[_GameMatchLogic] 매칭 연결 완료: " .. matchInfo.MatchId)
 		
 		local InstanceRoomKey =  _GameLogic:Make_InstanceRoomKey({userId1,userId2})
-		local GameID="Button_Game"
+		local GameID="Drop_Game"
 		
 		self:ReceiveMatchedOpponent(userId2, userId1)
 		self:ReceiveMatchedOpponent(userId1, userId2)
 		
-		_GameLogic:EnterMiniGameRoom({GameID},InstanceRoomKey,{userId1,userId2})
+		_GameLogic:EnterMiniGameRoom({GameID},InstanceRoomKey,{userId1,userId2},"MULTI")
 	end
 
 	@ExecSpace("Client")

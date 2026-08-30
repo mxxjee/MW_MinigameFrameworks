@@ -27,7 +27,7 @@
       "Name": "DropGameComponent",
       "Type": 1,
       "Source": 0,
-      "Target": null
+      "Target": "codeblock://3a7384e5-9f6b-4375-a07c-fa40dde3e143"
     }
   }
 }

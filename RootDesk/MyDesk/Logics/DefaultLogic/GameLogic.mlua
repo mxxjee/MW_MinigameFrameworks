@@ -39,7 +39,7 @@ script GameLogic extends Logic
 	end
 
 	@ExecSpace("Server")
-	method boolean EnterMiniGameRoom(table gameIds, string roomKey, table userIds)
+	method boolean EnterMiniGameRoom(table gameIds, string roomKey, table userIds, string PlayMode)
 		-- gameIds : 매치된 게임의 아이디들 , roomKey : 매칭키 , userIds:매칭한 두 사람 아이디들
 		-- 매칭이 완료된 이후 1번, 솔플의 경우 맵 선택 이후 1번 호출-- 
 		-- 게임 룸 최초 진입 시 호출--
@@ -51,8 +51,9 @@ script GameLogic extends Logic
 		local code, memory = _RoomService:GetSharedMemory(roomKey)
 		local result = memory:SetVariableAndWait("CurrentGameId",gameIds[1])
 		
+		
 		--playMode도 보내야함--
-		result = memory:SetVariableAndWait("PlayMode",self.PlayMode)
+		result = memory:SetVariableAndWait("PlayMode", PlayMode )
 		
 		-- 이번 Room에서 사용할 모든 미니게임 Map을 등록한다.
 		for _, gameId in ipairs(gameIds) do
@@ -187,6 +188,11 @@ script GameLogic extends Logic
 		end
 		
 		return strKey 
+	end
+
+	@ExecSpace("Client")
+	method void Get_PlayMode()
+		
 	end
 
 	@EventSender("Service", "RoomService")
