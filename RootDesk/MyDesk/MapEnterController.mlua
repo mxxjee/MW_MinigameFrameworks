@@ -10,15 +10,16 @@ script MapEnterController extends Component
 			_MinigameRegistry:Initialize()
 		end
 		
+		
 		if enteredMap.Name=="LobbyScene" then
 			_GameHelper:EnableUIGroup("/ui/LobbyGroup", true)
 		elseif enteredMap.Name == "SelectScene" then
 			self.Entity.SelectSceneControllerComponent:Initialize()
 			_GameHelper:EnableUIGroup("/ui/SelectGroup", true)
 			_GameHelper:EnableUIGroup("/ui/WaitingRoomGroup", false)
-		elseif enteredMap.Name == "WaitingRoomScene" then
+		elseif enteredMap.Name == "MatcingRoomScene" then
 			_GameHelper:EnableUIGroup("/ui/SelectGroup", false)
-			_GameHelper:EnableUIGroup("/ui/WaitingRoomGroup", true)
+			_GameHelper:EnableUIGroup("/ui/MatcingRoomGroup", true)
 		end
 	end
 

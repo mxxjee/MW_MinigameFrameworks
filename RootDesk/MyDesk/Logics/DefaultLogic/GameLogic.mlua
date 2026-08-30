@@ -156,8 +156,19 @@ script GameLogic extends Logic
 		  return roomKey
 	end
 
+	method string Make_InstanceRoomKey(table userIds)
+		local strKey = ""
+			
+		for strID in pairs(userIds) do
+			strKey = strKey .. strID
+		end
+		
+		return strKey 
+	end
+
 	@EventSender("Service", "RoomService")
 	handler HandleRoomBeginEvent(RoomBeginEvent event)
+		
 		--------------- Native Event Sender Info ----------------
 		-- Sender: RoomService
 		-- Space: Server

@@ -1,0 +1,47 @@
+@Struct
+script GameRecordData
+
+	property Vector2 Record_Match = Vector2(0,0)
+
+	property table Record_MiniGame = {}
+
+	@ExecSpace("ServerOnly")
+	method void Load_Data(string _userID)
+		-- 처음 게임 접속시 데이터 로드
+		local User_Data = _DataStorageService:GetUserDataStorage(_userID)
+		local Error_Code ,Record_Json = User_Data:GetAndWait("Game_Record")
+		
+		if Error_Code ~= 0 then 
+			log("[GameRecordLogic] 전적 로드 실패: " .. tostring(Error_Code))
+		end
+		
+		--Json 파일 변
+		local Record_Data = _HttpService:JSONDecode(Record_Json)
+		--Match 데이터 로드
+		self.Record_Match.x = Record_Data["Match"]["Win"] 
+		self.Record_Match.y = Record_Data["Match"]["Lose"] 
+		
+		local MiniGame_Datas = Record_Data["MiniGame"]
+		--Mini Game 데이터 로드
+		for Key in pairs(self.Record_MiniGame) do
+			local Data =  MiniGame_Datas[Key]
+			self.Record_MiniGame[Key] = Data
+		end
+		
+		local MiniGameOrder = _MinigameRegistry.MinigameOrders
+		
+	end
+
+	@ExecSpace("ServerOnly")
+	method void Save_Data(string _userID)
+		local Data = { Match = { self.Record_Match.x,self.Record_Match.y} , MiniGame = self.Record_MiniGame }
+		local Json = _HttpService:JSONEncode(Data)
+		local User_Data = _DataStorageService:GetUserDataStorage(_userID)
+		local Error_Code = User_Data:SetAndWait("Game_Record",Json)
+		if Error_Code ~= 0 then 
+			log("[GameRecordLogic] 전적 저장 실패: " .. tostring(Error_Code))
+		end
+		
+	end
+
+end

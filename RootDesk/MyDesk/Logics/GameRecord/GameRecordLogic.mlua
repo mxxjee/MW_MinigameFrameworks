@@ -1,0 +1,4 @@
+@Logic
+script GameRecordLogic extends Logic
+	property any GameRecordInfo = GameRecordData()
+end
