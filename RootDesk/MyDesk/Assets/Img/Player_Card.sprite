@@ -1,0 +1,23 @@
+{
+  "Id": "",
+  "GameId": "",
+  "EntryKey": "sprite://bc8ff69d81274bcb839c94ed4da79428",
+  "ContentType": "x-mod/sprite",
+  "Content": "",
+  "Usage": 0,
+  "UsePublish": 1,
+  "UseService": 0,
+  "CoreVersion": "26.7.0.0",
+  "StudioVersion": "0.1.0.0",
+  "DynamicLoading": 0,
+  "ContentProto": {
+    "Use": "Json",
+    "Json": {
+      "upload_keyname": "0d/13/0d13d5dd0b2f471f88f6c281753684b1/sprite/bc8ff69d81274bcb839c94ed4da79428/639236688044344782",
+      "upload_hash": "BDBEE4A6AAB8CF75C13FF64327D2D1D905A82C661023470A2BF60528A918D856",
+      "name": "Player_Card",
+      "resource_guid": "bc8ff69d81274bcb839c94ed4da79428",
+      "resource_version": "6a93d044b9028dbcc07949d2"
+    }
+  }
+}

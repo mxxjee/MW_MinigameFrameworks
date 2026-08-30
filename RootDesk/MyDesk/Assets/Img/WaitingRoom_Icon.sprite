@@ -1,0 +1,23 @@
+{
+  "Id": "",
+  "GameId": "",
+  "EntryKey": "sprite://fac8276038074d239fa4509543bde7f4",
+  "ContentType": "x-mod/sprite",
+  "Content": "",
+  "Usage": 0,
+  "UsePublish": 1,
+  "UseService": 0,
+  "CoreVersion": "26.7.0.0",
+  "StudioVersion": "0.1.0.0",
+  "DynamicLoading": 0,
+  "ContentProto": {
+    "Use": "Json",
+    "Json": {
+      "upload_keyname": "0d/13/0d13d5dd0b2f471f88f6c281753684b1/sprite/fac8276038074d239fa4509543bde7f4/639234252144121328",
+      "upload_hash": "F4F3C436A52AAC6A5F83C21026C2FE4DE356C2E251D8F6496DECCAC56F6D4CE0",
+      "name": "WaitingRoom_Icon",
+      "resource_guid": "fac8276038074d239fa4509543bde7f4",
+      "resource_version": "6a9018be7208d3e6c3f58485"
+    }
+  }
+}

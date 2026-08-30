@@ -14,29 +14,21 @@ script EnterBtnComponent extends Component
 		-- Space: Client
 		---------------------------------------------------------
 		
-		if _UserService.LocalPlayer.CurrentMapName == "WaitingRoomScene" then
+		-- 매칭 관
+		if _UserService.LocalPlayer.CurrentMapName == "MatcingRoomScene" then
 			if self.IsWaitingRequestSent == true then
 				return
 			end
-			
+		
 			local userId = _UserService.LocalPlayer.PlayerComponent.UserId
 			if userId == nil or userId == "" then
 				log_warning("[EnterBtnComponent] 대기열 등록에 필요한 UserId가 없습니다.")
 				return
 			end
-			
+		
 			_GameMatchLogic:RegisterWaitingPlayerOnServer(userId)
 			self.IsWaitingRequestSent = true
-			
-			local statusEntity = _EntityService:GetEntityByPath("/ui/WaitingRoomGroup/RightPanel/StatusText")
-			if isvalid(statusEntity) == true then
-				local textComponent = statusEntity.TextGUIRendererComponent
-				if isvalid(textComponent) == true then
-					textComponent.Text = "매칭 중..."
-				end
-			end
-			log("[EnterBtnComponent] 매칭 대기열 등록 요청: " .. userId)
-			self.Entity.Enable = false
+		
 			return
 		end
 		
@@ -55,7 +47,7 @@ script EnterBtnComponent extends Component
 			_TeleportService:TeleportToMapPosition(
 				_UserService.LocalPlayer,
 				Vector3(0, 0, 0),
-				"WaitingRoomScene"
+				"MatcingRoomScene"
 			)
 		end
 		

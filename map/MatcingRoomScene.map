@@ -1,7 +1,7 @@
 {
   "Id": "",
   "GameId": "",
-  "EntryKey": "map://waitingroomscene",
+  "EntryKey": "map://matcingroomscene",
   "ContentType": "x-mod/map",
   "Content": "",
   "Usage": 0,
@@ -15,11 +15,11 @@
     "Entities": [
       {
         "id": "1bf9d3f5-6d93-4bf7-8c93-0f5c38ec67a1",
-        "path": "/maps/WaitingRoomScene",
+        "path": "/maps/MatcingRoomScene",
         "componentNames": "MOD.Core.MapComponent,MOD.Core.FootholdComponent",
         "jsonString": {
-          "name": "WaitingRoomScene",
-          "path": "/maps/WaitingRoomScene",
+          "name": "MatcingRoomScene",
+          "path": "/maps/MatcingRoomScene",
           "nameEditable": true,
           "enable": true,
           "visible": true,
@@ -46,11 +46,11 @@
       },
       {
         "id": "4a6a6d40-6906-4d56-bd0b-6398361eef16",
-        "path": "/maps/WaitingRoomScene/Background",
+        "path": "/maps/MatcingRoomScene/Background",
         "componentNames": "MOD.Core.BackgroundComponent",
         "jsonString": {
           "name": "Background",
-          "path": "/maps/WaitingRoomScene/Background",
+          "path": "/maps/MatcingRoomScene/Background",
           "nameEditable": false,
           "enable": true,
           "visible": true,
@@ -72,11 +72,11 @@
       },
       {
         "id": "3bb1af7e-fb26-42f9-a0c9-cd3f0fa814fd",
-        "path": "/maps/WaitingRoomScene/MapleMapLayer",
+        "path": "/maps/MatcingRoomScene/MapleMapLayer",
         "componentNames": "MOD.Core.MapLayerComponent",
         "jsonString": {
           "name": "MapleMapLayer",
-          "path": "/maps/WaitingRoomScene/MapleMapLayer",
+          "path": "/maps/MatcingRoomScene/MapleMapLayer",
           "nameEditable": false,
           "enable": true,
           "visible": true,
@@ -108,11 +108,11 @@
       },
       {
         "id": "4c4f9c9c-5e79-4ee7-bd42-b2e2828d29f8",
-        "path": "/maps/WaitingRoomScene/TileMap",
+        "path": "/maps/MatcingRoomScene/TileMap",
         "componentNames": "MOD.Core.TransformComponent,MOD.Core.TileMapComponent",
         "jsonString": {
           "name": "TileMap",
-          "path": "/maps/WaitingRoomScene/TileMap",
+          "path": "/maps/MatcingRoomScene/TileMap",
           "nameEditable": false,
           "enable": true,
           "visible": true,
@@ -167,11 +167,11 @@
       },
       {
         "id": "dd1451c8-a70d-487c-8713-f81e6926b325",
-        "path": "/maps/WaitingRoomScene/WaitingRoomSceneController",
+        "path": "/maps/MatcingRoomScene/WaitingRoomSceneController",
         "componentNames": "MOD.Core.TransformComponent,script.MapEnterController",
         "jsonString": {
           "name": "WaitingRoomSceneController",
-          "path": "/maps/WaitingRoomScene/WaitingRoomSceneController",
+          "path": "/maps/MatcingRoomScene/WaitingRoomSceneController",
           "nameEditable": true,
           "enable": true,
           "visible": true,

@@ -1,41 +1,41 @@
 @Component
 script SelectSceneControllerComponent extends Component
-	
+
 	property Entity GameListEntity = nil
-	
+
 	property Entity BtnOK = nil
-	
+
 	property Entity BtnCancel = nil
-	
+
 	property TextComponent PopupMessage = nil
-	
+
 	@HideFromInspector
 	property string SelectWidgetModelId = "model://b9a29910-7633-405a-b5c4-1d7a4c7df643"
-	
+
 	@HideFromInspector
 	property number SlotSpacing = 300
-	
+
 	property integer CurrentIndex = 1
-	
+
 	property integer MaxIndex = 0
-	
+
 	property Vector2 TargetPosition = Vector2(0, 0)
-	
+
 	@HideFromInspector
 	property table GameList = {}
-	
+
 	@HideFromInspector
 	property table WidgetList = {}
-	
+
 	@HideFromInspector
 	property boolean IsMoving = false
-	
+
 	property number MoveSpeed = 30
-	
+
 	property Entity DescUI = "4a999140-707a-43f8-b2fa-683c3f898c1c"
-	
+
 	property boolean bShowPopup = false
-	
+
 	@ExecSpace("ClientOnly")
 	method void Initialize()
 		
@@ -58,7 +58,7 @@ script SelectSceneControllerComponent extends Component
 		self:SetDescription()
 		
 	end
-	
+
 	@ExecSpace("ClientOnly")
 	method void Refresh_Slots()
 		--슬롯 생성--
@@ -102,7 +102,7 @@ script SelectSceneControllerComponent extends Component
 		
 		self.MaxIndex = #self.GameList
 	end
-	
+
 	method void MoveToCurrentIdx()
 		-- 현재 선택된 슬롯이 항상 화면 중앙 x = 0에 오도록
 		-- 부모 GameList를 반대 방향으로 이동시킨다.
@@ -111,7 +111,7 @@ script SelectSceneControllerComponent extends Component
 		self.TargetPosition = Vector2(targetX, self.GameListEntity.UITransformComponent.anchoredPosition.y)
 		self.IsMoving = true
 	end
-	
+
 	@ExecSpace("ClientOnly")
 	method void OnUpdate(number delta)
 		if self.IsMoving == false then return end
@@ -132,21 +132,21 @@ script SelectSceneControllerComponent extends Component
 			
 		end
 	end
-	
+
 	method void OnReach()
 		local uiTransform = self.GameListEntity.UITransformComponent
 		uiTransform.anchoredPosition = self.TargetPosition
 		self.IsMoving = false
 		self:SetDescription()
 	end
-	
+
 	method void SetDescription()
 		
 		local gameId = self.GameList[self.CurrentIndex]
 		local TextComp = self.DescUI:GetChildByName("Text").TextComponent
 		TextComp.Text = _MinigameRegistry:GetMinigameData(gameId).Description
 	end
-	
+
 	method void OnSelect()
 		
 		
@@ -155,27 +155,26 @@ script SelectSceneControllerComponent extends Component
 		-- self:EnterSoloMinigame(gameId)
 		
 	end
-	
+
 	method void OnCancel()
 		_GameHelper:EnableUIGroup("/ui/PopupGroup", false)
 		self.bShowPopup = false
 	end
-	
+
 	@ExecSpace("Server")
 	method void EnterSoloMinigame(string gameID)
 		local userId = senderUserId
 		
 		local roomKey = _GameLogic:MakeSoloRoomKey(userId)
 		
-		_GameLogic:SetPlayMode("SINGLE")
-		_GameLogic:EnterMiniGameRoom({gameID}, roomKey, {userId})
+		_GameLogic:EnterMiniGameRoom({gameID}, roomKey, {userId},"SINGLE")
 	end
-	
+
 	@ExecSpace("ClientOnly")
 	method void PrePare_SoloMinigame()
 		_MyUILogic:FadeOut()
 	end
-	
+
 	@EventSender("Service", "InputService")
 	handler HandleKeyDownEvent(KeyDownEvent event)
 		--------------- Native Event Sender Info ----------------
@@ -217,7 +216,7 @@ script SelectSceneControllerComponent extends Component
 			
 		end
 	end
-	
+
 	@EventSender("Service", "ScreenTransitionService")
 	handler HandleFadeOutStartEvent(FadeOutStartEvent event)
 		--------------- Native Event Sender Info ----------------
@@ -227,12 +226,12 @@ script SelectSceneControllerComponent extends Component
 		_GameHelper:EnableUIGroup("/ui/PopupGroup", false)
 		_GameHelper:EnableUIGroup("/ui/SelectGroup", false)
 	end
-	
+
 	@EventSender("Entity", "a1dc3e4b-0127-44b4-8a67-899e57ad1863")
 	handler HandleMyFadeOutEvent(MyFadeOutEvent event)
 		log("MyFadeOutEvent")
 		local gameId = self.GameList[self.CurrentIndex]
 		self:EnterSoloMinigame(gameId)
 	end
-	
+
 end
