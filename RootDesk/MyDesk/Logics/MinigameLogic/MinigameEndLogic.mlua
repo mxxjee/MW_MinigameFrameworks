@@ -1,0 +1,66 @@
+@Logic
+script MinigameEndLogic extends Logic
+
+	property MinigameIntroUIComponent EndUI = nil
+
+	property boolean IsEndUIPlaying = false
+
+	@ExecSpace("ClientOnly")
+	method boolean BeginEndUI()
+		if self.IsEndUIPlaying == true then
+			return false
+		end
+		
+		local endUIEntity = _EntityService:GetEntityByPath("/ui/GameIntroGroup")
+		if isvalid(endUIEntity) == false then
+			log_warning("[_MinigameEndLogic] GameIntroGroup UI를 찾을 수 없습니다.")
+			return false
+		end
+		
+		---@type MinigameIntroUIComponent
+		local endUI = endUIEntity:GetComponent("script.MinigameIntroUIComponent")
+		if isvalid(endUI) == false then
+			log_warning("[_MinigameEndLogic] MinigameIntroUIComponent를 찾을 수 없습니다.")
+			return false
+		end
+		
+		self.EndUI = endUI
+		self.IsEndUIPlaying = true
+		
+		_GameHelper:EnableUIGroup("/ui/GameIntroGroup", true)
+		
+		if self.EndUI:PlayFinish() == false then
+			self.IsEndUIPlaying = false
+			--self.EndUI = nil
+			--_GameHelper:EnableUIGroup("/ui/GameIntroGroup", false)
+			return false
+		end
+		
+		return true
+	end
+
+	@ExecSpace("ClientOnly")
+	method void NotifyFinishAnimationEnd()
+		if self.IsEndUIPlaying == false then
+			return
+		end
+		
+		self.IsEndUIPlaying = false
+		self.EndUI = nil
+		--_GameHelper:EnableUIGroup("/ui/GameIntroGroup", false)
+		
+		-- 각 클라이언트는 Finish Sprite 재생 완료만 서버에 보고한다.
+		_GameLogic:ReportEndUIFinished_Server()
+	end
+
+	@ExecSpace("ClientOnly")
+	method void ResetEndUI()
+		if isvalid(self.EndUI) then
+			self.EndUI:HideFinish()
+		end
+		
+		self.EndUI = nil
+		self.IsEndUIPlaying = false
+	end
+
+end

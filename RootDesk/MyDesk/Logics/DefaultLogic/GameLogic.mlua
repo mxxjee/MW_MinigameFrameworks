@@ -19,6 +19,8 @@ script GameLogic extends Logic
 
 	property integer GameReadyCnt = 0
 
+	property integer EndUIFinishedCnt = 0
+
 	property integer GameEndTimerId = 0
 
 	property number ReserveServerTime = 0
@@ -30,6 +32,10 @@ script GameLogic extends Logic
 	property number LastDisplayedRemainingTime = -1
 
 	property boolean IsReservedGamePlay = false
+
+	property boolean IsGameEnding = false
+
+	property boolean IsFinishGameProcessed = false
 
 	@ExecSpace("ClientOnly")
 	method void OnBeginPlay()
@@ -56,7 +62,7 @@ script GameLogic extends Logic
 		self.RemainingTime = self.GameEndServerTime - serverTime
 		if self.RemainingTime <= 0 then
 			self.RemainingTime = 0
-			self:EndMinigame()
+			self:BeginGameEnd_Client()
 			return
 		end
 
@@ -213,14 +219,30 @@ script GameLogic extends Logic
 		self.ReserveServerTime = 0
 	end
 
-	@ExecSpace("Client")
-	method void EndMinigame_Client()
-		-- 서버가 확정한 종료 시각에 현재 Room의 모든 클라이언트가 동일한 종료 처리를 수행한다.
-		if _MinigameManager.IsPlaying == false then
+	@ExecSpace("ClientOnly")
+	method void BeginGameEnd_Client()
+		if self.IsGameEnding == true then
 			return
 		end
 
+		self.IsGameEnding = true
 		self:EndMinigame()
+
+		if _MinigameEndLogic:BeginEndUI() == false then
+			log_warning("[_GameLogic] Finish UI 시작에 실패했습니다.")
+		end
+	end
+
+	@ExecSpace("ServerOnly")
+	method void FinishGame_Server()
+		if self.IsFinishGameProcessed == true then
+			return
+		end
+
+		self.IsFinishGameProcessed = true
+
+		-- 라운드 승패와 점수 확정은 이 위치에 추후 추가한다.
+		log("[_GameLogic] 서버 게임 종료 처리가 완료되었습니다.")
 	end
 
 	@ExecSpace("Server")
@@ -264,6 +286,8 @@ script GameLogic extends Logic
 
 		self.introReadyCnt=0
 		self.GameReadyCnt=0
+		self.EndUIFinishedCnt=0
+		self.IsFinishGameProcessed=false
 	end
 
 	@ExecSpace("Server")
@@ -326,7 +350,7 @@ script GameLogic extends Logic
 			local endDelay = endServerTime - _UtilLogic.ServerElapsedSeconds
 			self.GameEndTimerId = _TimerService:SetTimerOnce(function()
 				self.GameEndTimerId = 0
-				self:EndMinigame_Client()
+				self:FinishGame_Server()
 			end, endDelay)
 
 			log(self.PlayMode.."에서 게임을 실행합니다.")
@@ -335,12 +359,74 @@ script GameLogic extends Logic
 
 	@ExecSpace("Client")
 	method void ReserveGameStart_Client(number startServerTime, number endServerTime, number maxTime)
+		_MinigameEndLogic:ResetEndUI()
 		self.ReserveServerTime = startServerTime
 		self.GameEndServerTime = endServerTime
 		self.CurrentMaxTime = maxTime
 		self.RemainingTime = maxTime
 		self.LastDisplayedRemainingTime = -1
 		self.IsReservedGamePlay = true
+		self.IsGameEnding = false
+	end
+
+	@ExecSpace("Server")
+	method void ReportEndUIFinished_Server()
+		self.EndUIFinishedCnt += 1
+
+		local requiredCnt = 1
+		if self.PlayMode == "MULTI" then
+			requiredCnt = 2
+		end
+
+		if self.EndUIFinishedCnt == requiredCnt then
+			self:ResolveNextGame_Server()
+		end
+	end
+
+	@ExecSpace("ServerOnly")
+	method void ResolveNextGame_Server()
+		if self.PlayMode == "SINGLE" then
+			self:ResolveSingleNextGame_Server()
+			return
+		end
+
+		if self.PlayMode == "MULTI" then
+			self:ResolveMultiNextGame_Server()
+		end
+	end
+
+	@ExecSpace("ServerOnly")
+	method void ResolveSingleNextGame_Server()
+		-- SINGLE의 다음 게임 진행 여부와 이동 대상은 이 위치에서 판정한다.
+		log("[_GameLogic] SINGLE 다음 게임 판정 대기")
+	end
+
+	@ExecSpace("ServerOnly")
+	method void ResolveMultiNextGame_Server()
+		-- MULTI의 라운드 결과와 다음 게임/최종 결과 이동 여부는 이 위치에서 판정한다.
+		log("[_GameLogic] MULTI 다음 게임 판정 대기")
+	end
+
+	@ExecSpace("ServerOnly")
+	method boolean MoveRoomUsersToScene_Server(string nextMapName, table userIds)
+		if nextMapName == "" then
+			log_warning("[_GameLogic] 이동할 다음 Scene 이름이 비어 있습니다.")
+			return false
+		end
+
+		if #userIds == 0 then
+			log_warning("[_GameLogic] 다음 Scene으로 이동할 사용자가 없습니다.")
+			return false
+		end
+
+		local roomKey = _RoomService.RoomKey
+		if roomKey == "" then
+			log_warning("[_GameLogic] 현재 Instance Room Key가 없습니다.")
+			return false
+		end
+
+		_RoomService:MoveUsersToInstanceRoom(roomKey, userIds, nextMapName)
+		return true
 	end
 
 	@EventSender("Service", "RoomService")

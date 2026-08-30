@@ -25,6 +25,10 @@ script MinigameIntroUIComponent extends Component
 
 	property boolean IsStartImagePlaying = false
 
+	property boolean IsFinishImagePlaying = false
+
+	property boolean IsFinishEventConnected = false
+
 	property integer LogoTimerId = 0
 
 	property integer LogoFadeTimerId = 0
@@ -33,31 +37,60 @@ script MinigameIntroUIComponent extends Component
 
 	property Entity StartUI = nil
 
+	property Entity FinishUI = nil
+
 	@ExecSpace("ClientOnly")
 	method void OnBeginPlay()
 		-- GameIntroGroup은 기본 비활성 상태이며 BeginIntro()가 Reset 후 연출을 시작합니다.
 		-- 첫 활성화 직후 OnBeginPlay가 늦게 호출되어 PlayLogo 결과를 다시 끄지 않도록
 		-- 여기에서는 자식 UI의 활성 상태를 변경하지 않습니다.
-		if isvalid(self.CountdownUI) == false then
-			return
+		if isvalid(self.CountdownUI) then
+			-- 단일 3 → 2 → 1 애니메이션의 실제 재생 완료 시점을 받습니다.
+			self.CountdownUI:ConnectEvent(
+				SpriteGUIAnimPlayerEndEvent,
+				self.OnCountdownAnimationEnd
+			)
 		end
-		
-		-- 단일 3 → 2 → 1 애니메이션의 실제 재생 완료 시점을 받습니다.
-		self.CountdownUI:ConnectEvent(
-			SpriteGUIAnimPlayerEndEvent,
-			self.OnCountdownAnimationEnd
-		)
-		
-		self.StartUI:ConnectEvent(
-			SpriteGUIAnimPlayerEndEvent,
-			self.OnStartAnimationEnd
-		)
+
+		if isvalid(self.StartUI) then
+			self.StartUI:ConnectEvent(
+				SpriteGUIAnimPlayerEndEvent,
+				self.OnStartAnimationEnd
+			)
+		end
+
+		self:InitializeFinishUI()
+	end
+
+	@ExecSpace("ClientOnly")
+	method boolean InitializeFinishUI()
+		if isvalid(self.FinishUI) == false then
+			self.FinishUI = _EntityService:GetEntityByPath("/ui/GameIntroGroup/Finish")
+			self.IsFinishEventConnected = false
+		end
+
+		if isvalid(self.FinishUI) == false then
+			return false
+		end
+
+		if self.IsFinishEventConnected == false then
+			self.FinishUI:ConnectEvent(
+				SpriteGUIAnimPlayerEndEvent,
+				self.OnFinishAnimationEnd
+			)
+			self.IsFinishEventConnected = true
+		end
+
+		self.FinishUI.Enable = false
+		self.FinishUI.Visible = false
+		return true
 	end
 
 	@ExecSpace("ClientOnly")
 	method void PlayLogo(string logoRUID)
 		-- 이전 인트로에서 남아 있을 수 있는 Timer를 먼저 제거합니다.
 		self:ClearTimers()
+		self:HideFinish()
 		
 		if isvalid(self.LogoUI) == false then
 			return
@@ -265,6 +298,68 @@ script MinigameIntroUIComponent extends Component
 	end
 
 	@ExecSpace("ClientOnly")
+	method boolean PlayFinish()
+		if self:InitializeFinishUI() == false then
+			log_warning("[MinigameIntroUIComponent] Finish UI를 찾을 수 없습니다.")
+			return false
+		end
+
+		if isvalid(self.LogoUI) then
+			self.LogoUI.Enable = false
+			self.LogoUI.Visible = false
+		end
+
+		if isvalid(self.CountdownUI) then
+			self.CountdownUI.Enable = false
+			self.CountdownUI.Visible = false
+		end
+
+		if isvalid(self.StartUI) then
+			self.StartUI.Enable = false
+			self.StartUI.Visible = false
+		end
+
+		local renderer = self.FinishUI.SpriteGUIRendererComponent
+		if isvalid(renderer) == false then
+			return false
+		end
+
+		self.FinishUI.Enable = false
+		renderer.AnimClipPlayType = SpriteAnimClipPlayType.Onetime
+		renderer.StartFrameIndex = 0
+		renderer:SetAlpha(1)
+
+		self.IsFinishImagePlaying = true
+		self.FinishUI.Visible = true
+		self.FinishUI.Enable = true
+		return true
+	end
+
+	@ExecSpace("ClientOnly")
+	method void OnFinishAnimationEnd(SpriteGUIAnimPlayerEndEvent event)
+		if self.IsFinishImagePlaying == false then
+			return
+		end
+
+		if event.Entity ~= self.FinishUI then
+			return
+		end
+
+		self:HideFinish()
+		_MinigameEndLogic:NotifyFinishAnimationEnd()
+	end
+
+	@ExecSpace("ClientOnly")
+	method void HideFinish()
+		self.IsFinishImagePlaying = false
+
+		if isvalid(self.FinishUI) then
+			self.FinishUI.Visible = false
+			self.FinishUI.Enable = false
+		end
+	end
+
+	@ExecSpace("ClientOnly")
 	method void ClearCountdownTimers()
 		-- 애니메이션 종료 이벤트가 늦게 도착해도 다음 단계로 넘어가지 않도록 막습니다.
 		self.IsCountdownPlaying = false
@@ -309,6 +404,13 @@ script MinigameIntroUIComponent extends Component
 			self.CountdownUI.Enable = false
 			self.CountdownUI.Visible = false
 		end
+
+		if isvalid(self.StartUI) then
+			self.StartUI.Enable = false
+			self.StartUI.Visible = false
+		end
+
+		self:HideFinish()
 		
 		self.IsCountdownPlaying = false
 		self.IsStartImagePlaying=false
