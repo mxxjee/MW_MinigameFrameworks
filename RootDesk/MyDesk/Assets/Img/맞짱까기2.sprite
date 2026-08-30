@@ -1,0 +1,23 @@
+{
+  "Id": "",
+  "GameId": "",
+  "EntryKey": "sprite://330597b9bf6a4864939b8649aad4e9f9",
+  "ContentType": "x-mod/sprite",
+  "Content": "",
+  "Usage": 0,
+  "UsePublish": 1,
+  "UseService": 0,
+  "CoreVersion": "26.7.0.0",
+  "StudioVersion": "0.1.0.0",
+  "DynamicLoading": 0,
+  "ContentProto": {
+    "Use": "Json",
+    "Json": {
+      "upload_keyname": "0d/13/0d13d5dd0b2f471f88f6c281753684b1/sprite/330597b9bf6a4864939b8649aad4e9f9/639218709885768070",
+      "upload_hash": "8AD94C78BA17078E97DEBDE326AB73A685256117F9A15BA721E073CDB29CF869",
+      "name": "맞짱까기2",
+      "resource_guid": "330597b9bf6a4864939b8649aad4e9f9",
+      "resource_version": "6a78618c5d0dc263f83e7f80"
+    }
+  }
+}

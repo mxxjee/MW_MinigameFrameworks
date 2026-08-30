@@ -45,25 +45,17 @@ RootDesk/MyDesk/
 ├─ UI/
 │  └─ EnterBtnComponent.mlua
 ├─ MapEnterController.mlua
-├─ MingiBabo.mlua
-└─ Model_MinigameSelectWidget.model
-
-map/
-├─ LobbyScene.map
-├─ SelectScene.map
-└─ ButtonGameScene.map
-
-ui/
-├─ DefaultGroup.ui
-├─ LobbyGroup.ui
-├─ SelectGroup.ui
-├─ PopupGroup.ui
-└─ ToastGroup.ui
+├─ SelectSceneControllerComponent.mlua
+├─ SelectWidgetUIComponent.mlua
+└─ Default/
+   ├─ Monster.mlua
+   ├─ PlayerAttack.mlua
+   ├─ PlayerHit.mlua
+   ├─ UIPopup.mlua
+   └─ UIToast.mlua
 ```
 
-모든 Custom mLua 파일에는 같은 경로에 대응하는 `.codeblock` 파일이 있다. `.directory` 파일은 Maker 내부 폴더 구조를 보존한다.
-
-### 주요 경로 변경 이력
+### 경로 이동 상태
 
 | 이전 경로 | 현재 경로 |
 |---|---|
@@ -76,21 +68,21 @@ ui/
 | `RootDesk/MyDesk/SelectWidgetUIComponent.mlua` | `RootDesk/MyDesk/SelectScene/SelectWidgetUIComponent.mlua` |
 | `RootDesk/MyDesk/Default/*.mlua` | `RootDesk/MyDesk/ETC/*.mlua` |
 
-## 2. 핵심 클래스 현황
+`GameLogic`은 `RootDesk/MyDesk/Logics/GameLogic.mlua`에 유지된다. `MinigameComponent`와 `MinigameData`는 `RootDesk/MyDesk/Minigame/`에 유지된다.
 
 | 파일 | 선언 | 전역 접근/부착 위치 | 현재 책임 |
 |---|---|---|---|
-| `Logics/DefaultLogic/GameLogic.mlua` | `@Logic script GameLogic` | `_GameLogic` | 플레이 상태, 싱글 룸 생성·이동, 룸 간 선택 게임 ID 전달 |
-| `Logics/DefaultLogic/GameEnum.mlua` | `@Logic script GameEnum` | `_GameEnum` | `SINGLE`, `MULTI` 플레이 모드 값 제공 |
-| `Logics/DefaultLogic/GameHelper.mlua` | `@Logic script GameHelper` | `_GameHelper` | 경로로 UI Group 활성화/비활성화 |
-| `Logics/MinigameLogic/MinigameRegistry.mlua` | `@Logic script MinigameRegistry` | `_MinigameRegistry` | 미니게임 메타데이터 등록, 순서 저장, 조회 |
-| `Logics/MinigameLogic/MinigameManager.mlua` | `@Logic script MinigameManager` | `_MinigameManager` | 로컬 미니게임 생명주기와 시간 관리 뼈대 |
-| `Minigame/MinigameData.mlua` | `@Struct script MinigameData` | `MinigameData()` | 이름, ID, 맵, 설명 데이터 |
-| `Minigame/MinigameComponent.mlua` | `@Component` | 구체 미니게임 Component의 기반 | `Initialize/Update/Release` 인터페이스 |
-| `UI/EnterBtnComponent.mlua` | `@Component` | Lobby의 Single/Multi 버튼 | 플레이 모드 분기, SelectScene 이동, Fade 종료 처리 |
-| `MapEnterController.mlua` | `@Component` | LobbyScene, SelectScene | 맵 진입 시 페이드·Registry·UI 초기화 |
-| `SelectScene/SelectSceneControllerComponent.mlua` | `@Component` | SelectScene Controller Entity | 슬롯 생성·이동, 설명, 확인 팝업, 싱글 룸 진입 요청 |
-| `SelectScene/SelectWidgetUIComponent.mlua` | `@Component` | 선택 슬롯 Model | 게임 이름 표시와 슬롯 위치 설정 |
+| `Logics/GameLogic.mlua` | `@Logic script GameLogic` | `_GameLogic` | 플레이 모드·점수·제한시간·선택 게임 상태와 시작/종료 진입점 |
+| `Logics/DefaultLogic/GameEnum.mlua` | `@Logic script GameEnum` | `_GameEnum` | 플레이 모드 enum 테이블 초기화 |
+| `Logics/DefaultLogic/GameHelper.mlua` | `@Logic script GameHelper` | `_GameHelper` | 경로로 UI Group을 찾아 활성화/비활성화 |
+| `Logics/MinigameLogic/MinigameRegistry.mlua` | `@Logic script MinigameRegistry` | `_MinigameRegistry` | 미니게임 이름·ID·맵 경로의 전역 등록 및 조회 |
+| `Logics/MinigameLogic/MinigameManager.mlua` | `@Logic script MinigameManager` | `_MinigameManager` | 로컬 미니게임 Component와 경과시간·실행 여부 관리 |
+| `Minigame/MinigameData.mlua` | `@Struct script MinigameData` | `MinigameData()` | 미니게임 이름·ID·MapName 저장 |
+| `Minigame/MinigameComponent.mlua` | `@Component script MinigameComponent` | 엔티티 부착/상속 기반 | 미니게임 초기화·갱신·해제 인터페이스 |
+| `UI/EnterBtnComponent.mlua` | `@Component` | UI 버튼 부착 | 싱글/멀티 진입 분기와 선택 화면 이동 |
+| `MapEnterController.mlua` | `@Component` | 맵 진입 엔티티 부착 | SelectScene 진입 시 선택 화면 초기화 |
+| `SelectSceneControllerComponent.mlua` | `@Component` | 선택 화면 Controller | Registry 기반 선택 위젯 생성 |
+| `SelectWidgetUIComponent.mlua` | `@Component` | 선택 위젯 모델 부착 | 게임 이름 표시와 위젯 위치 설정 |
 
 ## 3. 전역 Logic
 
@@ -300,136 +292,84 @@ LobbyScene 진입
   → MapEnterController: Fade 활성화, Registry 초기화, LobbyGroup 활성화
   → SingleButton 클릭
   → _GameLogic:SetPlayMode(SINGLE)
-  → SelectScene으로 Teleport
-  → Fade Out 완료 시 LobbyGroup 숨김
-
-SelectScene 진입
-  → SelectSceneController.Initialize()
-  → Registry 순서 Table로 선택 슬롯 Spawn
-  → 첫 게임 설명 표시
-  → 좌우 키로 슬롯 이동 및 설명 갱신
-  → Space 키로 확인 팝업 표시
-  → 확인 클릭
-
-Server EnterSoloMinigame(gameID)
-  → Solo Room Key 생성
-  → SharedMemory에 CurrentGameId 저장
-  → 선택 게임 Map을 포함한 Instance Room 생성
-  → 해당 사용자만 첫 게임 Map으로 이동
-  → RoomBegin 이벤트에서 서버 CurrentGameId 복원
+  → _TeleportService:TeleportToMapPosition(..., "SelectScene")
+  → _GameHelper:EnableUIGroup("/ui/SelectButtonGroup", false)
 ```
 
-여기까지가 현재 연결된 흐름이다. Room 입장 이후 `StartMinigame()` 또는 구체 `MinigameComponent`를 시작하는 호출은 없다.
+### 선택 화면 구성
 
-## 6. Map·UI·Model 연결 상태
+```text
+MapEnterController.OnMapEnter("SelectScene")
+  → SelectSceneControllerComponent.Initialize()
+  → Refresh_Slots()
+  → _MinigameRegistry.MinigameDatas 순회
+  → SelectWidget 모델 Spawn
+  → SelectWidgetUIComponent.Initialize(gameData.Name, pos)
+  → /ui/SelectGroup 활성화
+```
 
-### 6.1 Map
+### 미니게임 시작 요청
 
-| Map | EntryKey | 주요 연결 | 상태 |
-|---|---|---|---|
-| `LobbyScene.map` | `map://lobbyscene` | `/maps/LobbyScene/MapEnter`에 `MapEnterController` | 로비 진입점 |
-| `SelectScene.map` | `map://selectscene` | `MapEnterController`, `SelectSceneControllerComponent` | 선택 UI와 Popup 참조 연결 |
-| `ButtonGameScene.map` | `map://buttongamescene` | Custom `script.*` Component 없음 | Instance Room 대상 Map 껍데기 |
+```text
+_GameLogic:StartMinigame(gameId)
+  → SelectMinigame(gameId)
+  → _MinigameRegistry:GetMinigameData(gameId)
+  → GameData.MapName으로 Teleport
+  → _MinigameManager:StartGame(gameId)
+  → _MinigameRegistry:GetMinigameData(gameId)
+  → CurrentGame:Initialize(gameData)
+```
 
-Registry가 참조하는 `TestScene.map`은 현재 저장소에 없다.
+마지막 `CurrentGame` 선택·할당 단계는 현재 구현되지 않았다.
 
-### 6.2 UI
+## 7. Default 지원 코드
 
-| UI | 주요 Entity/역할 |
+| 파일 | 역할 |
 |---|---|
-| `LobbyGroup.ui` | 배경, `SingleButton`, `MultiButton`; 두 버튼에 `EnterBtnComponent` 부착 |
-| `SelectGroup.ui` | `BG`, `GameList`, `Description/Text`, 안내 Sprite |
-| `PopupGroup.ui` | `PopupMessage`, `PopupBtnOK`, `PopupBtnCancel` |
-| `ToastGroup.ui` | `Toast_message` |
-| `DefaultGroup.ui` | Attack, Jump, Joystick, Chat 기본 UI |
+| `Default/Monster.mlua` | 동기화 HP, 피격, 사망, 숨김/삭제, 선택적 Respawn |
+| `Default/PlayerAttack.mlua` | BoxShape 기반 일반 공격, 고정 피해·치명타 계산 |
+| `Default/PlayerHit.mlua` | 피격 면역 쿨다운 판정 |
+| `Default/UIPopup.mlua` | 확인/취소 Callback과 Tween 기반 Popup 표시 |
+| `Default/UIToast.mlua` | 시간·Alpha Tween 기반 Toast 표시 |
 
-각 UI Group은 리소스상 `Enable = true`이며 런타임 코드가 필요한 시점에 활성/비활성 상태를 조정한다.
+이 파일들은 현재 경로 이동 대상이 아니며 `RootDesk/MyDesk/Default/`에 유지된다.
 
-### 6.3 선택 위젯 Model과 Sprite
+## 8. 현재 구현 상태와 남은 연결
 
-- `Model_MinigameSelectWidget.model`
-  - EntryKey: `model://b9a29910-7633-405a-b5c4-1d7a4c7df643`
-  - `SelectWidgetUIComponent` 부착
-  - 자식 `Thumbnail`, `Name` 포함
-- 로비와 선택 화면 배경 Sprite가 Assets에 등록되어 있다.
-- `button1_*`, `button2_*` Sprite는 로비 버튼 기본/호버 상태에 사용된다.
+- Registry는 전역 `@Logic`이며 별도 Entity/Component 연결이 필요하지 않다.
+- Registry는 네 개의 미니게임 메타데이터를 등록한다.
+- `MinigameData`는 `Name`, `ID`, `MapName`만 저장한다.
+- 선택 화면은 Registry 데이터로 위젯을 생성하고 이름을 표시한다.
+- 선택 위젯의 클릭·게임 ID 전달·`StartMinigame()` 연결은 아직 없다.
+- `MinigameManager.CurrentGame`을 실제 `MinigameComponent`로 설정하는 경로가 아직 없다.
+- `StartGame()`의 현재 `CurrentGame:Initialize(gameData)` 호출은 Component 할당 전에는 사용할 수 없다.
+- `GameLogic.SelectMinigame()`은 Registry 조회 결과가 `nil`인지 확인하기 전에 `GameData.MapName`을 사용한다.
+- MULTI 플레이의 서버 매칭·상대 연결은 TODO다.
+- 실제 점수 산정 규칙과 랭킹 데이터 스키마는 아직 없다.
 
-## 7. ETC 지원 코드
+## 9. 정적 타입 검사 상태
 
-| 파일 | 선언/상속 | 역할 |
-|---|---|---|
-| `ETC/Monster.mlua` | `Component` | 동기화 HP, 피격, 사망, 숨김/삭제, 선택적 Respawn |
-| `ETC/PlayerAttack.mlua` | `AttackComponent` | BoxShape 일반 공격, 고정 피해·치명타 계산 |
-| `ETC/PlayerHit.mlua` | `HitComponent` | 피격 면역 쿨다운 판정 |
-| `ETC/UIPopup.mlua` | `Logic` | 확인/취소 Callback과 Tween 기반 범용 Popup |
-| `ETC/UIToast.mlua` | `Logic` | 메시지 표시와 Tween 기반 Toast |
-| `MingiBabo.mlua` | `Component` | 동기화 문자열 하나를 가진 테스트성 Component |
+현재 프레임워크에서 확인한 구체 타입:
 
-현재 선택 확인 흐름은 범용 `_UIPopup` Logic 대신 `SelectSceneControllerComponent`가 PopupGroup을 직접 제어한다.
+- `GameLogic.SelectMinigame()`의 `GameData`: `MinigameData`
+- `MinigameRegistry.RegisterMinigame()`의 `gameData`: `MinigameData`
+- `MinigameRegistry.GetMinigameData()` 반환: `MinigameData`
+- `MinigameManager.CurrentGame`: `MinigameComponent`
+- `MinigameComponent.Initialize()` 매개변수: `MinigameData`
+- `SelectSceneControllerComponent.widgetComp`: `SelectWidgetUIComponent`
 
-## 8. 구현 완료도
+현재 실행 코드의 `GetComponent()` 호출은 `SelectSceneControllerComponent.mlua` 한 곳이다. 반환값에는 실제 Custom Method `Initialize()`의 소유 타입인 `SelectWidgetUIComponent` Annotation이 지정되어 있다.
 
-| 영역 | 상태 | 비고 |
-|---|---|---|
-| 로비 Single/Multi 버튼 배치 | 완료 | Single만 실제 이동 동작 연결 |
-| 로비 → SelectScene 이동 | 완료 | Fade 이벤트와 UI 정리 포함 |
-| 미니게임 Registry | 완료 | 이름, ID, 맵, 설명, 표시 순서 저장 |
-| 선택 슬롯 생성·좌우 이동 | 완료 | `pairs()` 순서 보장 문제는 남음 |
-| 선택 게임 설명 표시 | 완료 | 초기 진입 및 이동 완료 시 갱신 |
-| 선택 확인 팝업 | 완료 | 팝업 중 좌우 입력 차단 |
-| 싱글 Instance Room 분리 | 1차 완료 | SharedMemory/이동 결과 오류 처리 보강 필요 |
-| 실제 미니게임 Map | 부분 | `ButtonGameScene`만 존재 |
-| Room 입장 후 게임 시작 | 미완성 | `StartMinigame()` 호출 연결 없음 |
-| 구체 `MinigameComponent` 연결 | 미완성 | `CurrentGame` 할당 경로 없음 |
-| MULTI 매칭·룸 입장 | 미완성 | 주석만 존재 |
-| 점수·랭킹·결과 화면 | 미완성 | 데이터 자리만 존재 |
+번들 mLua LSP `1.1.4`로 다음 11개 활성 프레임워크 파일을 검사했으며 diagnostic/error/warning은 모두 0건이었다.
 
-## 9. 알려진 문제와 병합 전 확인사항
+- `GameLogic`, `GameEnum`, `GameHelper`
+- `MinigameManager`, `MinigameRegistry`
+- `MinigameComponent`, `MinigameData`
+- `MapEnterController`, `SelectSceneControllerComponent`, `SelectWidgetUIComponent`, `EnterBtnComponent`
 
-### 우선순위 높음
+Codex 환경에서는 사용자의 VS Code Problems 패널 자체를 직접 읽지 못했다. 따라서 “VS Code Problems 오류 없음”이라고 단정하지 않으며, 위 결과는 번들 mLua LSP 진단 기준이다.
 
-1. Registry의 세 게임이 존재하지 않는 `TestScene`을 가리킨다. 해당 게임 선택 시 Instance Room 생성 또는 이동이 실패할 수 있다.
-2. `EnterMiniGameRoom()`이 `GetSharedMemory()` 반환 코드와 `memory` 유효성을 확인하기 전에 `SetVariableAndWait()`를 호출한다.
-3. `SetVariableAndWait()` 결과와 `room:MoveUsers()` 반환값을 검사하지 않아 실패를 성공으로 처리할 수 있다.
-4. `MinigameManager.CurrentGame` 할당 없이 `CurrentGame:Initialize()`를 호출하는 구조다.
-
-### 구조·정리 필요
-
-1. `MinigameOrders` 순회는 순서를 보장하도록 `pairs()` 대신 `ipairs()` 사용을 검토해야 한다.
-2. 문자열 키 Dictionary인 `MinigameDatas`에 길이 연산자 `#`를 사용하지 않는 초기화 판정이 필요하다.
-3. `/ui/SelectButtonGroup`은 실제 리소스에 없는 경로다.
-4. `SelectWidgetUIComponent.NewValue1`은 사용되지 않는 동기화 Property다.
-5. 선택 화면 재진입 시 버튼 이벤트가 중복 연결되거나 기존 Spawn Widget이 남는지 Maker Play Test가 필요하다.
-6. 확인 버튼을 연속 클릭할 때 여러 Room 생성 요청을 막는 상태값이 없다.
-7. `StartMinigame(gameId)`는 현재 인자를 사용하지 않으며 서버의 `CurrentGameId`를 Client에 전달하는 경로도 없다.
-8. Multi 버튼은 실제 동작 없이 `bSelected = true`만 설정한다.
-
-## 10. 정적 검증 상태
-
-HEAD `d630769` 기준 확인 결과:
-
-- mLua 확장 `1.1.7`로 프로젝트 mLua 638개 분석
-- 변경된 핵심 스크립트 7개 전체 진단: diagnostic 0건
-- `RootDesk` 사용자 스크립트 17개 구문 진단: 0건
-- Map, UI, Sprite, Model 등 JSON 리소스 54개 파싱 성공
-- 중복 EntryKey 0건
-- Custom mLua와 `.codeblock` 대응 17/17
-- 로컬 `main` 기준 텍스트 병합 충돌 없음
-
-저장소에는 실행 가능한 CLI 빌드·테스트 진입점이 없다. 따라서 위 결과는 정적 진단과 리소스 무결성 기준이며, MapleStory Worlds Maker의 실제 빌드 및 다음 Play Test가 별도로 필요하다.
-
-### 필수 Play Test 시나리오
-
-1. LobbyScene 진입 시 로비 UI와 Fade 상태 확인
-2. Single 버튼 → SelectScene 이동 확인
-3. 슬롯 4개의 순서, 이동, 설명 갱신 확인
-4. 팝업 표시 중 좌우 입력 차단 및 취소 상태 복구 확인
-5. `Button_Game` 확인 → 사용자별 Instance Room 입장 확인
-6. 없는 `TestScene`을 참조하는 게임 선택 시 실패 로그 확인
-7. SelectScene 재진입 시 Widget·버튼 이벤트 중복 여부 확인
-8. Room 입장 후 `CurrentGameId` 서버 복원 여부 확인
-
-## 11. 코드 변경 시 문서 동기화 체크리스트
+## 10. 코드 변경 시 문서 동기화 체크리스트
 
 - 클래스 파일의 실제 경로가 이동했는가?
 - `@Logic`, `@Component`, `@Struct` 책임이 변경됐는가?

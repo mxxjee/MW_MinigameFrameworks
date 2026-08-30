@@ -7,7 +7,7 @@ script MinigameManager extends Logic
 
 	property boolean IsPlaying = false
 
-	@ExecSpace("ClientOnly")
+	@ExecSpace("Client")
 	method boolean StartGame(string gameId)
 		-- 등록된 미니게임을 조회해 로컬 실행 상태를 시작한다.
 		

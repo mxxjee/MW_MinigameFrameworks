@@ -322,7 +322,21 @@ Initialize → Update → Release
 - Registry의 `TestScene` 항목과 실제 Map 파일 간 불일치 해소
 - `/ui/SelectButtonGroup`과 실제 `/ui/SelectGroup` 경로 차이 정리
 
-## 9. 다음 구현 예정: `ButtonMinigameComponent`
+## 9. 경로 메모: `Default` 폴더 재정리
+
+프로젝트 공통 지원 스크립트 중 기본 전투·UI 보조 성격의 파일들은 한 번 더 정리되어 현재는 `RootDesk/MyDesk/Default/`가 아니라 `RootDesk/MyDesk/ETC/`에 존재한다.
+
+현재 확인된 대상은 다음과 같다.
+
+- `Monster.mlua`
+- `PlayerAttack.mlua`
+- `PlayerHit.mlua`
+- `UIPopup.mlua`
+- `UIToast.mlua`
+
+즉, 과거 문서나 메모에서 `Default/Monster.mlua`처럼 적혀 있더라도 현재 작업 트리 기준 실제 경로는 `ETC/Monster.mlua` 형태로 보는 것이 맞다.
+
+## 10. 다음 구현 예정: `ButtonMinigameComponent`
 
 다음 단계에서는 첫 번째 실제 미니게임인 `ButtonMinigameComponent`를 구현하고, 현재 분리된 선택 흐름과 Manager 생명주기를 연결한다.
 

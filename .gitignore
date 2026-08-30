@@ -46,6 +46,10 @@ luac.out
 # AI
 *.codex
 *.claude
+.agents/
+AGENTS.md
+skills-lock.json
 
-# VSCode
-.mswai/
+# MSW AI local logs
+.mswai/logs/
+

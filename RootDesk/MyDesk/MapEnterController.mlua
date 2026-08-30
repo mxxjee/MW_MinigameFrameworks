@@ -15,8 +15,11 @@ script MapEnterController extends Component
 		elseif enteredMap.Name == "SelectScene" then
 			self.Entity.SelectSceneControllerComponent:Initialize()
 			_GameHelper:EnableUIGroup("/ui/SelectGroup", true)
+			_GameHelper:EnableUIGroup("/ui/WaitingRoomGroup", false)
+		elseif enteredMap.Name == "WaitingRoomScene" then
+			_GameHelper:EnableUIGroup("/ui/SelectGroup", false)
+			_GameHelper:EnableUIGroup("/ui/WaitingRoomGroup", true)
 		end
-		
 	end
 
 end

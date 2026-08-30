@@ -1,0 +1,23 @@
+{
+  "Id": "",
+  "GameId": "",
+  "EntryKey": "sprite://f139b2a4d4dd410b9ec1155206453bda",
+  "ContentType": "x-mod/sprite",
+  "Content": "",
+  "Usage": 0,
+  "UsePublish": 1,
+  "UseService": 0,
+  "CoreVersion": "26.7.0.0",
+  "StudioVersion": "0.1.0.0",
+  "DynamicLoading": 0,
+  "ContentProto": {
+    "Use": "Json",
+    "Json": {
+      "upload_keyname": "0d/13/0d13d5dd0b2f471f88f6c281753684b1/sprite/f139b2a4d4dd410b9ec1155206453bda/639218709885879928",
+      "upload_hash": "598845519A7837451EB287F0F064FCD8FF487A3FDF661C1EB4ED915184D62367",
+      "name": "WatingRoomScene_BG",
+      "resource_guid": "f139b2a4d4dd410b9ec1155206453bda",
+      "resource_version": "6a78618c0b6d483fb4942e7f"
+    }
+  }
+}

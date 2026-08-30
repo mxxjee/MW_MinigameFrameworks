@@ -1,0 +1,13 @@
+@Logic
+script GameEnum extends Logic
+
+	property table PlayMode = {}
+
+	@ExecSpace("ClientOnly")
+	method void OnBeginPlay()
+		self.PlayMode = enum({
+		SINGLE=0,
+		MULTI=1})
+	end
+
+end

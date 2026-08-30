@@ -15,7 +15,7 @@ script GameLogic extends Logic
 
 	property table MyRankingData = {}
 
-	@ExecSpace("ServerOnly")
+	@ExecSpace("Server")
 	method boolean SelectMinigame(string gameID, table userIds)
 		
 		-- 현재 플레이할 미니게임 ID를 선택한다.--
@@ -38,7 +38,7 @@ script GameLogic extends Logic
 		
 	end
 
-	@ExecSpace("ServerOnly")
+	@ExecSpace("Server")
 	method boolean EnterMiniGameRoom(table gameIds, string roomKey, table userIds)
 		-- gameIds : 매치된 게임의 아이디들 , roomKey : 매칭키 , userIds:매칭한 두 사람 아이디들
 		-- 매칭이 완료된 이후 1번, 솔플의 경우 맵 선택 이후 1번 호출-- 
@@ -154,7 +154,7 @@ script GameLogic extends Logic
 		end
 	end
 
-	@ExecSpace("ServerOnly")
+	@ExecSpace("Server")
 	method string MakeSoloRoomKey(string userId)
 		 local roomKey ="Solo_" ..userId .."_" ..tostring(DateTime.UtcNow.Elapsed)
 		  return roomKey

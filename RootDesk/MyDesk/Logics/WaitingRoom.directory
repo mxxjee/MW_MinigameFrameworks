@@ -1,0 +1,23 @@
+{
+  "Id": "",
+  "GameId": "",
+  "EntryKey": "directory://aa32d77ec900432880b7255638a07aae",
+  "ContentType": "x-mod/directory",
+  "Content": "",
+  "Usage": 0,
+  "UsePublish": 1,
+  "UseService": 0,
+  "CoreVersion": "26.7.0.0",
+  "StudioVersion": "",
+  "DynamicLoading": 0,
+  "ContentProto": {
+    "Use": "Json",
+    "Json": {
+      "entry_id": "directory://aa32d77ec900432880b7255638a07aae",
+      "name": "WaitingRoom",
+      "lock": false,
+      "folding": false,
+      "nameEditable": true
+    }
+  }
+}

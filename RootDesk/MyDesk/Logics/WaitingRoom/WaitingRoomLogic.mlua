@@ -1,0 +1,48 @@
+@Logic
+script WaitingRoomLogic extends Logic
+
+	property string WaitingMapName = "WaitingRoomScene"
+
+	@ExecSpace("ClientOnly")
+	method void Initialize()
+	end
+
+	@ExecSpace("ClientOnly")
+	method void OnBeginPlay()
+		self:Initialize()
+		self:RefreshWaitingRoomUI()
+	end
+
+	@ExecSpace("ClientOnly")
+	method void RefreshWaitingRoomUI()
+		local localPlayer = _UserService.LocalPlayer
+		if isvalid(localPlayer) == false then
+			return
+		end
+		
+		if localPlayer.CurrentMapName == self.WaitingMapName then
+			_GameHelper:EnableUIGroup("/ui/LobbyGroup", false)
+			_GameHelper:EnableUIGroup("/ui/SelectGroup", false)
+			_GameHelper:EnableUIGroup("/ui/SelectButtonGroup", false)
+			_GameHelper:EnableUIGroup("/ui/WaitingRoomGroup", true)
+			_GameHelper:EnableUIGroup("/ui/WaitingRoomMatchGroup", true)
+		else
+			_GameHelper:EnableUIGroup("/ui/WaitingRoomGroup", false)
+		end
+	end
+
+	@ExecSpace("ClientOnly")
+	method void OnUpdate(number delta)
+		local localPlayer = _UserService.LocalPlayer
+		if isvalid(localPlayer) == false then
+			return
+		end
+		
+		self:RefreshWaitingRoomUI()
+		
+		if localPlayer.CurrentMapName ~= self.WaitingMapName then
+			return
+		end
+	end
+
+end

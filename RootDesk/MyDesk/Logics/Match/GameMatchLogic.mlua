@@ -1,0 +1,199 @@
+@Logic
+script GameMatchLogic extends Logic
+
+	@Sync
+	property integer GameMatchIndex = 0
+
+	@Sync
+	property SyncTable<string> WaitingPlayers
+
+	property table ActiveMatches = {}
+
+	@Sync
+	property number MatchCheckInterval = 0.25
+
+	property number MatchCheckElapsed = 0
+
+	method boolean IsPlayerWaiting(string userId)
+		-- 전달된 플레이어가 이미 대기열에 있는지 검사한다.
+		for _, playerId in ipairs(self.WaitingPlayers) do
+			if playerId == userId then
+				return true
+			end
+		end
+		
+		return false
+	end
+
+	@ExecSpace("Server")
+	method boolean RegisterWaitingPlayerOnServer(string userId)
+		
+		if userId == "" then
+			log_warning("[_GameMatchLogic] 플레이어 UserId가 비어 있어 대기열에 등록할 수 없습니다.")
+			return false
+		end
+		
+		if self:IsPlayerWaiting(userId) then
+			log_warning("[_GameMatchLogic] 이미 대기열에 등록된 플레이어입니다: " .. userId)
+			return false
+		end
+		
+		
+		table.insert(self.WaitingPlayers, userId)
+		log("[_GameMatchLogic] 대기 플레이어 등록 완료: " .. userId)
+		
+		return true
+	end
+
+	@ExecSpace("Server")
+	method boolean RemoveWaitingPlayerOnServer(string userId)
+		-- 매칭 취소 시 대기열에서 해당 플레이어를 제거한다.
+		if self:IsPlayerWaiting(userId) then
+			log_warning("[_GameMatchLogic] : 매칭 대기열에 등록되지 않은 유저 ID 입니다: " .. userId)
+			return false
+		end
+		
+		table.remove(self.WaitingPlayers, self:FindWaitingPlayerIndex(userId))
+		log("[_GameMatchLogic] 대기 취소 완료: " .. userId)
+		return true
+	end
+
+	@ExecSpace("Server")
+	method integer FindWaitingPlayerIndex(string userId)
+		-- 대기열에서 해당 플레이어의 인덱스를 반환한다.
+		for index, playerId in ipairs(self.WaitingPlayers) do
+			if playerId == userId then
+				return index
+			end
+		end
+	end
+
+	@ExecSpace("ServerOnly")
+	method void CreateMatchedGame(string userId1, string userId2)
+		-- 두 대기 플레이어를 하나의 실제 매칭 정보로 묶기
+		if userId1 == nil or userId2 == nil then
+			log_warning("[_GameMatchLogic] 매칭 생성에 필요한 플레이어 ID가 없습니다.")
+			return
+		end
+		
+		---@type GameMatchInfo
+		local matchInfo = GameMatchInfo()
+		
+		-- Match ID 생성 및 증가
+		matchInfo.MatchId = self.GameMatchIndex
+		self.GameMatchIndex = self.GameMatchIndex + 1
+		
+		matchInfo.Player1UserID = userId1
+		matchInfo.Player2UserID = userId2
+		matchInfo.MatchState = _GameEnum.MatchState.ACTIVE
+		
+		-- 매칭 정보 등록
+		self.ActiveMatches[matchInfo.MatchId] = matchInfo
+		log("[_GameMatchLogic] 매칭 연결 완료: " .. matchInfo.MatchId)
+		
+		self:ReceiveMatchedOpponent(userId2, userId1)
+		self:ReceiveMatchedOpponent(userId1, userId2)
+	end
+
+	@ExecSpace("Client")
+	method void ReceiveMatchedOpponent(string opponentUserId)
+		log("[_GameMatchLogic] 상대 매칭 수신: " .. opponentUserId)
+		
+		local statusEntity = _EntityService:GetEntityByPath("/ui/WaitingRoomGroup/RightPanel/StatusText")
+		if isvalid(statusEntity) == false then
+			return
+		end
+		
+		local textRenderer = statusEntity.TextGUIRendererComponent
+		if isvalid(textRenderer) == false then
+			return
+		end
+		
+		textRenderer.Text = "상대와 매칭되었습니다."
+		local opponentEntity = _UserService:GetUserEntityByUserId(opponentUserId)
+		if isvalid(opponentEntity) == false then
+			log_warning("[_GameMatchLogic] 상대 플레이어를 찾을 수 없습니다: " .. opponentUserId)
+			return
+		end
+		
+		local opponentAvatar = _EntityService:GetEntityByPath("/ui/WaitingRoomGroup/RightPanel/OpponentAvatar")
+		local opponentLabel = _EntityService:GetEntityByPath("/ui/WaitingRoomGroup/RightPanel/OpponentLabel")
+		if isvalid(opponentAvatar) == false or isvalid(opponentLabel) == false then
+			log_warning("[_GameMatchLogic] 상대 표시 UI를 찾을 수 없습니다.")
+			return
+		end
+		
+		local costumeManager = opponentAvatar.CostumeManagerComponent
+		local labelRenderer = opponentLabel.TextGUIRendererComponent
+		if isvalid(costumeManager) == false or isvalid(labelRenderer) == false then
+			log_warning("[_GameMatchLogic] 상대 표시 UI 컴포넌트가 없습니다.")
+			return
+		end
+		
+		
+		
+		costumeManager.UseCustomEquipOnly = false
+		costumeManager.DefaultEquipUserId = opponentUserId
+		labelRenderer.Text = opponentEntity.PlayerComponent.Nickname
+		opponentAvatar.AvatarGUIRendererComponent.Color = Color(1,1,1,1)
+		opponentAvatar.Enable = true
+		opponentLabel.Enable = true
+		statusEntity.Enable = false
+		log("[_GameMatchLogic] 상대 아바타·이름 표시: " .. opponentEntity.PlayerComponent.Nickname)
+	end
+
+	method GameMatchInfo FindPlayerMatch(string userId)
+		-- 현재 플레이어가 포함된 활성 매칭 정보를 찾는다.
+		for _, matchInfo in pairs(self.ActiveMatches) do
+			if matchInfo.Player1Info ~= nil and matchInfo.Player1Info.PlayerUserId == userId then
+				return matchInfo
+			end
+			
+			if matchInfo.Player2Info ~= nil and matchInfo.Player2Info.PlayerUserId == userId then
+				return matchInfo
+			end
+		end
+		
+		return nil
+	end
+
+	method GameMatchInfo GetMatchInfo(string matchId)
+		-- 전달된 매칭 ID로 현재 활성화된 매칭 정보를 조회한다.
+		return self.ActiveMatches[matchId]
+	end
+
+	method void RemoveMatchInfo(string matchId)
+		-- 종료된 매칭 방 정보를 활성 목록에서 제거한다.
+		self.ActiveMatches[matchId] = nil
+	end
+
+	@ExecSpace("ServerOnly")
+	method void OnUpdate(number delta)
+		-- 일정 간격으로 대기 플레이어들 중 매칭 가능한 쌍을 찾아 연결한다.
+		self.MatchCheckElapsed = self.MatchCheckElapsed + delta
+		if self.MatchCheckElapsed < self.MatchCheckInterval then
+			return
+		end
+		
+		self.MatchCheckElapsed = 0
+		
+		if #self.WaitingPlayers < 2 then
+			return
+		end
+		
+		while #self.WaitingPlayers >= 2 do
+			--임시 로직
+			local firstIndex = _UtilLogic:RandomIntegerRange(1, #self.WaitingPlayers)
+			local player1ID = self.WaitingPlayers[firstIndex]
+			table.remove(self.WaitingPlayers, firstIndex)
+			
+			local secondIndex = _UtilLogic:RandomIntegerRange(1, #self.WaitingPlayers)
+			local player2Info = self.WaitingPlayers[secondIndex]
+			table.remove(self.WaitingPlayers, secondIndex)
+			
+			-- Match 생성 및 ActiveMatches에 등록
+			self:CreateMatchedGame(player1ID, player2Info)
+		end
+	end
+
+end

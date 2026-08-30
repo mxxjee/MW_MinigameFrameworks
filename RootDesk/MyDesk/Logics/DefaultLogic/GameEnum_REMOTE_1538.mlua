@@ -1,0 +1,17 @@
+@Logic
+script GameEnum extends Logic
+
+	property table PlayMode = {
+		SINGLE = 0,
+		MULTI = 1
+	}
+
+	property table MatchState = {
+		WAITING = 0,
+		ACTIVE = 1,
+		COUNTDOWN = 2,
+		PLAYING = 3,
+		FINISH = 4
+	}
+
+end

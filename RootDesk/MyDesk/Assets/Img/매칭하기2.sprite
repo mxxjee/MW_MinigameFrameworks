@@ -1,0 +1,23 @@
+{
+  "Id": "",
+  "GameId": "",
+  "EntryKey": "sprite://fe7e2311b37a49d79de2f1be3ab9b86c",
+  "ContentType": "x-mod/sprite",
+  "Content": "",
+  "Usage": 0,
+  "UsePublish": 1,
+  "UseService": 0,
+  "CoreVersion": "26.7.0.0",
+  "StudioVersion": "0.1.0.0",
+  "DynamicLoading": 0,
+  "ContentProto": {
+    "Use": "Json",
+    "Json": {
+      "upload_keyname": "0d/13/0d13d5dd0b2f471f88f6c281753684b1/sprite/fe7e2311b37a49d79de2f1be3ab9b86c/639218765547535918",
+      "upload_hash": "97C409DC185AC777971D64215BE08018BB5E11E3C495CB6B4F88CAE20BFCF264",
+      "name": "매칭하기2",
+      "resource_guid": "fe7e2311b37a49d79de2f1be3ab9b86c",
+      "resource_version": "6a78774a156a9b3173855455"
+    }
+  }
+}

@@ -1,20 +1,27 @@
 @Component
 script MinigameComponent extends Component
 
+<<<<<<< HEAD
 	property string MinigameID = ""
 
+=======
+	@ExecSpace("ClientOnly")
+>>>>>>> 1a7ca19f47a9a962d4fed3173dc8f2c9ba9bf11b
 	method void Initialize(MinigameData gameData)
 		
 	end
 
+	@ExecSpace("ClientOnly")
 	method void Update(number deltaTime)
 		
 	end
 
+	@ExecSpace("ClientOnly")
 	method void Release()
 		
 	end
 
+<<<<<<< HEAD
 	@ExecSpace("ClientOnly")
 	method void OnBeginPlay()
 		-- 현재 게임을 설정 -- 
@@ -33,3 +40,6 @@ script MinigameComponent extends Component
 	end
 
 end
+=======
+end
+>>>>>>> 1a7ca19f47a9a962d4fed3173dc8f2c9ba9bf11b
