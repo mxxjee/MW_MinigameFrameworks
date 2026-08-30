@@ -8,8 +8,8 @@
 - 확인 브랜치: `Minji_Branch`
 - 확인 HEAD: `fd391f5` (`Fix: 머지 완료`) + 현재 작업 트리
 - 분석 기준: 현재 작업 트리의 mLua, Map, UI, Model, Sprite 리소스
-- 현재 단계: **로비/선택/대기실 → Instance Room 입장 → 로컬 미니게임 인트로 → 실제 게임 시작** 흐름 연결 중
-- 아직 미완성: `MULTI` Instance Room 이동·두 사용자 준비 확인·동시 시작 신호, 구체 미니게임 본체, 등록 게임의 실제 로고 RUID
+- 현재 단계: **로비/선택/대기실 → Instance Room 입장 → 인트로 준비 → 공통 서버 시각 기반 실제 게임 시작·종료 → 남은 시간 UI 표시** 흐름 연결 중
+- 아직 미완성: 준비 신호의 사용자별 중복 방지·라운드 검증, 구체 미니게임 본체, 등록 게임의 실제 로고 RUID
 
 ## 1. 현재 활성 구조
 
@@ -49,6 +49,7 @@ RootDesk/MyDesk/
 │  ├─ MinigameIntroUIComponent.mlua
 │  └─ WaitingRoomMyAvatarComponent.mlua
 ├─ Events/
+│  ├─ MinigameIntroReadyEvent.mlua
 │  ├─ MinigameLogoEndEvent.mlua
 │  └─ MinigameCountdownEndEvent.mlua
 ├─ MapEnterController.mlua
@@ -75,21 +76,23 @@ RootDesk/MyDesk/
 | `RootDesk/MyDesk/SelectWidgetUIComponent.mlua` | `RootDesk/MyDesk/SelectScene/SelectWidgetUIComponent.mlua` |
 | `RootDesk/MyDesk/Default/*.mlua` | `RootDesk/MyDesk/ETC/*.mlua` |
 
-`GameLogic`은 `RootDesk/MyDesk/Logics/GameLogic.mlua`에 유지된다. `MinigameComponent`와 `MinigameData`는 `RootDesk/MyDesk/Minigame/`에 유지된다.
+`GameLogic`은 `RootDesk/MyDesk/Logics/DefaultLogic/GameLogic.mlua`에 있다. `MinigameComponent`와 `MinigameData`는 `RootDesk/MyDesk/Minigame/`에 유지된다.
 
 | 파일 | 선언 | 전역 접근/부착 위치 | 현재 책임 |
 |---|---|---|---|
-| `Logics/DefaultLogic/GameLogic.mlua` | `@Logic script GameLogic` | `_GameLogic` | 플레이 모드·점수·제한시간·선택 게임 상태와 인트로/실제 게임 시작 진입점 |
+| `Logics/DefaultLogic/GameLogic.mlua` | `@Logic script GameLogic` | `_GameLogic` | 플레이 모드·점수·제한시간·준비 인원, 공통 서버 시작/종료 시각과 남은 시간 관리 |
 | `Logics/DefaultLogic/GameEnum.mlua` | `@Logic script GameEnum` | `_GameEnum` | 플레이 모드 enum 테이블 초기화 |
 | `Logics/DefaultLogic/GameHelper.mlua` | `@Logic script GameHelper` | `_GameHelper` | 경로로 UI Group을 찾아 활성화/비활성화 |
 | `Logics/MinigameLogic/MinigameRegistry.mlua` | `@Logic script MinigameRegistry` | `_MinigameRegistry` | 미니게임 이름·ID·맵 경로의 전역 등록 및 조회 |
-| `Logics/MinigameLogic/MinigameManager.mlua` | `@Logic script MinigameManager` | `_MinigameManager` | 로컬 미니게임 Component와 경과시간·실행 여부 관리 |
+| `Logics/MinigameLogic/MinigameManager.mlua` | `@Logic script MinigameManager` | `_MinigameManager` | 로컬 미니게임 Component와 서버 시작 시각 기준 경과시간·실행 여부 관리 |
 | `Logics/MinigameLogic/MinigameIntroLogic.mlua` | `@Logic script MinigameIntroLogic` | `_MinigameIntroLogic` | 로컬 인트로 상태 관리, UI Component 획득, 로고/카운트다운 이벤트 연결 |
 | `Minigame/MinigameData.mlua` | `@Struct script MinigameData` | `MinigameData()` | 미니게임 이름·ID·MapName 저장 |
 | `Minigame/MinigameComponent.mlua` | `@Component script MinigameComponent` | 엔티티 부착/상속 기반 | 미니게임 초기화·갱신·해제 인터페이스 |
 | `UI/MinigameIntroUIComponent.mlua` | `@Component` | `/ui/GameIntroGroup` | 로고·카운트다운·START 연출과 단계 종료 이벤트 발행 |
 | `Events/MinigameLogoEndEvent.mlua` | `@Event` | `GameIntroGroup` Entity Event | 로고 Fade Out 완료 알림 |
 | `Events/MinigameCountdownEndEvent.mlua` | `@Event` | `GameIntroGroup` Entity Event | START 이미지 출력 완료 알림 |
+| `Events/MinigameIntroReadyEvent.mlua` | `@Event` | `_GameLogic` Self Event | Room 동기화와 미니게임 Component 준비 상태 재검사 트리거 |
+| `ETC/UIToast.mlua` | `@Logic script UIToast` | `_UIToast` | 기존 Toast 표시와 게임 중 지속형 남은 시간 텍스트 표시 |
 | `UI/EnterBtnComponent.mlua` | `@Component` | UI 버튼 부착 | 싱글/멀티 진입 분기와 선택 화면 이동 |
 | `MapEnterController.mlua` | `@Component` | 맵 진입 엔티티 부착 | SelectScene 진입 시 선택 화면 초기화 |
 | `SelectSceneControllerComponent.mlua` | `@Component` | 선택 화면 Controller | Registry 기반 선택 위젯 생성 |
@@ -126,37 +129,49 @@ ClientOnly `OnBeginPlay()`에서 다음 값을 만든다.
 | 이름 | 타입 | 기본값 | 역할 |
 |---|---|---:|---|
 | `CurrentGameId` | `string` | `""` | 현재 룸에서 선택된 게임 ID |
-| `PlayMode` | `string` | `"SINGLE"` | `SINGLE` 또는 `MULTI` |
+| `PlayMode` | `string` | `"NONE"` | `NONE`, `SINGLE`, `MULTI` |
 | `CurrentScore` | `number` | `0` | 현재 점수 |
 | `CurrentMaxTime` | `number` | `60` | 제한시간 |
 | `MyPlayerId` | `integer` | `0` | 로컬 플레이어 ID 저장 자리 |
 | `OpponentPlayerId` | `string` | `""` | 상대 플레이어 ID |
 | `MyRankingData` | `table` | `{}` | 랭킹 데이터 저장 자리 |
+| `introReadyCnt` | `integer` | `0` | 서버에서 받은 인트로 준비 신호 수 |
+| `GameReadyCnt` | `integer` | `0` | 서버에서 받은 실제 게임 준비 신호 수 |
+| `GameEndTimerId` | `integer` | `0` | 서버의 공통 종료 신호 Timer ID |
+| `ReserveServerTime` | `number` | `0` | 클라이언트가 실제 게임을 시작할 공통 서버 시각 |
+| `GameEndServerTime` | `number` | `0` | `ReserveServerTime + CurrentMaxTime`으로 계산한 공통 종료 시각 |
+| `RemainingTime` | `number` | `0` | `GameEndServerTime - ServerElapsedSeconds`로 계산한 남은 시간 |
+| `LastDisplayedRemainingTime` | `number` | `-1` | UI에 마지막으로 표시한 정수 초 |
+| `IsReservedGamePlay` | `boolean` | `false` | 공통 서버 시작 시각 대기 여부 |
 
 #### 룸 관련 Method
 
 | 메서드 | ExecSpace | 현재 동작 |
 |---|---|---|
-| `SelectMinigame(string gameID, table userIds)` | `ServerOnly` | 현재 Instance Room을 유지하며 지정 사용자들을 선택 게임 맵으로 이동한다. 현재 선택 UI에서는 직접 호출하지 않는다. |
-| `EnterMiniGameRoom(table gameIds, string roomKey, table userIds)` | `ServerOnly` | SharedMemory에 첫 게임 ID를 저장하고, 게임 맵 목록으로 Instance Room을 만든 뒤 첫 맵으로 사용자를 이동한다. |
-| `MakeSoloRoomKey(string userId)` | `ServerOnly` | `Solo_{userId}_{UtcNow.Elapsed}` 형식의 키를 만든다. |
-| `HandleRoomBeginEvent(RoomBeginEvent)` | Server Event | 현재 Room Key의 SharedMemory에서 `CurrentGameId`를 읽어 서버 영역의 Property를 복원한다. |
+| `SelectMinigame(string gameID, table userIds)` | `Server` | 현재 Instance Room을 유지하며 지정 사용자들을 선택 게임 맵으로 이동한다. |
+| `EnterMiniGameRoom(table gameIds, string roomKey, table userIds, string PlayMode)` | `Server` | SharedMemory에 첫 게임 ID와 PlayMode를 저장하고 Instance Room을 만든 뒤 첫 맵으로 이동한다. |
+| `MakeSoloRoomKey(string userId)` | `Server` | `Solo_{userId}_{UtcNow.Elapsed}` 형식의 키를 만든다. |
+| `HandleRoomBeginEvent(RoomBeginEvent)` | Server Event | SharedMemory의 `CurrentGameId`와 `PlayMode`를 복원하고 클라이언트 PlayMode 설정과 인트로 준비 검사를 요청한다. |
 
 #### 상태·생명주기 Method
 
 | 메서드 | 현재 동작 |
 |---|---|
-| `SetPlayMode(string playMode)` | 문자열 `SINGLE/MULTI`만 허용한다. |
+| `Set_PlayMode(string playMode)` | Client 실행 Method. 문자열 `SINGLE/MULTI`만 허용한다. |
 | `SetCurrentScore/AddScore/ResetScore` | 점수를 설정·가산·초기화한다. |
 | `SetCurrentMaxTime(number maxTime)` | 0보다 큰 제한시간만 허용한다. |
 | `SetOpponentPlayer/ClearOpponentPlayer` | 상대 ID를 설정·초기화한다. |
-| `PlayIntro(string gameId)` | ClientOnly. `_MinigameIntroLogic:BeginIntro(gameId)`에 인트로를 위임한다. |
-| `StartGame(string gameId)` | Client 실행 Method. SINGLE 로컬 흐름과 향후 MULTI 서버 신호가 공유하는 인트로 시작 진입점이다. |
-| `StartGamePlay(string gameId)` | Client 실행 Method. 인트로 완료 후 전달받은 `gameId`로 `_MinigameManager:StartGame(gameId)`을 호출한다. |
-| `EndMinigame()` | `_MinigameManager:EndGame()`에 종료를 위임한다. |
-| `OnUpdate(number delta)` | ClientOnly에서 Manager를 갱신하고 제한시간 도달 시 종료한다. |
+| `Request_ReadyIntro()` | Client에서 `MinigameIntroReadyEvent`를 발생시킨다. |
+| `ReportIntroReady_Server()` | 서버 인트로 준비 수가 모드별 필요 인원에 도달하면 룸 클라이언트에 `PlayIntro()`를 호출한다. |
+| `PlayIntro(string gameId)` | Client 실행 Method. `_MinigameIntroLogic:BeginIntro(gameId)`에 인트로를 위임한다. |
+| `ReportGameReady_Server()` | START 애니메이션 완료 준비 수가 모이면 Registry의 `MaxTime`을 `CurrentMaxTime`에 연결하고 시작·종료 서버 시각을 계산한다. |
+| `ReserveGameStart_Client(number startServerTime, number endServerTime, number maxTime)` | 룸 클라이언트에 동일한 시작·종료 시각과 제한시간을 저장한다. |
+| `StartGamePlay(string gameId, number startServerTime)` | 공통 시작 시각과 함께 `_MinigameManager:StartGame(gameId, startServerTime)`을 호출한다. |
+| `EndMinigame()` | Manager를 해제하고 예약/시간/UI 상태를 초기화한다. |
+| `EndMinigame_Client()` | 서버 Timer가 현재 룸의 모든 클라이언트에 보내는 공통 종료 진입점이다. |
+| `OnUpdate(number delta)` | ClientOnly에서 공통 시작 시각을 기다리고, 종료 시각으로 남은 시간을 계산하며 Manager와 남은 시간 UI를 갱신한다. |
 
-현재 구현에서 `CurrentGameId`는 RoomBegin 시 **서버 영역**에서 갱신된다. Client의 `StartMinigame()`으로 값을 전달하거나 동기화하는 연결은 아직 없다.
+서버 `CurrentGameId`는 RoomBegin 또는 미니게임 선택 시 갱신되고, 각 클라이언트의 `CurrentGameId`는 해당 맵의 `MinigameComponent.OnBeginPlay()`가 자신의 `MinigameID`로 설정한다.
 
 ### 3.4 `MinigameRegistry`
 
@@ -174,7 +189,7 @@ Registry는 Entity에 부착하는 Component가 아니라 전역 `@Logic`이며 
 
 | 순서 | 표시 이름 | ID | MapName | 설명 | 실제 Map |
 |---:|---|---|---|---|---|
-| 1 | 버튼게임 | `Button_Game` | `ButtonGameScene` | 버튼 연타 안내 | 있음 |
+| 1 | 똥피하기 | `Drop_Game` | `ButtonGameScene` | 버튼 연타 안내 | 있음 |
 | 2 | 민거니 먹빵 | `GunHee_Muckbang` | `TestScene` | 민거니 소개 | **없음** |
 | 3 | 민지꾸얌 | `Minji_Game` | `TestScene` | 생일 안내 | **없음** |
 | 4 | 쥬신뿌수기 | `Jusin_Game` | `TestScene` | 쥬신 뿌수기 안내 | **없음** |
@@ -185,7 +200,7 @@ Registry는 Entity에 부착하는 Component가 아니라 전역 `@Logic`이며 
 |---|---|
 | `OnBeginPlay()` | `Initialize()`를 호출한다. |
 | `Initialize()` | 이미 초기화했으면 종료하고, 네 게임을 등록한 뒤 플래그를 `true`로 만든다. |
-| `RegisterMinigame(name, id, mapName, desc)` | 검증 후 `MinigameData`를 만들고 Dictionary와 순서 Table에 저장한다. |
+| `RegisterMinigame(name, id, mapName, desc, logoGUID, endType, maxTime)` | 검증 후 `MinigameData`를 만들고 Dictionary와 순서 Table에 저장한다. |
 | `ValidateRegisterData(string id)` | 빈 ID와 중복 ID를 거부한다. |
 | `GetMinigameData(string id)` | 데이터가 없다고 판단하면 초기화를 시도한 뒤 `MinigameData` 또는 `nil`을 반환한다. |
 
@@ -196,14 +211,15 @@ Registry는 Entity에 부착하는 Component가 아니라 전역 `@Logic`이며 
 | Property | 타입 | 기본값 | 역할 |
 |---|---|---:|---|
 | `CurrentGame` | `MinigameComponent` | `nil` | 현재 실행할 구체 미니게임 Component |
-| `CurrentTime` | `number` | `0` | 로컬 경과시간 |
+| `CurrentTime` | `number` | `0` | 공통 시작 서버 시각 기준 경과시간 |
+| `GameStartServerTime` | `number` | `0` | 서버가 모든 룸 클라이언트에 전달한 실제 게임 시작 시각 |
 | `IsPlaying` | `boolean` | `false` | 실행 여부 |
 
 | 메서드 | 현재 동작 |
 |---|---|
-| `StartGame(string gameId)` | Registry 조회 후 시간과 상태를 초기화하고 `CurrentGame:Initialize(gameData)`를 호출한다. |
-| `Update(number deltaTime)` | 실행 중이고 `CurrentGame`이 있을 때 시간을 누적하고 `Update()`를 호출한다. |
-| `EndGame()` | `Release()` 호출 후 Component·시간·상태를 초기화한다. |
+| `StartGame(string gameId, number startServerTime)` | 시작 서버 시각을 저장하고 현재 서버 시각과의 차이로 경과시간을 초기화한 뒤 `CurrentGame:Initialize(gameData)`를 호출한다. |
+| `Update(number deltaTime)` | `ServerElapsedSeconds - GameStartServerTime`으로 경과시간을 재계산하고 이전 값과의 차이를 `CurrentGame:Update()`에 전달한다. |
+| `EndGame()` | `Release()` 호출 후 Component·경과시간·시작 서버 시각·실행 상태를 초기화한다. |
 
 현재는 `MinigameComponent.OnBeginPlay()`가 ClientOnly에서 자신을 `CurrentGame`으로 등록한다. `MinigameManager.StartGame()`도 Component가 등록되지 않은 경우 `false`를 반환하도록 방어한다.
 
@@ -241,11 +257,20 @@ _GameLogic:StartGame(gameId)
   → START 이미지
   → MinigameCountdownEndEvent
   → MinigameIntroLogic: HandleMinigameCountdownEndEvent
-  → _GameLogic:StartGamePlay(gameId)
-  → _MinigameManager:StartGame(gameId)
+  → _GameLogic:ReportGameReady_Server()
+  → 모드별 필요 인원 GameReady 확인
+  → startServerTime = ServerElapsedSeconds + 0.5
+  → endServerTime = startServerTime + CurrentMaxTime
+  → _GameLogic:ReserveGameStart_Client(startServerTime, endServerTime, maxTime)
+  → 각 클라이언트 OnUpdate가 공통 startServerTime 도달 확인
+  → _GameLogic:StartGamePlay(gameId, startServerTime)
+  → _MinigameManager:StartGame(gameId, startServerTime)
+  → RemainingTime = endServerTime - ServerElapsedSeconds
+  → _UIToast:ShowRemainingTime(정수 초)
+  → 공통 종료 시각에 로컬 종료 및 서버 EndMinigame_Client 신호
 ```
 
-SINGLE은 로컬 `MinigameComponent.OnBeginPlay()`에서 현재 게임을 등록한 뒤 `StartGame()`으로 진입한다. MULTI에서는 두 사용자가 같은 Instance Room에서 준비됐음을 서버가 확인한 후, 각 사용자 클라이언트에 같은 `StartGame(gameId)` 신호를 보내야 한다. 실제 UI·Timer·인트로 상태는 ClientOnly이므로 각 사용자의 로컬 UI에서 독립적으로 실행된다. 서버 준비 확인과 동시 시작 신호는 아직 구현되지 않았다.
+SINGLE과 MULTI 모두 같은 준비 흐름을 사용한다. 서버는 SINGLE 1명, MULTI 2명의 인트로 준비와 실제 게임 준비 신호를 기다린다. 실제 게임 준비가 완료되면 현재 Room 전체에 동일한 시작·종료 서버 시각을 전달한다. 현재 준비 수는 단순 정수 카운트이므로 사용자별 중복 방지와 라운드 ID 검증은 후속 보완이 필요하다.
 
 ## 4. 미니게임 데이터와 기반 Component
 
@@ -258,8 +283,10 @@ SINGLE은 로컬 `MinigameComponent.OnBeginPlay()`에서 현재 게임을 등록
 | `MapName` | `string` | `""` |
 | `Description` | `string` | `""` |
 | `LogoGUID` | `string` | `""` |
+| `EndType` | `integer` | `1` |
+| `MaxTime` | `number` | `0` |
 
-`InitData(name, id, mapName, Desc, logoGUID)`가 다섯 값을 저장한다. 실제 실행 Component 참조는 보관하지 않는다.
+`InitData(name, id, mapName, Desc, logoGUID, endType, maxTime)`가 메타데이터와 종료 유형·제한시간을 저장한다. 실제 실행 Component 참조는 보관하지 않는다.
 
 ### 4.2 `MinigameComponent`
 
@@ -268,7 +295,7 @@ SINGLE은 로컬 `MinigameComponent.OnBeginPlay()`에서 현재 게임을 등록
 | 초기화 | `Initialize(MinigameData gameData)` | 빈 기반 Method |
 | 갱신 | `Update(number deltaTime)` | 빈 기반 Method |
 | 해제 | `Release()` | 빈 기반 Method |
-| 로컬 등록/인트로 진입 | `OnBeginPlay()` | ClientOnly에서 Manager에 자신을 등록하고 SINGLE이면 `_GameLogic:StartGame()` 호출. MULTI는 서버 시작 신호를 대기한다. |
+| 로컬 등록/인트로 준비 | `OnBeginPlay()` | ClientOnly에서 Manager에 자신을 등록하고 `CurrentGameId`를 설정한 뒤 `_GameLogic:Request_ReadyIntro()`를 호출한다. |
 
 구체 미니게임이 이 Component를 상속하거나 동일 인터페이스를 구현하고 Manager에 연결하는 단계가 남아 있다.
 
@@ -385,7 +412,7 @@ _GameLogic:StartMinigame(gameId)
 | `Default/PlayerAttack.mlua` | BoxShape 기반 일반 공격, 고정 피해·치명타 계산 |
 | `Default/PlayerHit.mlua` | 피격 면역 쿨다운 판정 |
 | `Default/UIPopup.mlua` | 확인/취소 Callback과 Tween 기반 Popup 표시 |
-| `Default/UIToast.mlua` | 시간·Alpha Tween 기반 Toast 표시 |
+| `ETC/UIToast.mlua` | 시간·Alpha Tween Toast 표시와 ClientOnly 지속형 남은 시간 표시·숨김 |
 
 이 파일들은 현재 경로 이동 대상이 아니며 `RootDesk/MyDesk/Default/`에 유지된다.
 
@@ -393,13 +420,15 @@ _GameLogic:StartMinigame(gameId)
 
 - Registry는 전역 `@Logic`이며 별도 Entity/Component 연결이 필요하지 않다.
 - Registry는 네 개의 미니게임 메타데이터를 등록한다.
-- `MinigameData`는 `Name`, `ID`, `MapName`만 저장한다.
+- `MinigameData`는 이름·ID·맵·설명·로고와 `EndType`, `MaxTime`을 저장한다.
 - 선택 화면은 Registry 데이터로 위젯을 생성하고 이름을 표시한다.
 - 선택 위젯의 클릭·게임 ID 전달·`StartMinigame()` 연결은 아직 없다.
 - `MinigameComponent.OnBeginPlay()`가 로컬 `MinigameManager.CurrentGame`을 설정한다.
-- 인트로는 `MinigameLogoEndEvent → PlayCountdown → MinigameCountdownEndEvent → StartGamePlay` 순서로 연결됐다.
+- 인트로는 `MinigameLogoEndEvent → PlayCountdown → MinigameCountdownEndEvent → ReportGameReady_Server` 순서로 연결됐다.
 - 카운트다운은 단일 `3 → 2 → 1` Sprite Animation의 `SpriteGUIAnimPlayerEndEvent`가 도착한 뒤 START 이미지로 전환한다.
-- MULTI에서 두 사용자 준비 완료를 확인하고 두 클라이언트에 `StartGame(gameId)`을 보내는 서버 시작 신호는 아직 없다.
+- SINGLE 1명/MULTI 2명의 실제 게임 준비가 완료되면 서버가 동일한 시작·종료 시각을 룸 클라이언트에 전달한다.
+- 클라이언트 경과시간은 `ServerElapsedSeconds - GameStartServerTime`, 남은 시간은 `GameEndServerTime - ServerElapsedSeconds`로 계산한다.
+- 남은 정수 초는 기존 `ToastGroup`의 `TextComponent`에 `남은 시간 : N` 형식으로 표시하고 종료 시 숨긴다.
 - Registry에 등록된 현재 `LogoGUID`가 모두 빈 문자열이므로 실제 로고 리소스 연결이 필요하다.
 - `MinigameIntroUIComponent.CountdownStartRUID`가 빈 문자열이면 START 이미지로 교체할 리소스가 없으므로 UI Editor Inspector에서 실제 START 이미지 RUID를 지정해야 한다.
 - `GameLogic.SelectMinigame()`은 Registry 조회 결과가 `nil`인지 확인하기 전에 `GameData.MapName`을 사용한다.
@@ -414,6 +443,9 @@ _GameLogic:StartMinigame(gameId)
 - `MinigameRegistry.RegisterMinigame()`의 `gameData`: `MinigameData`
 - `MinigameRegistry.GetMinigameData()` 반환: `MinigameData`
 - `MinigameManager.CurrentGame`: `MinigameComponent`
+- `MinigameManager.GameStartServerTime`: `number`
+- `GameLogic.CurrentMaxTime`, `ReserveServerTime`, `GameEndServerTime`, `RemainingTime`: `number`
+- `GameLogic.GameEndTimerId`: `integer`
 - `MinigameComponent.Initialize()` 매개변수: `MinigameData`
 - `SelectSceneControllerComponent.widgetComp`: `SelectWidgetUIComponent`
 
@@ -431,6 +463,8 @@ mLua Extension `1.1.7`의 진단 엔진으로 `GameLogic`, `MinigameIntroLogic`,
 단일 카운트다운 Sprite Animation 종료 이벤트 방식으로 변경한 뒤에도 같은 세 파일을 mLua Extension `1.1.7` 진단 엔진으로 다시 분석했으며 diagnostic 0건, provider error 0건이었다.
 
 Codex 환경에서는 사용자의 VS Code Problems 패널 자체를 직접 읽지 못했다. 따라서 “VS Code Problems 오류 없음”이라고 단정하지 않으며, 위 결과는 번들 mLua LSP 진단 기준이다.
+
+2026-08-30 서버 시각 기반 시작·종료 및 남은 시간 UI 변경에서는 코드 검색과 `git diff --check`로 호출 시그니처·명시 타입·공백 오류를 검사했다. 현재 환경에서는 VS Code mLua Extension Problems와 Maker 런타임을 직접 실행하지 못했으므로 이 변경의 실제 진단/런타임 결과는 확인되지 않았다.
 
 ## 10. 코드 변경 시 문서 동기화 체크리스트
 

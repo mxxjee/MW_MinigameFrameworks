@@ -27,6 +27,39 @@ script UIToast extends Logic
 		self:StartTween()
 	end
 
+	@ExecSpace("ClientOnly")
+	method void ShowRemainingTime(number remainingTime)
+		if self.inited == false then
+			self.inited = true
+			self.offset = -self.message.Entity.UITransformComponent.anchoredPosition.y
+		end
+
+		if self.tweenEventId > 0 then
+			_TimerService:ClearTimer(self.tweenEventId)
+			self.tweenEventId = 0
+		end
+
+		local displayTime = math.ceil(remainingTime)
+		if displayTime < 0 then
+			displayTime = 0
+		end
+
+		self.message.Text = "남은 시간 : " .. tostring(displayTime)
+		self.message.Entity.CanvasGroupComponent.GroupAlpha = 1
+		self.message.Entity.UITransformComponent.anchoredPosition = Vector2(0, -self.offset)
+		self.toastGroup.Enable = true
+	end
+
+	@ExecSpace("ClientOnly")
+	method void HideRemainingTime()
+		if self.tweenEventId > 0 then
+			_TimerService:ClearTimer(self.tweenEventId)
+			self.tweenEventId = 0
+		end
+
+		self.toastGroup.Enable = false
+	end
+
 	method void StartTween()
 		local canvasGroup = self.message.Entity.CanvasGroupComponent
 		local transform = self.message.Entity.UITransformComponent

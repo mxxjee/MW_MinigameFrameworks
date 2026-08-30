@@ -5,10 +5,12 @@ script MinigameManager extends Logic
 
 	property number CurrentTime = 0
 
+	property number GameStartServerTime = 0
+
 	property boolean IsPlaying = false
 
 	@ExecSpace("Client")
-	method boolean StartGame(string gameId)
+	method boolean StartGame(string gameId, number startServerTime)
 		-- 등록된 미니게임을 조회해 로컬 실행 상태를 시작한다.
 		
 		---@type MinigameData
@@ -16,7 +18,11 @@ script MinigameManager extends Logic
 		if gameData == nil then log_warning("[_MinigameManager] 등록되지 않은 미니게임 ID입니다: " .. gameId)return false end
 		if self.CurrentGame == nil then log_warning("[_MinigameManager] 현재 미니게임 Component가 등록되지 않았습니다.")return false end
 		
-		self.CurrentTime = 0
+		self.GameStartServerTime = startServerTime
+		self.CurrentTime = _UtilLogic.ServerElapsedSeconds - self.GameStartServerTime
+		if self.CurrentTime < 0 then
+			self.CurrentTime = 0
+		end
 		self.IsPlaying = true
 		self.CurrentGame:Initialize(gameData)
 		
@@ -37,8 +43,20 @@ script MinigameManager extends Logic
 		
 		log("현재 미니게임:"..self.CurrentGame.MinigameID.."플레잉중..")
 		
-		self.CurrentTime = self.CurrentTime + deltaTime
-		self.CurrentGame:Update(deltaTime)
+		local previousTime = self.CurrentTime
+		local synchronizedTime = _UtilLogic.ServerElapsedSeconds - self.GameStartServerTime
+		if synchronizedTime < 0 then
+			synchronizedTime = 0
+		end
+
+		self.CurrentTime = synchronizedTime
+
+		local synchronizedDelta = self.CurrentTime - previousTime
+		if synchronizedDelta < 0 then
+			synchronizedDelta = 0
+		end
+
+		self.CurrentGame:Update(synchronizedDelta)
 	end
 
 	@ExecSpace("ClientOnly")
@@ -50,6 +68,7 @@ script MinigameManager extends Logic
 		
 		self.CurrentGame = nil
 		self.CurrentTime = 0
+		self.GameStartServerTime = 0
 		self.IsPlaying = false
 		
 	end
