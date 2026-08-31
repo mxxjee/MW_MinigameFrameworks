@@ -1,0 +1,133 @@
+@Component
+script DropObstacleSpawnerComponent extends Component
+
+	property string ObstacleModelId = "model://dropobstacle"
+
+	property number SpawnInterval = 1
+
+	property number FirstSpawnDelay = 1
+
+	property number SpawnMinX = -6
+
+	property number SpawnMaxX = 6
+
+	property number SpawnY = 3.8
+
+	@HideFromInspector
+	property integer SpawnTimerId = 0
+
+	@HideFromInspector
+	property integer SpawnSerial = 0
+
+	@HideFromInspector
+	property boolean IsSpawning = false
+
+	@HideFromInspector
+	property table SpawnedObstacles = {}
+
+	@ExecSpace("ServerOnly")
+	method boolean PrepareSpawner_Server()
+		-- 새 라운드를 준비할 때 이전 반복 타이머가 남아 있지 않도록 먼저 정리합니다.
+		self:StopSpawner_Server()
+
+		if self.ObstacleModelId == "" then
+			log_warning("[DropObstacleSpawnerComponent] ObstacleModelId가 비어 있습니다.")
+			return false
+		end
+
+		if self.SpawnInterval <= 0 then
+			log_warning("[DropObstacleSpawnerComponent] SpawnInterval은 0보다 커야 합니다.")
+			return false
+		end
+
+		if self.FirstSpawnDelay < 0 then
+			log_warning("[DropObstacleSpawnerComponent] FirstSpawnDelay는 0 이상이어야 합니다.")
+			return false
+		end
+
+		if self.SpawnMinX > self.SpawnMaxX then
+			log_warning("[DropObstacleSpawnerComponent] SpawnMinX는 SpawnMaxX보다 클 수 없습니다.")
+			return false
+		end
+
+		self.SpawnedObstacles = {}
+		log("[DropObstacleSpawnerComponent] 서버 스포너 준비 완료")
+		return true
+	end
+
+	@ExecSpace("ServerOnly")
+	method boolean StartSpawner_Server()
+		if self.IsSpawning == true then
+			return true
+		end
+
+		if self.ObstacleModelId == "" or self.SpawnInterval <= 0 then
+			log_warning("[DropObstacleSpawnerComponent] 준비되지 않은 설정으로 스포너를 시작할 수 없습니다.")
+			return false
+		end
+
+		self.IsSpawning = true
+		self.SpawnTimerId = _TimerService:SetTimerRepeat(function()
+			if self.IsSpawning == false then
+				return
+			end
+
+			self:SpawnObstacle_Server()
+		end, self.SpawnInterval, self.FirstSpawnDelay)
+
+		if self.SpawnTimerId == 0 then
+			self.IsSpawning = false
+			log_warning("[DropObstacleSpawnerComponent] 장애물 반복 생성 타이머 등록에 실패했습니다.")
+			return false
+		end
+
+		log("[DropObstacleSpawnerComponent] 서버 스폰 타이머 시작. interval=" .. tostring(self.SpawnInterval))
+		return true
+	end
+
+	@ExecSpace("ServerOnly")
+	method void StopSpawner_Server()
+		self.IsSpawning = false
+
+		if self.SpawnTimerId ~= 0 then
+			_TimerService:ClearTimer(self.SpawnTimerId)
+			self.SpawnTimerId = 0
+			log("[DropObstacleSpawnerComponent] 서버 스폰 타이머 종료")
+		end
+	end
+
+	@ExecSpace("ServerOnly")
+	method void SpawnObstacle_Server()
+		if self.IsSpawning == false then
+			return
+		end
+
+		local currentMap = self.Entity.CurrentMap
+		if isvalid(currentMap) == false then
+			log_warning("[DropObstacleSpawnerComponent] 장애물을 생성할 현재 Map이 없습니다.")
+			return
+		end
+
+		local randomRate = _UtilLogic:RandomDouble()
+		local spawnX = self.SpawnMinX + ((self.SpawnMaxX - self.SpawnMinX) * randomRate)
+		local spawnPosition = Vector3(spawnX, self.SpawnY, 0)
+
+		self.SpawnSerial += 1
+		local obstacleName = "DropObstacle_" .. tostring(self.SpawnSerial)
+		local obstacle = _SpawnService:SpawnByModelId(
+			self.ObstacleModelId,
+			obstacleName,
+			spawnPosition,
+			currentMap
+		)
+
+		if isvalid(obstacle) == false then
+			log_warning("[DropObstacleSpawnerComponent] 장애물 생성에 실패했습니다. name=" .. obstacleName)
+			return
+		end
+
+		table.insert(self.SpawnedObstacles, obstacle)
+		log("[DropObstacleSpawnerComponent] 장애물 생성. name=" .. obstacleName .. ", x=" .. tostring(spawnX))
+	end
+
+end

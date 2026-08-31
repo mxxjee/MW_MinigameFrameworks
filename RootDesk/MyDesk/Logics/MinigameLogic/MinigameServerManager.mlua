@@ -119,8 +119,14 @@ script MinigameServerManager extends Logic
 
 	@ExecSpace("ServerOnly")
 	method void EndCurrentGame_Server()
-		-- 미니게임별 서버 종료 함수를 호출하고 ServerManager 상태를
-		-- 정리하는 로직은 장애물 스폰 구현 단계에서 연결합니다.
+		-- 공통 MinigameComponent 인터페이스를 통해 현재 게임의 서버 처리를 종료합니다.
+		if isvalid(self.CurrentGame) then
+			self.CurrentGame:EndServer()
+		end
+
+		self.IsServerInitialized = false
+		self.CurrentStartServerTime = 0
+		self.CurrentEndServerTime = 0
 	end
 
 end

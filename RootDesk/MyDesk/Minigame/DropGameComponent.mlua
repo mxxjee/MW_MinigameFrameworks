@@ -11,6 +11,9 @@ script DropGameComponent extends MinigameComponent
 
 	property integer ServerStartTimerId = 0
 
+	@HideFromInspector
+	property DropObstacleSpawnerComponent ObstacleSpawner = "b5a5ec91-06d7-4931-84c3-8b2dda49648c"
+
 	method void Initialize(MinigameData gameData)
 		
 	end
@@ -35,8 +38,15 @@ script DropGameComponent extends MinigameComponent
 			return false
 		end
 		
-		-- 장애물 Spawner 준비는 후속 작업에서 이 함수에 추가합니다.
-		return true
+		-- 실제 스폰 설정과 타이머는 같은 Entity의 전용 Spawner Component가 관리합니다.
+		local spawner = self.Entity.DropObstacleSpawnerComponent
+		if isvalid(spawner) == false then
+			log_warning("[DropGameComponent] DropObstacleSpawnerComponent를 찾을 수 없습니다.")
+			return false
+		end
+		
+		self.ObstacleSpawner = spawner
+		return self.ObstacleSpawner:PrepareSpawner_Server()
 	end
 
 	@ExecSpace("ServerOnly")
@@ -100,19 +110,38 @@ script DropGameComponent extends MinigameComponent
 		end
 		
 		self.IsServerPlaying = true
-		self:StartObstacleSpawner_Server()
+		if self:StartObstacleSpawner_Server() == false then
+			self.IsServerPlaying = false
+			return false
+		end
+		
 		return true
 	end
 
 	@ExecSpace("ServerOnly")
-	method void StartObstacleSpawner_Server()
-		-- 장애물 반복 생성 타이머와 실제 Spawn 로직은 후속 작업에서 연결합니다.
+	method boolean StartObstacleSpawner_Server()
+		-- DropGameComponent는 게임 흐름만 담당하고 실제 Spawn은 Spawner에 위임합니다.
+		if isvalid(self.ObstacleSpawner) == false then
+			log_warning("[DropGameComponent] 준비된 장애물 Spawner가 없습니다.")
+			return false
+		end
+		
+		return self.ObstacleSpawner:StartSpawner_Server()
 	end
 
 	@ExecSpace("ServerOnly")
 	method void EndServer()
-		-- 장애물 스폰 타이머 해제와 서버 게임 상태 정리는
-		-- 장애물 스폰 구현 단계에서 연결합니다.
+		-- 서버 종료의 단일 경로에서 Spawner 반복 타이머를 함께 정리합니다.
+		self.IsServerPlaying = false
+		
+		if self.ServerStartTimerId ~= 0 then
+			_TimerService:ClearTimer(self.ServerStartTimerId)
+			self.ServerStartTimerId = 0
+		end
+		
+		if isvalid(self.ObstacleSpawner) then
+			self.ObstacleSpawner:StopSpawner_Server()
+		end
 	end
 
 	@ExecSpace("ClientOnly")
