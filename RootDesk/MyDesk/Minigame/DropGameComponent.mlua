@@ -1,6 +1,16 @@
 @Component
 script DropGameComponent extends MinigameComponent
 
+	property boolean IsServerInitialized = false
+
+	property boolean IsServerPlaying = false
+
+	property number ServerStartTime = 0
+
+	property number ServerEndTime = 0
+
+	property integer ServerStartTimerId = 0
+
 	method void Initialize(MinigameData gameData)
 		
 	end
@@ -11,6 +21,98 @@ script DropGameComponent extends MinigameComponent
 
 	method void Release()
 		
+	end
+
+	@ExecSpace("ServerOnly")
+	method boolean PrepareServer(MinigameData gameData)
+		if gameData == nil then
+			log_warning("[DropGameComponent] 서버 준비에 필요한 미니게임 데이터가 없습니다.")
+			return false
+		end
+		
+		if gameData.ID ~= self.MinigameID then
+			log_warning("[DropGameComponent] 요청된 미니게임 ID가 Component와 다릅니다. gameId: " .. gameData.ID)
+			return false
+		end
+		
+		-- 장애물 Spawner 준비는 후속 작업에서 이 함수에 추가합니다.
+		return true
+	end
+
+	@ExecSpace("ServerOnly")
+	method boolean InitializeServer(number startServerTime, number endServerTime)
+		if (__base:InitializeServer(startServerTime,endServerTime)==false) then return false end
+		
+		
+		local currentServerTime = _UtilLogic.ServerElapsedSeconds
+		
+		if self.ServerStartTimerId ~= 0 then
+			_TimerService:ClearTimer(self.ServerStartTimerId)
+			self.ServerStartTimerId = 0
+		end
+		
+		self.IsServerInitialized = false
+		self.IsServerPlaying = false
+		self.ServerStartTime = startServerTime
+		self.ServerEndTime = endServerTime
+		
+		local startDelay = startServerTime - currentServerTime
+		self.IsServerInitialized = true
+		
+		-- 네트워크 처리지연 방지, 이미 시작 시각을 지났을 경우 바로 실행시킴 (예외처리)--
+		if startDelay <= 0 then
+			if self:BeginServerGame_Server() == false then
+				self.IsServerInitialized = false
+				return false
+			end
+		
+			return true
+		end
+		
+		-- 정상동작 ( 딜레이 이후 서버 세팅)
+		self.ServerStartTimerId = _TimerService:SetTimerOnce(function()
+			self.ServerStartTimerId = 0
+			self:BeginServerGame_Server()
+		end, startDelay)
+		
+		if self.ServerStartTimerId == 0 then
+			self.IsServerInitialized = false
+			log_warning("[DropGameComponent] 서버 게임 시작 타이머 등록에 실패했습니다.")
+			return false
+		end
+		
+		return true
+	end
+
+	@ExecSpace("ServerOnly")
+	method boolean BeginServerGame_Server()
+		if self.IsServerInitialized == false then
+			return false
+		end
+		
+		if self.IsServerPlaying == true then
+			return true
+		end
+		
+		if _UtilLogic.ServerElapsedSeconds >= self.ServerEndTime then
+			log_warning("[DropGameComponent] 서버 게임을 시작하기 전에 종료 서버 시각이 지났습니다.")
+			return false
+		end
+		
+		self.IsServerPlaying = true
+		self:StartObstacleSpawner_Server()
+		return true
+	end
+
+	@ExecSpace("ServerOnly")
+	method void StartObstacleSpawner_Server()
+		-- 장애물 반복 생성 타이머와 실제 Spawn 로직은 후속 작업에서 연결합니다.
+	end
+
+	@ExecSpace("ServerOnly")
+	method void EndServer()
+		-- 장애물 스폰 타이머 해제와 서버 게임 상태 정리는
+		-- 장애물 스폰 구현 단계에서 연결합니다.
 	end
 
 	@ExecSpace("ClientOnly")

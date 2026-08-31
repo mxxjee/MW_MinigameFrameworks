@@ -67,7 +67,7 @@ script MinigameRegistry extends Logic
 		
 		-- 첫 진입 ) 에디터에 연결된 모든 미니게임을 중앙에서 등록한다.
 		--미니게임이름,미니게임아이디,미니게임씬,미니게임설명(UI표시),미니게임로고 guid
-		self:RegisterMinigame("똥피하기", "Drop_Game", "ButtonGameScene", "버튼을 마구마구 눌러보세요!\n 연타연타!!","",_GameEnum.EndType.TIME_ONLY,5)
+		self:RegisterMinigame("똥피하기", "Drop_Game", "ButtonGameScene", "버튼을 마구마구 눌러보세요!\n 연타연타!!","",_GameEnum.EndType.TIME_ONLY,10)
 		self:RegisterMinigame("민거니 먹빵", "GunHee_Muckbang", "TestScene", "오늘의 머빵은\n 민거니!","",_GameEnum.EndType.TIME_ONLY,60)
 		self:RegisterMinigame("민지꾸얌", "Minji_Game", "TestScene", "민지의 생일은\n 0821이다.","",_GameEnum.EndType.TIME_ONLY,60)
 		self:RegisterMinigame("쥬신뿌수기", "Jusin_Game", "TestScene", "쥬신을 뿌시자~","",_GameEnum.EndType.TIME_ONLY,60)

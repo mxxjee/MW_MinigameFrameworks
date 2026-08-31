@@ -48,14 +48,14 @@ script MinigameManager extends Logic
 		if synchronizedTime < 0 then
 			synchronizedTime = 0
 		end
-
+		
 		self.CurrentTime = synchronizedTime
-
+		
 		local synchronizedDelta = self.CurrentTime - previousTime
 		if synchronizedDelta < 0 then
 			synchronizedDelta = 0
 		end
-
+		
 		self.CurrentGame:Update(synchronizedDelta)
 	end
 
@@ -71,6 +71,11 @@ script MinigameManager extends Logic
 		self.GameStartServerTime = 0
 		self.IsPlaying = false
 		
+	end
+
+	@ExecSpace("Client")
+	method void PrePare_Minigame(MinigameComponent minigameComp)
+		self.CurrentGame=minigameComp
 	end
 
 end

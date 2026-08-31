@@ -46,32 +46,31 @@ script GameLogic extends Logic
 	@ExecSpace("ClientOnly")
 	method void OnUpdate(number delta)
 		local serverTime = _UtilLogic.ServerElapsedSeconds
-
+		
 		-- 모든 클라이언트가 전달받은 공통 서버 시각에 미니게임을 시작한다.
 		if self.IsReservedGamePlay == true and serverTime >= self.ReserveServerTime then
 			local startServerTime = self.ReserveServerTime
 			self.IsReservedGamePlay = false
 			self:StartGamePlay(self.CurrentGameId, startServerTime)
 		end
-
+		
 		if _MinigameManager.IsPlaying == false then
 			return
 		end
-
+		
 		-- CurrentMaxTime을 직접 감소시키지 않고 공통 종료 서버 시각으로 남은 시간을 계산한다.
 		self.RemainingTime = self.GameEndServerTime - serverTime
 		if self.RemainingTime <= 0 then
 			self.RemainingTime = 0
-			self:BeginGameEnd_Client()
 			return
 		end
-
+		
 		local displayedRemainingTime = math.ceil(self.RemainingTime)
 		if displayedRemainingTime ~= self.LastDisplayedRemainingTime then
 			self.LastDisplayedRemainingTime = displayedRemainingTime
 			_UIToast:ShowRemainingTime(displayedRemainingTime)
 		end
-
+		
 		-- 실제 프레임 갱신 시간도 공통 시작 서버 시각을 기준으로 계산한다.
 		_MinigameManager:Update(delta)
 	end
@@ -224,10 +223,10 @@ script GameLogic extends Logic
 		if self.IsGameEnding == true then
 			return
 		end
-
+		
 		self.IsGameEnding = true
 		self:EndMinigame()
-
+		
 		if _MinigameEndLogic:BeginEndUI() == false then
 			log_warning("[_GameLogic] Finish UI 시작에 실패했습니다.")
 		end
@@ -238,11 +237,25 @@ script GameLogic extends Logic
 		if self.IsFinishGameProcessed == true then
 			return
 		end
-
+		
 		self.IsFinishGameProcessed = true
-
+		
+		-- 서버를 게임 종료의 단일 진입점으로 사용한다.
+		-- 미니게임별 서버 종료 처리는 ServerManager에 위임하고,
+		-- 이후 같은 종료 명령을 각 Client에 전달한다.
+		_MinigameServerManager:EndCurrentGame_Server()
+		self:FinishGame_Client()
+		
 		-- 라운드 승패와 점수 확정은 이 위치에 추후 추가한다.
 		log("[_GameLogic] 서버 게임 종료 처리가 완료되었습니다.")
+	end
+
+	@ExecSpace("Client")
+	method void FinishGame_Client()
+		-- 서버에서 전달받은 종료 명령으로 로컬 게임과 종료 UI를 정리한다.
+		-- Client OnUpdate의 종료 시각 검사와 동시에 호출되어도
+		-- BeginGameEnd_Client의 IsGameEnding 검사가 중복 처리를 막는다.
+		self:BeginGameEnd_Client()
 	end
 
 	@ExecSpace("Server")
@@ -272,18 +285,13 @@ script GameLogic extends Logic
 		
 	end
 
-	@ExecSpace("Client")
-	method void Get_PlayMode()
-		
-	end
-
 	@ExecSpace("Server")
 	method void Reset_Values_Server()
 		if self.GameEndTimerId ~= 0 then
 			_TimerService:ClearTimer(self.GameEndTimerId)
 			self.GameEndTimerId = 0
 		end
-
+		
 		self.introReadyCnt=0
 		self.GameReadyCnt=0
 		self.EndUIFinishedCnt=0
@@ -292,7 +300,7 @@ script GameLogic extends Logic
 
 	@ExecSpace("Server")
 	method void ReportIntroReady_Server()
-		if self.CurrentGameId ~= self.CurrentGameId then return end
+		
 		if self.PlayMode=="NONE" then return end
 		
 		--레디 개수 증가--
@@ -305,7 +313,14 @@ script GameLogic extends Logic
 			MaxCnt=2
 		end
 		
-		if(self.introReadyCnt==MaxCnt) then 
+		if(self.introReadyCnt==MaxCnt) then
+			-- 미니게임 서버 매니저에게도 데이터를 옮겨준다 --
+			local isPrepared = _MinigameServerManager:PrepareGame_Server(self.CurrentGameId)
+			if isPrepared == false then
+				log_warning("[_GameLogic] 서버 미니게임 준비에 실패했습니다. gameId: " .. self.CurrentGameId)
+				return
+			end
+		
 			self:PlayIntro(self.CurrentGameId)
 			log(self.PlayMode.."에서 인트로를 실행합니다.")
 		end 
@@ -314,6 +329,8 @@ script GameLogic extends Logic
 
 	@ExecSpace("Server")
 	method void ReportGameReady_Server()
+		--각 클라이언트의 카운트다운 UI가 끝나면 각 클라이언트에서 게임준비됐어 신호를 보내는 함수 --
+		
 		if self.CurrentGameId ~= self.CurrentGameId then return end
 		if self.PlayMode=="NONE" then return end
 		
@@ -327,34 +344,49 @@ script GameLogic extends Logic
 			MaxCnt=2
 		end
 		
-		if(self.GameReadyCnt==MaxCnt) then 
+		if(self.GameReadyCnt==MaxCnt) then
 			---@type MinigameData
 			local gameData = _MinigameRegistry:GetMinigameData(self.CurrentGameId)
 			if gameData == nil then
 				log_warning("[_GameLogic] 제한시간을 가져올 미니게임 데이터가 없습니다. gameId: " .. self.CurrentGameId)
 				return
 			end
-
+		
 			if gameData.MaxTime <= 0 then
 				log_warning("[_GameLogic] 미니게임 제한시간은 0보다 커야 합니다. gameId: " .. self.CurrentGameId)
 				return
 			end
-
+		
 			self.CurrentMaxTime = gameData.MaxTime
-
+		
 			local startServerTime = _UtilLogic.ServerElapsedSeconds + 0.5
 			local endServerTime = startServerTime + self.CurrentMaxTime
-
+		
+			-- 미니게임 서버 용 데이터를 Initialize() 한다 --
+			local isServerInitialized = _MinigameServerManager:InitializeCurrentGame_Server(
+				self.CurrentGameId,
+				startServerTime,
+				endServerTime
+			)
+			
+			-- 서버용 데이터가 Initialize()되면 실제 게임을 Initialize()한다 -- 
+			if isServerInitialized == false then
+				log_warning("[_GameLogic] 서버 미니게임 초기화에 실패했습니다. gameId: " .. self.CurrentGameId)
+				return
+			end
+		
 			self:ReserveGameStart_Client(startServerTime, endServerTime, self.CurrentMaxTime)
-
+		
 			local endDelay = endServerTime - _UtilLogic.ServerElapsedSeconds
+			
+			-- 서버 시간이 끝나면, 동작 예약--
 			self.GameEndTimerId = _TimerService:SetTimerOnce(function()
 				self.GameEndTimerId = 0
 				self:FinishGame_Server()
 			end, endDelay)
-
+		
 			log(self.PlayMode.."에서 게임을 실행합니다.")
-		end 
+		end
 	end
 
 	@ExecSpace("Client")
@@ -372,12 +404,12 @@ script GameLogic extends Logic
 	@ExecSpace("Server")
 	method void ReportEndUIFinished_Server()
 		self.EndUIFinishedCnt += 1
-
+		
 		local requiredCnt = 1
 		if self.PlayMode == "MULTI" then
 			requiredCnt = 2
 		end
-
+		
 		if self.EndUIFinishedCnt == requiredCnt then
 			self:ResolveNextGame_Server()
 		end
@@ -389,7 +421,7 @@ script GameLogic extends Logic
 			self:ResolveSingleNextGame_Server()
 			return
 		end
-
+		
 		if self.PlayMode == "MULTI" then
 			self:ResolveMultiNextGame_Server()
 		end
@@ -413,18 +445,18 @@ script GameLogic extends Logic
 			log_warning("[_GameLogic] 이동할 다음 Scene 이름이 비어 있습니다.")
 			return false
 		end
-
+		
 		if #userIds == 0 then
 			log_warning("[_GameLogic] 다음 Scene으로 이동할 사용자가 없습니다.")
 			return false
 		end
-
+		
 		local roomKey = _RoomService.RoomKey
 		if roomKey == "" then
 			log_warning("[_GameLogic] 현재 Instance Room Key가 없습니다.")
 			return false
 		end
-
+		
 		_RoomService:MoveUsersToInstanceRoom(roomKey, userIds, nextMapName)
 		return true
 	end

@@ -1,0 +1,126 @@
+@Logic
+script MinigameServerManager extends Logic
+
+	property MinigameComponent CurrentGame = nil
+
+	property string CurrentGameId = ""
+
+	property boolean IsPrepared = false
+
+	property boolean IsServerInitialized = false
+
+	property number CurrentStartServerTime = 0
+
+	property number CurrentEndServerTime = 0
+
+	property table RegisteredGames = {}
+
+	@ExecSpace("ServerOnly")
+	method void RegisterGame_Server(MinigameComponent game)
+		if game == nil then
+			log_warning("[_MinigameServerManager] 등록할 미니게임 Component가 없습니다.")
+			return
+		end
+		
+		if game.MinigameID == "" then
+			log_warning("[_MinigameServerManager] MinigameID가 빈 Component는 등록할 수 없습니다.")
+			return
+		end
+		
+		self.RegisteredGames[game.MinigameID] = game
+	end
+
+	@ExecSpace("ServerOnly")
+	method boolean PrepareGame_Server(string gameId)
+		self.CurrentGame = nil
+		self.CurrentGameId = ""
+		self.IsPrepared = false
+		self.IsServerInitialized = false
+		self.CurrentStartServerTime = 0
+		self.CurrentEndServerTime = 0
+		
+		if gameId == "" then
+			log_warning("[_MinigameServerManager] 준비할 미니게임 ID가 비어 있습니다.")
+			return false
+		end
+		
+		---@type MinigameComponent
+		local currentGame = self.RegisteredGames[gameId]
+		if isvalid(currentGame) == false then
+			log_warning("[_MinigameServerManager] 서버에 등록된 미니게임 Component가 없습니다. gameId: " .. gameId)
+			return false
+		end
+		
+		if currentGame.MinigameID ~= gameId then
+			log_warning("[_MinigameServerManager] 등록된 Component의 MinigameID가 요청 ID와 다릅니다. gameId: " .. gameId)
+			return false
+		end
+		
+		---@type MinigameData
+		local gameData = _MinigameRegistry:GetMinigameData(gameId)
+		if gameData == nil then
+			log_warning("[_MinigameServerManager] Registry에 미니게임 데이터가 없습니다. gameId: " .. gameId)
+			return false
+		end
+		
+		if currentGame:PrepareServer(gameData) == false then
+			log_warning("[_MinigameServerManager] 미니게임 Component 준비에 실패했습니다. gameId: " .. gameId)
+			return false
+		end
+		
+		self.CurrentGame = currentGame
+		self.CurrentGameId = gameId
+		self.IsPrepared = true
+		return true
+	end
+
+	@ExecSpace("ServerOnly")
+	method boolean InitializeCurrentGame_Server(string gameId, number startServerTime, number endServerTime)
+		-- 유효성 체크 -- 
+		if gameId == "" then log_warning("[_MinigameServerManager] 초기화할 미니게임 ID가 비어 있습니다.")
+			return false
+		end
+		
+		if self.IsPrepared == false then log_warning("[_MinigameServerManager] 서버 미니게임이 준비되지 않았습니다. gameId: " .. gameId)
+			return false
+		end
+		
+		if isvalid(self.CurrentGame) == false then log_warning("[_MinigameServerManager] 초기화할 서버 미니게임 Component가 없습니다. gameId: " .. gameId)
+			return false
+		end
+		
+		if self.CurrentGameId ~= gameId then log_warning("[_MinigameServerManager] 준비된 미니게임 ID가 요청 ID와 다릅니다. gameId: " .. gameId)
+			return false
+		end
+		
+		if startServerTime <= 0 then
+			log_warning("[_MinigameServerManager] 시작 서버 시각은 0보다 커야 합니다. gameId: " .. gameId)
+			return false
+		end
+		
+		if endServerTime <= startServerTime then
+			log_warning("[_MinigameServerManager] 종료 서버 시각은 시작 서버 시각보다 커야 합니다. gameId: " .. gameId)
+			return false
+		end
+		-- 
+		
+		
+		local isInitialized = self.CurrentGame:InitializeServer(startServerTime, endServerTime)
+		if isInitialized == false then
+			log_warning("[_MinigameServerManager] 서버 미니게임 초기화에 실패했습니다. gameId: " .. gameId)
+			return false
+		end
+		
+		self.CurrentStartServerTime = startServerTime
+		self.CurrentEndServerTime = endServerTime
+		self.IsServerInitialized = true
+		return true
+	end
+
+	@ExecSpace("ServerOnly")
+	method void EndCurrentGame_Server()
+		-- 미니게임별 서버 종료 함수를 호출하고 ServerManager 상태를
+		-- 정리하는 로직은 장애물 스폰 구현 단계에서 연결합니다.
+	end
+
+end
