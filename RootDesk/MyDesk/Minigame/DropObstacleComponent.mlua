@@ -4,189 +4,139 @@ script DropObstacleComponent extends Component
 	@MinValue(0)
 	property integer Value = 1
 
-	@MinValue(0)
-	property number SyncLeadTime = 0.2
+	property number DestroyY = -4.5
 
-	@MinValue(0.05)
-	property number ResolveCleanupDelay = 0.3
-
-	@Sync
 	@HideFromInspector
 	property number FallSpeed = 0
 
-	@Sync
 	@HideFromInspector
 	property Vector3 FallStartPosition = Vector3.zero
 
-	@Sync
 	@HideFromInspector
 	property number FallStartServerTime = 0
-
-	@Sync
-	@HideFromInspector
-	property integer FallSequence = 0
-
-	@Sync
-	@HideFromInspector
-	property Vector3 ResolvedPosition = Vector3.zero
-
-	@Sync
-	@HideFromInspector
-	property integer ResolvedSequence = 0
 
 	@HideFromInspector
 	property boolean IsActive = false
 
 	@HideFromInspector
-	property boolean IsResolved = false
+	property boolean PositionProbeLogged = false
 
 	@HideFromInspector
-	property integer FallStartTimerId = 0
-
-	@HideFromInspector
-	property integer CleanupTimerId = 0
+	property table HitPlayers = {}
 
 	@ExecSpace("ServerOnly")
 	method boolean Spawn(number fallSpeed)
+		-- 스포너가 만든 Root의 시작 위치를 기록하고 서버 낙하를 시작합니다.
 		if fallSpeed <= 0 then
 			log_warning("[DropObstacleComponent] FallSpeed는 0보다 커야 합니다.")
 			return false
 		end
-
-		if self.SyncLeadTime < 0 or self.ResolveCleanupDelay < 0 then
-			log_warning("[DropObstacleComponent] 동기화 대기 시간과 정리 지연 시간은 0 이상이어야 합니다.")
-			return false
-		end
-
-		local body = self.Entity.RigidbodyComponent
-		if isvalid(body) == false then
-			log_warning("[DropObstacleComponent] RigidbodyComponent가 없습니다.")
-			return false
-		end
-
-		local trigger = self.Entity.TriggerComponent
-		if isvalid(trigger) == false then
-			log_warning("[DropObstacleComponent] TriggerComponent가 없습니다.")
-			return false
-		end
-
+		
 		local transform = self.Entity.TransformComponent
-		if isvalid(transform) == false then
-			log_warning("[DropObstacleComponent] TransformComponent가 없습니다.")
+		local trigger = self.Entity.TriggerComponent
+		local visual = self.Entity:GetChildByName("DropVisual")
+		if isvalid(transform) == false or isvalid(trigger) == false or isvalid(visual) == false then
+			log_warning("[DropObstacleComponent] Root Transform/Trigger 또는 DropVisual이 없습니다.")
 			return false
 		end
-
-		self:ClearTimers_Server()
-
-		local startPosition = transform.WorldPosition
-		local currentServerTime = _UtilLogic.ServerElapsedSeconds
-
+		
+		if isvalid(visual.TransformComponent) == false then
+			log_warning("[DropObstacleComponent] DropVisual TransformComponent가 없습니다.")
+			return false
+		end
+		
+		if transform.Position.y <= self.DestroyY then
+			log_warning("[DropObstacleComponent] Spawn 위치가 DestroyY 이하입니다.")
+			return false
+		end
+		
 		self.FallSpeed = fallSpeed
-		self.FallStartPosition = startPosition
-		self.FallStartServerTime = currentServerTime + self.SyncLeadTime
-		self.ResolvedPosition = startPosition
-		self.ResolvedSequence = 0
-		self.IsResolved = false
+		self.FallStartPosition = transform.Position
+		self.FallStartServerTime = _UtilLogic.ServerElapsedSeconds
 		self.IsActive = true
-		-- 동기화 시작 신호는 필요한 값을 모두 기록한 뒤 마지막에 변경합니다.
-		self.FallSequence += 1
-
+		self.PositionProbeLogged = false
+		self.HitPlayers = {}
+		trigger.Enable = true
 		self.Entity:SetVisible(true)
 		self.Entity:SetEnable(true)
-		-- 클라이언트가 시작 정보를 받을 시간을 확보할 때까지 서버 Rigidbody를 정지합니다.
-		body.Enable = false
-		trigger.Enable = true
-
-		if self.SyncLeadTime <= 0 then
-			self:Fall_Server()
-		else
-			self.FallStartTimerId = _TimerService:SetTimerOnce(function()
-				self.FallStartTimerId = 0
-				if isvalid(self.Entity) and self.IsActive == true and self.IsResolved == false then
-					self:Fall_Server()
-				end
-			end, self.SyncLeadTime)
-
-			if self.FallStartTimerId == 0 then
-				-- 타이머 등록 실패 시 즉시 시작하도록 새 기준 시각을 다시 동기화합니다.
-				self.FallStartServerTime = _UtilLogic.ServerElapsedSeconds
-				self.FallSequence += 1
-				self:Fall_Server()
-			end
-		end
-
-		log("[DropObstacleComponent] 장애물 낙하 예약. speed=" .. tostring(self.FallSpeed)
-			.. ", startServerTime=" .. tostring(self.FallStartServerTime)
-			.. ", sequence=" .. tostring(self.FallSequence))
+		
+		--log("[DropObstacleComponent] 서버 Root 낙하 시작. name=" .. self.Entity.Name
+			--.. ", start=" .. tostring(transform.WorldPosition)
+			--.. ", speed=" .. tostring(fallSpeed))
 		return true
 	end
 
 	@ExecSpace("ServerOnly")
-	method void Fall_Server()
+	method void OnUpdate(number delta)
+		-- Body 없이 서버의 Root Position만 이동합니다. 자식 Visual/Root Trigger는 함께 따라옵니다.
 		if self.IsActive == false then
 			return
 		end
-
-		local body = self.Entity.RigidbodyComponent
-		if isvalid(body) == false then
+		
+		local transform = self.Entity.TransformComponent
+		if isvalid(transform) == false then
 			self:Cleanup_Server()
 			return
 		end
-
-		-- MapleTile의 낙하축은 -Y입니다. 전달받은 값으로 초기 속도와 최대 낙하 속도를 설정합니다.
-		body.Enable = true
-		body:PositionReset()
-		body.FallSpeedMaxY = self.FallSpeed
-		body.MoveVelocity = Vector2(0, -self.FallSpeed)
-		log("[DropObstacleComponent] 서버 Rigidbody 낙하 시작. serverTime="
-			.. tostring(_UtilLogic.ServerElapsedSeconds))
+		
+		local elapsed = math.max(0, _UtilLogic.ServerElapsedSeconds - self.FallStartServerTime)
+		local startPosition = self.FallStartPosition
+		local nextY = startPosition.y - (self.FallSpeed * elapsed)
+		transform.Position = Vector3(startPosition.x, nextY, startPosition.z)
+		
+		if self.PositionProbeLogged == false and nextY <= -1.5 then
+			self.PositionProbeLogged = true
+			self:LogPositionProbe_Server()
+		end
+		
+		if nextY < self.DestroyY then
+			self:Cleanup_Server()
+		end
 	end
 
-	@ExecSpace("ClientOnly")
-	method void OnUpdate(number delta)
-		if self.FallSequence <= 0 then
-			return
-		end
+	@ExecSpace("ServerOnly")
+	method void LogPositionProbe_Server()
+		-- 플레이어 높이 부근에서 서버 Root/Visual/Trigger 상태를 한 번 기록합니다.
+		local visual = self.Entity:GetChildByName("DropVisual")
+		local rootPosition = self.Entity.TransformComponent.WorldPosition
+		local visualPosition = isvalid(visual) and visual.TransformComponent.WorldPosition or Vector3.zero
+		local trigger = self.Entity.TriggerComponent
+		log("[DropObstacleProbe][SERVER] name=" .. self.Entity.Name
+			.. ", root=" .. tostring(rootPosition)
+			.. ", visual=" .. tostring(visualPosition)
+			.. ", triggerEnable=" .. tostring(trigger.Enable)
+			.. ", triggerOffset=" .. tostring(trigger.ColliderOffset))
+		self:LogPositionProbe_Client(rootPosition)
+	end
 
-		local transform = self.Entity.TransformComponent
-		if isvalid(transform) == false then
-			return
-		end
-
-		-- 서버가 충돌을 확정한 뒤에는 서버가 전달한 최종 위치를 유지합니다.
-		if self.ResolvedSequence == self.FallSequence then
-			transform.WorldPosition = self.ResolvedPosition
-			return
-		end
-
-		if self.FallSpeed <= 0 or self.FallStartServerTime <= 0 then
-			return
-		end
-
-		local elapsed = _UtilLogic.ServerElapsedSeconds - self.FallStartServerTime
-		if elapsed < 0 then
-			elapsed = 0
-		end
-
-		local startPosition = self.FallStartPosition
-		transform.WorldPosition = Vector3(
-			startPosition.x,
-			startPosition.y - (self.FallSpeed * elapsed),
-			startPosition.z
-		)
+	@ExecSpace("Client")
+	method void LogPositionProbe_Client(Vector3 serverRootPosition)
+		-- 진단 로그만 출력하며 클라이언트의 어떤 위치도 변경하지 않습니다.
+		local visual = self.Entity:GetChildByName("DropVisual")
+		local rootPosition = self.Entity.TransformComponent.WorldPosition
+		local visualPosition = isvalid(visual) and visual.TransformComponent.WorldPosition or Vector3.zero
+		local trigger = self.Entity.TriggerComponent
+		--log("[DropObstacleProbe][CLIENT] name=" .. self.Entity.Name
+			--.. ", serverRoot=" .. tostring(serverRootPosition)
+			--.. ", root=" .. tostring(rootPosition)
+			--.. ", visual=" .. tostring(visualPosition)
+			--.. ", triggerEnable=" .. tostring(trigger.Enable)
+			--.. ", triggerOffset=" .. tostring(trigger.ColliderOffset))
 	end
 
 	@ExecSpace("ServerOnly")
 	method void OnPlayerCollision_Server(Entity player)
-		if self.IsActive == false or self.IsResolved == true then
+		-- 같은 장애물에 같은 플레이어가 다시 닿아도 HIT는 한 번만 처리합니다.
+		if self.IsActive == false or isvalid(player) == false
+			or isvalid(player.PlayerComponent) == false then
 			return
 		end
-
-		if isvalid(player) == false or isvalid(player.PlayerComponent) == false then
+		
+		if self.HitPlayers[player.Id] == true then
 			return
 		end
-
-		-- 이번 단계에서는 HP와 점수를 바꾸지 않고 충돌한 플레이어의 HIT 상태만 재생합니다.
+		self.HitPlayers[player.Id] = true
+		
 		local stateComponent = player.StateComponent
 		if isvalid(stateComponent) then
 			if stateComponent:ChangeState("HIT") == false then
@@ -195,130 +145,39 @@ script DropObstacleComponent extends Component
 		else
 			log_warning("[DropObstacleComponent] 플레이어의 StateComponent가 없습니다.")
 		end
-
-		log("[DropObstacleComponent] 플레이어 충돌 처리. player=" .. player.Name)
-		self:ResolveObstacle_Server()
-	end
-
-	@ExecSpace("ServerOnly")
-	method void OnGroundReached_Server()
-		if self.IsActive == false or self.IsResolved == true then
-			return
-		end
-
-		log("[DropObstacleComponent] 바닥 도달 처리")
-		self:ResolveObstacle_Server()
-	end
-
-	@ExecSpace("ServerOnly")
-	method void ResolveObstacle_Server()
-		if self.IsActive == false or self.IsResolved == true then
-			return
-		end
-
-		local transform = self.Entity.TransformComponent
-		if isvalid(transform) == false then
-			self:Cleanup_Server()
-			return
-		end
-
-		self.IsActive = false
-		self.IsResolved = true
-
-		local body = self.Entity.RigidbodyComponent
-		if isvalid(body) then
-			body.MoveVelocity = Vector2.zero
-			body.Enable = false
-		end
-
-		local trigger = self.Entity.TriggerComponent
-		if isvalid(trigger) then
-			trigger.Enable = false
-		end
-
-		-- 최종 서버 위치를 먼저 기록하고, 완료 시퀀스를 마지막에 바꿔 클라이언트가 스냅하도록 합니다.
-		self.ResolvedPosition = transform.WorldPosition
-		self.ResolvedSequence = self.FallSequence
-
-		if self.ResolveCleanupDelay <= 0 then
-			self:Cleanup_Server()
-			return
-		end
-
-		self.CleanupTimerId = _TimerService:SetTimerOnce(function()
-			self.CleanupTimerId = 0
-			if isvalid(self.Entity) then
-				self:Cleanup_Server()
-			end
-		end, self.ResolveCleanupDelay)
-
-		if self.CleanupTimerId == 0 then
-			self:Cleanup_Server()
-		end
-	end
-
-	@ExecSpace("ServerOnly")
-	method void ClearTimers_Server()
-		if self.FallStartTimerId ~= 0 then
-			_TimerService:ClearTimer(self.FallStartTimerId)
-			self.FallStartTimerId = 0
-		end
-
-		if self.CleanupTimerId ~= 0 then
-			_TimerService:ClearTimer(self.CleanupTimerId)
-			self.CleanupTimerId = 0
-		end
+		
+		log("[DropObstacleComponent] 플레이어 충돌 처리. obstacle=" .. self.Entity.Name
+			.. ", player=" .. player.Name
+			.. ", root=" .. tostring(self.Entity.TransformComponent.WorldPosition))
+		-- 충돌 직후 제거하지 않습니다. Trigger와 Visual은 DestroyY까지 Root와 함께 이동합니다.
 	end
 
 	@ExecSpace("ServerOnly")
 	method void Cleanup_Server()
-		self:ClearTimers_Server()
+		-- 낙하 종료 또는 게임 종료 시 스포너가 호출합니다.
 		self.IsActive = false
-		self.IsResolved = true
-		self.FallSpeed = 0
-
 		local trigger = self.Entity.TriggerComponent
 		if isvalid(trigger) then
 			trigger.Enable = false
 		end
-
+		
 		if isvalid(self.Entity) then
 			self.Entity:SetEnable(false)
 			self.Entity:Destroy()
 		end
 	end
 
-	@ExecSpace("ServerOnly")
 	@EventSender("Self")
 	handler HandleTriggerEnterEvent(TriggerEnterEvent event)
+		-- 장애물 Root의 Trigger가 Player와 겹쳤을 때만 서버에서 HIT를 처리합니다.
 		local triggerBodyEntity = event.TriggerBodyEntity
 		if isvalid(triggerBodyEntity) == false then
 			return
 		end
-
+		
 		if isvalid(triggerBodyEntity.PlayerComponent) then
 			self:OnPlayerCollision_Server(triggerBodyEntity)
 		end
-	end
-
-	@ExecSpace("ServerOnly")
-	@EventSender("Self")
-	handler HandleFootholdCollisionEvent(FootholdCollisionEvent event)
-		if event.Rigidbody ~= self.Entity.RigidbodyComponent then
-			return
-		end
-
-		-- 위를 향한 바닥에 아래 방향으로 충돌했을 때만 착지로 처리합니다.
-		if event.FootholdNormal.y <= 0.5 or event.ImpactDir.y >= 0 then
-			return
-		end
-
-		log("FootholdId = " .. tostring(event.FootholdId))
-		log("Normal = " .. tostring(event.FootholdNormal))
-		log("ImpactDir = " .. tostring(event.ImpactDir))
-		log("Position = " .. tostring(self.Entity.TransformComponent.WorldPosition))
-
-		self:OnGroundReached_Server()
 	end
 
 end

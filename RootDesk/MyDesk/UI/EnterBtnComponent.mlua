@@ -70,4 +70,30 @@ script EnterBtnComponent extends Component
 		self.bSelected = false
 	end
 
+	@EventSender("Service", "InputService")
+	handler HandleKeyDownEvent(KeyDownEvent event)
+		--------------- Native Event Sender Info ----------------
+		-- Sender: InputService
+		-- Space: Client
+		---------------------------------------------------------
+		
+		-- Parameters
+		-- local inputValue = event.inputValue
+		-- local key = event.key
+		---------------------------------------------------------
+		if event.key==KeyboardKey.Space then
+			if self.Mode == _GameEnum.PlayMode.SINGLE then
+			_GameLogic:Set_PlayMode("SINGLE")
+			
+			local player = _UserService.LocalPlayer
+			_TeleportService:TeleportToMapPosition(
+				player,
+				Vector3(0, 0, 0),
+				"SelectScene"
+			)
+			self.bSelected = true
+			end
+		end
+	end
+
 end

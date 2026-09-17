@@ -20,7 +20,6 @@
       "Components": [
         "MOD.Core.TransformComponent",
         "MOD.Core.SpriteRendererComponent",
-        "MOD.Core.RigidbodyComponent",
         "MOD.Core.TriggerComponent",
         "script.DropObstacleComponent"
       ],
@@ -192,7 +191,7 @@
             "$type": "MODNativeType",
             "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
           },
-          "Value": true
+          "Value": false
         },
         {
           "TargetType": "MOD.Core.MODEntity",
@@ -224,41 +223,6 @@
             "x": 0.23,
             "y": 0.22
           }
-        },
-        {
-          "TargetType": "MOD.Core.RigidbodyComponent",
-          "Name": "MoveVelocity",
-          "ValueType": {
-            "$type": "MODNativeType",
-            "type": "MOD.Core.MODVector2, MOD.Core, Version=26.7.0.0, Culture=neutral, PublicKeyToken=null"
-          },
-          "Value": {
-            "$type": "MOD.Core.MODVector2, MOD.Core",
-            "x": 0.0,
-            "y": 0.0
-          }
-        },
-        {
-          "TargetType": "MOD.Core.RigidbodyComponent",
-          "Name": "RealMoveVelocity",
-          "ValueType": {
-            "$type": "MODNativeType",
-            "type": "MOD.Core.MODVector2, MOD.Core, Version=26.7.0.0, Culture=neutral, PublicKeyToken=null"
-          },
-          "Value": {
-            "$type": "MOD.Core.MODVector2, MOD.Core",
-            "x": 0.0,
-            "y": 0.0
-          }
-        },
-        {
-          "TargetType": "MOD.Core.RigidbodyComponent",
-          "Name": "Enable",
-          "ValueType": {
-            "$type": "MODNativeType",
-            "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
-          },
-          "Value": true
         },
         {
           "TargetType": "MOD.Core.TriggerComponent",
@@ -347,10 +311,99 @@
             "$type": "MOD.Core.Physics.CollisionGroup, MOD.Core",
             "Id": "980f0835fb6e4d02936c184162ab448f"
           }
+        },
+        {
+          "TargetType": "MOD.Core.TriggerComponent",
+          "Name": "IsPassive",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+          },
+          "Value": false
         }
       ],
       "EventLinks": [],
-      "Children": []
+      "Children": [
+        {
+          "Id": "402d22f4-be94-4530-ba53-1912f0e90711",
+          "ParentId": "dropobstacle",
+          "Name": "DropVisual",
+          "Model": {
+            "Version": 1,
+            "Name": "DropVisual",
+            "BaseModelId": null,
+            "Id": "402d22f4-be94-4530-ba53-1912f0e90711",
+            "Components": [
+              "MOD.Core.TransformComponent",
+              "MOD.Core.SpriteRendererComponent"
+            ],
+            "Properties": [],
+            "Values": [
+              {
+                "TargetType": "MOD.Core.MODEntity",
+                "Name": "Enable",
+                "ValueType": {
+                  "$type": "MODNativeType",
+                  "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+                },
+                "Value": true
+              },
+              {
+                "TargetType": "MOD.Core.MODEntity",
+                "Name": "Visible",
+                "ValueType": {
+                  "$type": "MODNativeType",
+                  "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+                },
+                "Value": true
+              },
+              {
+                "TargetType": "MOD.Core.TransformComponent",
+                "Name": "Position",
+                "ValueType": {
+                  "$type": "MODNativeType",
+                  "type": "MOD.Core.MODVector3, MOD.Core, Version=26.7.0.0, Culture=neutral, PublicKeyToken=null"
+                },
+                "Value": {
+                  "$type": "MOD.Core.MODVector3, MOD.Core",
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 0.0
+                }
+              },
+              {
+                "TargetType": "MOD.Core.SpriteRendererComponent",
+                "Name": "SpriteRUID",
+                "ValueType": {
+                  "$type": "MODNativeType",
+                  "type": "System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+                },
+                "Value": "827a8dac2100419c896f4404e0cd0239"
+              },
+              {
+                "TargetType": "MOD.Core.SpriteRendererComponent",
+                "Name": "SortingLayer",
+                "ValueType": {
+                  "$type": "MODNativeType",
+                  "type": "System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+                },
+                "Value": "MapLayer0"
+              },
+              {
+                "TargetType": "MOD.Core.SpriteRendererComponent",
+                "Name": "OrderInLayer",
+                "ValueType": {
+                  "$type": "MODNativeType",
+                  "type": "System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+                },
+                "Value": 10
+              }
+            ],
+            "EventLinks": [],
+            "Children": []
+          }
+        }
+      ]
     }
   }
 }

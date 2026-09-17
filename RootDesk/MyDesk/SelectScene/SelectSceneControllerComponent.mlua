@@ -209,11 +209,19 @@ script SelectSceneControllerComponent extends Component
 			
 			-- 선택
 		elseif key == KeyboardKey.Space then
-			self.bShowPopup = true
+			
+			if self.bShowPopup==false then
+				self.bShowPopup = true
 			_GameHelper:EnableUIGroup("/ui/PopupGroup", true)
 			local gameId = self.GameList[self.CurrentIndex]
-			self.PopupMessage.Text = "[" .. _MinigameRegistry:GetMinigameData(gameId).Name .. "]게임으로\n이동하시겠습니까?"
+			self.PopupMessage.Text = "[" .. _MinigameRegistry:GetMinigameData(gameId).Name .."]".."\n으로 이동하시겠습니까?"
 			
+			else
+				self:OnSelect()
+			end
+			
+			
+		
 		end
 	end
 
