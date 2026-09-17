@@ -18,7 +18,7 @@
       "BaseModelId": "player",
       "Id": "defaultplayer",
       "Components": [
-        "script.PlayerHit"
+        "MOD.Core.HitComponent"
       ],
       "Properties": [],
       "Values": [
@@ -29,7 +29,7 @@
             "$type": "MODNativeType",
             "type": "System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
           },
-          "Value": 1
+          "Value": 1.0
         },
         {
           "TargetType": null,
@@ -38,7 +38,7 @@
             "$type": "MODNativeType",
             "type": "System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
           },
-          "Value": 1
+          "Value": 1.0
         },
         {
           "TargetType": null,
@@ -47,7 +47,7 @@
             "$type": "MODNativeType",
             "type": "System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
           },
-          "Value": 1
+          "Value": 1.0
         },
         {
           "TargetType": null,
@@ -56,7 +56,7 @@
             "$type": "MODNativeType",
             "type": "System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
           },
-          "Value": 1
+          "Value": 1.0
         },
         {
           "TargetType": null,
@@ -117,7 +117,7 @@
             "$type": "MODNativeType",
             "type": "System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
           },
-          "Value": 0
+          "Value": 0.0
         },
         {
           "TargetType": null,
@@ -128,8 +128,8 @@
           },
           "Value": {
             "$type": "MOD.Core.MODVector2, MOD.Core",
-            "x": 0,
-            "y": 0
+            "x": 0.0,
+            "y": 0.0
           }
         },
         {
@@ -184,7 +184,7 @@
           },
           "Value": {
             "$type": "MOD.Core.MODVector2, MOD.Core",
-            "x": 0,
+            "x": 0.0,
             "y": 0.35
           }
         },
@@ -197,7 +197,7 @@
           },
           "Value": {
             "$type": "MOD.Core.MODVector2, MOD.Core",
-            "x": 0,
+            "x": 0.0,
             "y": 0.35
           }
         },
@@ -217,7 +217,7 @@
             "$type": "MODNativeType",
             "type": "System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
           },
-          "Value": 500
+          "Value": 500.0
         },
         {
           "TargetType": "MOD.Core.MovementComponent",
@@ -226,7 +226,7 @@
             "$type": "MODNativeType",
             "type": "System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
           },
-          "Value": 1
+          "Value": 1.0
         },
         {
           "TargetType": "MOD.Core.MovementComponent",
@@ -235,7 +235,7 @@
             "$type": "MODNativeType",
             "type": "System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
           },
-          "Value": 1
+          "Value": 1.0
         },
         {
           "TargetType": "MOD.Core.TransformComponent",
@@ -246,10 +246,10 @@
           },
           "Value": {
             "$type": "MOD.Core.MODQuaternion, MOD.Core",
-            "x": 0,
-            "y": 0,
-            "z": 0,
-            "w": 1
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
           }
         },
         {
@@ -270,8 +270,8 @@
           },
           "Value": {
             "$type": "MOD.Core.MODVector2, MOD.Core",
-            "x": 0,
-            "y": 0
+            "x": 0.0,
+            "y": 0.0
           }
         },
         {
@@ -283,8 +283,8 @@
           },
           "Value": {
             "$type": "MOD.Core.MODVector2, MOD.Core",
-            "x": 0,
-            "y": 0
+            "x": 0.0,
+            "y": 0.0
           }
         },
         {
@@ -305,8 +305,8 @@
           },
           "Value": {
             "$type": "MOD.Core.MODVector2, MOD.Core",
-            "x": 0,
-            "y": 0
+            "x": 0.0,
+            "y": 0.0
           }
         },
         {
@@ -435,9 +435,9 @@
           },
           "Value": {
             "$type": "MOD.Core.MODVector3, MOD.Core",
-            "x": 3.40282347e+38,
-            "y": 3.40282347e+38,
-            "z": 3.40282347e+38
+            "x": 3.40282347E+38,
+            "y": 3.40282347E+38,
+            "z": 3.40282347E+38
           }
         },
         {
@@ -447,7 +447,7 @@
             "$type": "MODNativeType",
             "type": "System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
           },
-          "Value": 0
+          "Value": 0.0
         },
         {
           "TargetType": "MOD.Core.PlayerComponent",
@@ -584,8 +584,8 @@
           },
           "Value": {
             "$type": "MOD.Core.MODVector2, MOD.Core",
-            "x": 0,
-            "y": 0
+            "x": 0.0,
+            "y": 0.0
           }
         },
         {
@@ -609,6 +609,50 @@
         {
           "TargetType": "MOD.Core.MODEntity",
           "Name": "Visible",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+          },
+          "Value": true
+        },
+        {
+          "TargetType": "MOD.Core.HitComponent",
+          "Name": "BoxSize",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "MOD.Core.MODVector2, MOD.Core, Version=26.7.0.0, Culture=neutral, PublicKeyToken=null"
+          },
+          "Value": {
+            "$type": "MOD.Core.MODVector2, MOD.Core",
+            "x": 0.5,
+            "y": 0.8
+          }
+        },
+        {
+          "TargetType": "MOD.Core.HitComponent",
+          "Name": "ColliderOffset",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "MOD.Core.MODVector2, MOD.Core, Version=26.7.0.0, Culture=neutral, PublicKeyToken=null"
+          },
+          "Value": {
+            "$type": "MOD.Core.MODVector2, MOD.Core",
+            "x": 0.0,
+            "y": 0.4
+          }
+        },
+        {
+          "TargetType": "MOD.Core.HitComponent",
+          "Name": "IsLegacy",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+          },
+          "Value": false
+        },
+        {
+          "TargetType": "MOD.Core.HitComponent",
+          "Name": "Enable",
           "ValueType": {
             "$type": "MODNativeType",
             "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"

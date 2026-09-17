@@ -139,8 +139,11 @@ script DropObstacleComponent extends Component
 		
 		local stateComponent = player.StateComponent
 		if isvalid(stateComponent) then
-			if stateComponent:ChangeState("HIT") == false then
-				log_warning("[DropObstacleComponent] 플레이어 HIT 상태 변경에 실패했습니다.")
+			local currentStateName = stateComponent.CurrentStateName
+			-- 이미 HIT 중이면 중복 전환이 false를 반환하므로 실패로 취급하지 않습니다.
+			if currentStateName ~= "HIT" and stateComponent:ChangeState("HIT") == false then
+				log_warning("[DropObstacleComponent] 플레이어 HIT 상태 변경에 실패했습니다. currentState="
+					.. tostring(currentStateName))
 			end
 		else
 			log_warning("[DropObstacleComponent] 플레이어의 StateComponent가 없습니다.")
