@@ -140,7 +140,8 @@ script DropGameComponent extends MinigameComponent
 		end
 		
 		if isvalid(self.ObstacleSpawner) then
-			self.ObstacleSpawner:StopSpawner_Server()
+			-- 반복 생성만 멈추는 것이 아니라 현재 남아 있는 장애물도 모두 제거합니다.
+			self.ObstacleSpawner:EndSpawner_Server()
 		end
 	end
 

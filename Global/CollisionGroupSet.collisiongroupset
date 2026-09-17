@@ -7,8 +7,8 @@
   "Usage": 0,
   "UsePublish": 1,
   "UseService": 0,
-  "CoreVersion": "",
-  "StudioVersion": "",
+  "CoreVersion": "26.7.0.0",
+  "StudioVersion": "0.1.0.0",
   "DynamicLoading": 0,
   "ContentProto": {
     "Use": "Json",
@@ -45,6 +45,10 @@
         {
           "Id": "8992acd1e8cd45838db6f10a7b41df09",
           "Name": "Monster"
+        },
+        {
+          "Id": "980f0835fb6e4d02936c184162ab448f",
+          "Name": "Obstacle"
         }
       ],
       "Matrix": {
@@ -70,11 +74,17 @@
         ],
         "0639c22a20d34ec88be45b43fee3e333": [
           "73017cc2ca884dfcb9fb98db7cc44848",
-          "8992acd1e8cd45838db6f10a7b41df09"
+          "8992acd1e8cd45838db6f10a7b41df09",
+          "980f0835fb6e4d02936c184162ab448f"
         ],
         "8992acd1e8cd45838db6f10a7b41df09": [
           "73017cc2ca884dfcb9fb98db7cc44848",
-          "0639c22a20d34ec88be45b43fee3e333"
+          "0639c22a20d34ec88be45b43fee3e333",
+          "980f0835fb6e4d02936c184162ab448f"
+        ],
+        "980f0835fb6e4d02936c184162ab448f": [
+          "0639c22a20d34ec88be45b43fee3e333",
+          "8992acd1e8cd45838db6f10a7b41df09"
         ]
       }
     }

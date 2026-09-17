@@ -3,6 +3,8 @@ script MinigameComponent extends Component
 
 	property string MinigameID = ""
 
+	property Vector3 SpawnLocation = Vector3(0,0,0)
+
 	method void Initialize(MinigameData gameData)
 		
 	end
@@ -71,6 +73,8 @@ script MinigameComponent extends Component
 		-- 미니게임 인트로 준비완료 이벤트 발송 : 이 안에서 클라이언트 변수들이 다 동기화되었는지 체크하고, 
 		-- SINLGE 인 경우 바로 게임시작을, MULTI인 경우 2인 레디를 서버에 보낸다 --
 		_GameLogic:Request_ReadyIntro()
+		
+		
 		
 		
 	end
