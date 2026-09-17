@@ -1,7 +1,7 @@
 @Component
 script SelectSceneControllerComponent extends Component
 
-	property Entity GameListEntity = nil
+	property Entity GameListEntity = "02221c0c-32ea-4352-b0fd-5f34657474d2"
 
 	property Entity BtnOK = nil
 

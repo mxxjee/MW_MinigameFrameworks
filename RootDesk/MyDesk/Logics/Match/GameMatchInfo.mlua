@@ -2,10 +2,12 @@
 script GameMatchInfo
 
 	property integer MatchId = 0
-	property string  Player1UserID = nil
-	property string  Player2UserID = nil
 
-	property integer MatchState  = 0
+	property string Player1UserID = nil
+
+	property string Player2UserID = nil
+
+	property integer MatchState = 0
 
 	method void InitInfo(integer matchId, string player1UserId, string player2UserId)
 		self.MatchId = matchId

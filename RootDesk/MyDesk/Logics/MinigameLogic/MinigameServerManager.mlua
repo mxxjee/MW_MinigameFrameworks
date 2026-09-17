@@ -123,7 +123,7 @@ script MinigameServerManager extends Logic
 		if isvalid(self.CurrentGame) then
 			self.CurrentGame:EndServer()
 		end
-
+		
 		self.IsServerInitialized = false
 		self.CurrentStartServerTime = 0
 		self.CurrentEndServerTime = 0

@@ -35,37 +35,37 @@ script DropObstacleSpawnerComponent extends Component
 	method boolean PrepareSpawner_Server()
 		-- 새 라운드를 준비할 때 이전 타이머와 남아 있는 장애물을 모두 정리합니다.
 		self:EndSpawner_Server()
-
+		
 		if self.ObstacleModelId == "" then
 			log_warning("[DropObstacleSpawnerComponent] ObstacleModelId가 비어 있습니다.")
 			return false
 		end
-
+		
 		if self.SpawnInterval <= 0 then
 			log_warning("[DropObstacleSpawnerComponent] SpawnInterval은 0보다 커야 합니다.")
 			return false
 		end
-
+		
 		if self.FirstSpawnDelay < 0 then
 			log_warning("[DropObstacleSpawnerComponent] FirstSpawnDelay는 0 이상이어야 합니다.")
 			return false
 		end
-
+		
 		if self.SpawnMinX > self.SpawnMaxX then
 			log_warning("[DropObstacleSpawnerComponent] SpawnMinX는 SpawnMaxX보다 클 수 없습니다.")
 			return false
 		end
-
+		
 		if self.FallSpeedMin <= 0 then
 			log_warning("[DropObstacleSpawnerComponent] FallSpeedMin은 0보다 커야 합니다.")
 			return false
 		end
-
+		
 		if self.FallSpeedMin > self.FallSpeedMax then
 			log_warning("[DropObstacleSpawnerComponent] FallSpeedMin은 FallSpeedMax보다 클 수 없습니다.")
 			return false
 		end
-
+		
 		self.SpawnedObstacles = {}
 		log("[DropObstacleSpawnerComponent] 서버 스포너 준비 완료")
 		return true
@@ -76,28 +76,28 @@ script DropObstacleSpawnerComponent extends Component
 		if self.IsSpawning == true then
 			return true
 		end
-
+		
 		if self.ObstacleModelId == "" or self.SpawnInterval <= 0
 			or self.FallSpeedMin <= 0 or self.FallSpeedMin > self.FallSpeedMax then
 			log_warning("[DropObstacleSpawnerComponent] 준비되지 않은 설정으로 스포너를 시작할 수 없습니다.")
 			return false
 		end
-
+		
 		self.IsSpawning = true
 		self.SpawnTimerId = _TimerService:SetTimerRepeat(function()
 			if self.IsSpawning == false then
 				return
 			end
-
+		
 			self:SpawnObstacle_Server()
 		end, self.SpawnInterval, self.FirstSpawnDelay)
-
+		
 		if self.SpawnTimerId == 0 then
 			self.IsSpawning = false
 			log_warning("[DropObstacleSpawnerComponent] 장애물 반복 생성 타이머 등록에 실패했습니다.")
 			return false
 		end
-
+		
 		log("[DropObstacleSpawnerComponent] 서버 스폰 타이머 시작. interval=" .. tostring(self.SpawnInterval))
 		return true
 	end
@@ -105,7 +105,7 @@ script DropObstacleSpawnerComponent extends Component
 	@ExecSpace("ServerOnly")
 	method void StopSpawner_Server()
 		self.IsSpawning = false
-
+		
 		if self.SpawnTimerId ~= 0 then
 			_TimerService:ClearTimer(self.SpawnTimerId)
 			self.SpawnTimerId = 0
@@ -134,7 +134,7 @@ script DropObstacleSpawnerComponent extends Component
 				end
 			end
 		end
-
+		
 		self.SpawnedObstacles = {}
 	end
 
@@ -149,19 +149,19 @@ script DropObstacleSpawnerComponent extends Component
 		if self.IsSpawning == false then
 			return
 		end
-
+		
 		local currentMap = self.Entity.CurrentMap
 		if isvalid(currentMap) == false then
 			log_warning("[DropObstacleSpawnerComponent] 장애물을 생성할 현재 Map이 없습니다.")
 			return
 		end
-
+		
 		self:RemoveInvalidObstacles_Server()
-
+		
 		local randomXRate = _UtilLogic:RandomDouble()
 		local spawnX = self.SpawnMinX + ((self.SpawnMaxX - self.SpawnMinX) * randomXRate)
 		local spawnPosition = Vector3(spawnX, self.SpawnY, 0)
-
+		
 		self.SpawnSerial += 1
 		local obstacleName = "DropObstacle_" .. tostring(self.SpawnSerial)
 		local obstacle = _SpawnService:SpawnByModelId(
@@ -170,29 +170,29 @@ script DropObstacleSpawnerComponent extends Component
 			spawnPosition,
 			currentMap
 		)
-
+		
 		if isvalid(obstacle) == false then
 			log_warning("[DropObstacleSpawnerComponent] 장애물 생성에 실패했습니다. name=" .. obstacleName)
 			return
 		end
-
+		
 		local obstacleComponent = obstacle.DropObstacleComponent
 		if isvalid(obstacleComponent) == false then
 			log_warning("[DropObstacleSpawnerComponent] 생성된 장애물에 DropObstacleComponent가 없습니다. name=" .. obstacleName)
 			obstacle:Destroy()
 			return
 		end
-
+		
 		local randomSpeedRate = _UtilLogic:RandomDouble()
 		local fallSpeed = self.FallSpeedMin
 			+ ((self.FallSpeedMax - self.FallSpeedMin) * randomSpeedRate)
-
+		
 		if obstacleComponent:Spawn(fallSpeed) == false then
 			log_warning("[DropObstacleSpawnerComponent] 장애물 초기화에 실패했습니다. name=" .. obstacleName)
 			obstacle:Destroy()
 			return
 		end
-
+		
 		table.insert(self.SpawnedObstacles, obstacle)
 		log("[DropObstacleSpawnerComponent] 장애물 생성. name=" .. obstacleName
 			.. ", x=" .. tostring(spawnX) .. ", speed=" .. tostring(fallSpeed))

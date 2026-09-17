@@ -161,9 +161,9 @@
           },
           "Value": {
             "$type": "MOD.Core.MODVector3, MOD.Core",
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
+            "x": 0,
+            "y": 0,
+            "z": 0
           }
         },
         {
@@ -177,7 +177,7 @@
             "$type": "MOD.Core.MODVector3, MOD.Core",
             "x": -530.6501,
             "y": 49.4827,
-            "z": 0.0
+            "z": 0
           }
         },
         {
@@ -189,10 +189,10 @@
           },
           "Value": {
             "$type": "MOD.Core.MODQuaternion, MOD.Core",
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0,
-            "w": 1.0
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
           }
         },
         {
@@ -202,7 +202,7 @@
             "$type": "MODNativeType",
             "type": "System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
           },
-          "Value": 0.0
+          "Value": 0
         },
         {
           "TargetType": "MOD.Core.UITransformComponent",
@@ -243,10 +243,10 @@
           },
           "Value": {
             "$type": "MOD.Core.MODColor, MOD.Core",
-            "r": 1.0,
-            "g": 1.0,
-            "b": 1.0,
-            "a": 1.0
+            "r": 1,
+            "g": 1,
+            "b": 1,
+            "a": 1
           }
         },
         {
@@ -268,28 +268,28 @@
           "Value": {
             "$type": "MOD.Core.TransitionColorSet, MOD.Core",
             "NormalColor": {
-              "r": 1.0,
-              "g": 1.0,
-              "b": 1.0,
-              "a": 1.0
+              "r": 1,
+              "g": 1,
+              "b": 1,
+              "a": 1
             },
             "HighlightedColor": {
               "r": 0.9607843,
               "g": 0.9607843,
               "b": 0.9607843,
-              "a": 1.0
+              "a": 1
             },
             "PressedColor": {
               "r": 0.784313738,
               "g": 0.784313738,
               "b": 0.784313738,
-              "a": 1.0
+              "a": 1
             },
             "SelectedColor": {
               "r": 0.9607843,
               "g": 0.9607843,
               "b": 0.9607843,
-              "a": 1.0
+              "a": 1
             },
             "DisabledColor": {
               "r": 0.784313738,
@@ -297,7 +297,7 @@
               "b": 0.784313738,
               "a": 0.5019608
             },
-            "ColorMultiplier": 1.0,
+            "ColorMultiplier": 1,
             "FadeDuration": 0.1
           }
         },
@@ -480,9 +480,9 @@
                 },
                 "Value": {
                   "$type": "MOD.Core.MODVector3, MOD.Core",
-                  "x": 1.0,
-                  "y": 1.0,
-                  "z": 1.0
+                  "x": 1,
+                  "y": 1,
+                  "z": 1
                 }
               },
               {
@@ -516,9 +516,9 @@
                 },
                 "Value": {
                   "$type": "MOD.Core.MODVector3, MOD.Core",
-                  "x": 0.0,
-                  "y": 0.0,
-                  "z": 0.0
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
                 }
               },
               {
@@ -532,7 +532,7 @@
                   "$type": "MOD.Core.MODVector3, MOD.Core",
                   "x": -0.0054,
                   "y": 0.1367,
-                  "z": 0.0
+                  "z": 0
                 }
               },
               {
@@ -544,10 +544,10 @@
                 },
                 "Value": {
                   "$type": "MOD.Core.MODQuaternion, MOD.Core",
-                  "x": 0.0,
-                  "y": 0.0,
-                  "z": 0.0,
-                  "w": 1.0
+                  "x": 0,
+                  "y": 0,
+                  "z": 0,
+                  "w": 1
                 }
               },
               {
@@ -559,9 +559,9 @@
                 },
                 "Value": {
                   "$type": "MOD.Core.MODVector3, MOD.Core",
-                  "x": 1.0,
-                  "y": 1.0,
-                  "z": 1.0
+                  "x": 1,
+                  "y": 1,
+                  "z": 1
                 }
               },
               {
@@ -571,7 +571,7 @@
                   "$type": "MODNativeType",
                   "type": "System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
                 },
-                "Value": 0.0
+                "Value": 0
               },
               {
                 "TargetType": "MOD.Core.UITransformComponent",
@@ -612,10 +612,10 @@
                 },
                 "Value": {
                   "$type": "MOD.Core.MODColor, MOD.Core",
-                  "r": 1.0,
-                  "g": 1.0,
-                  "b": 1.0,
-                  "a": 1.0
+                  "r": 1,
+                  "g": 1,
+                  "b": 1,
+                  "a": 1
                 }
               },
               {
@@ -745,7 +745,7 @@
                 "Value": {
                   "$type": "MOD.Core.MODVector2, MOD.Core",
                   "x": 226.003326,
-                  "y": 100.0
+                  "y": 100
                 }
               },
               {
@@ -766,9 +766,9 @@
                 },
                 "Value": {
                   "$type": "MOD.Core.MODVector3, MOD.Core",
-                  "x": 1.0,
-                  "y": 1.0,
-                  "z": 1.0
+                  "x": 1,
+                  "y": 1,
+                  "z": 1
                 }
               },
               {
@@ -802,9 +802,9 @@
                 },
                 "Value": {
                   "$type": "MOD.Core.MODVector3, MOD.Core",
-                  "x": 0.0,
-                  "y": 0.0,
-                  "z": 0.0
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
                 }
               },
               {
@@ -818,7 +818,7 @@
                   "$type": "MOD.Core.MODVector3, MOD.Core",
                   "x": -0.0122,
                   "y": -0.4909,
-                  "z": 0.0
+                  "z": 0
                 }
               },
               {
@@ -830,10 +830,10 @@
                 },
                 "Value": {
                   "$type": "MOD.Core.MODQuaternion, MOD.Core",
-                  "x": 0.0,
-                  "y": 0.0,
-                  "z": 0.0,
-                  "w": 1.0
+                  "x": 0,
+                  "y": 0,
+                  "z": 0,
+                  "w": 1
                 }
               },
               {
@@ -845,9 +845,9 @@
                 },
                 "Value": {
                   "$type": "MOD.Core.MODVector3, MOD.Core",
-                  "x": 1.0,
-                  "y": 1.0,
-                  "z": 1.0
+                  "x": 1,
+                  "y": 1,
+                  "z": 1
                 }
               },
               {
@@ -857,7 +857,7 @@
                   "$type": "MODNativeType",
                   "type": "System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
                 },
-                "Value": 0.0
+                "Value": 0
               },
               {
                 "TargetType": "MOD.Core.UITransformComponent",
@@ -877,10 +877,10 @@
                 },
                 "Value": {
                   "$type": "MOD.Core.MODColor, MOD.Core",
-                  "r": 1.0,
-                  "g": 1.0,
-                  "b": 1.0,
-                  "a": 1.0
+                  "r": 1,
+                  "g": 1,
+                  "b": 1,
+                  "a": 1
                 }
               },
               {
@@ -890,7 +890,7 @@
                   "$type": "MODNativeType",
                   "type": "System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
                 },
-                "Value": 50.0
+                "Value": 50
               },
               {
                 "TargetType": "MOD.Core.TextGUIRendererComponent",
@@ -899,7 +899,7 @@
                   "$type": "MODNativeType",
                   "type": "System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
                 },
-                "Value": 50.0
+                "Value": 50
               },
               {
                 "TargetType": "MOD.Core.TextGUIRendererComponent",
@@ -908,7 +908,7 @@
                   "$type": "MODNativeType",
                   "type": "System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
                 },
-                "Value": 10.0
+                "Value": 10
               },
               {
                 "TargetType": "MOD.Core.TextGUIRendererComponent",

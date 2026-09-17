@@ -36,27 +36,27 @@ script WaitingRoomMyAvatarComponent extends Component
 		if self.IsNicknameApplied == true then
 			return
 		end
-
+		
 		local localPlayer = _UserService.LocalPlayer
 		if isvalid(localPlayer) == false then
 			return
 		end
-
+		
 		local nickname = localPlayer.PlayerComponent.Nickname
 		if nickname == nil or nickname == "" then
 			return
 		end
-
+		
 		local labelEntity = _EntityService:GetEntityByPath("/ui/WaitingRoomGroup/LeftPanel/MyLabel")
 		if isvalid(labelEntity) == false then
 			return
 		end
-
+		
 		local textRenderer = labelEntity.TextGUIRendererComponent
 		if isvalid(textRenderer) == false then
 			return
 		end
-
+		
 		textRenderer.Text = nickname
 		self.IsNicknameApplied = true
 		log("[WaitingRoomMyAvatarComponent] 대기실 플레이어 이름 표시: " .. nickname)

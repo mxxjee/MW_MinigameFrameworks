@@ -51,14 +51,14 @@ script MinigameIntroUIComponent extends Component
 				self.OnCountdownAnimationEnd
 			)
 		end
-
+		
 		if isvalid(self.StartUI) then
 			self.StartUI:ConnectEvent(
 				SpriteGUIAnimPlayerEndEvent,
 				self.OnStartAnimationEnd
 			)
 		end
-
+		
 		self:InitializeFinishUI()
 	end
 
@@ -68,11 +68,11 @@ script MinigameIntroUIComponent extends Component
 			self.FinishUI = _EntityService:GetEntityByPath("/ui/GameIntroGroup/Finish")
 			self.IsFinishEventConnected = false
 		end
-
+		
 		if isvalid(self.FinishUI) == false then
 			return false
 		end
-
+		
 		if self.IsFinishEventConnected == false then
 			self.FinishUI:ConnectEvent(
 				SpriteGUIAnimPlayerEndEvent,
@@ -80,7 +80,7 @@ script MinigameIntroUIComponent extends Component
 			)
 			self.IsFinishEventConnected = true
 		end
-
+		
 		self.FinishUI.Enable = false
 		self.FinishUI.Visible = false
 		return true
@@ -303,32 +303,32 @@ script MinigameIntroUIComponent extends Component
 			log_warning("[MinigameIntroUIComponent] Finish UI를 찾을 수 없습니다.")
 			return false
 		end
-
+		
 		if isvalid(self.LogoUI) then
 			self.LogoUI.Enable = false
 			self.LogoUI.Visible = false
 		end
-
+		
 		if isvalid(self.CountdownUI) then
 			self.CountdownUI.Enable = false
 			self.CountdownUI.Visible = false
 		end
-
+		
 		if isvalid(self.StartUI) then
 			self.StartUI.Enable = false
 			self.StartUI.Visible = false
 		end
-
+		
 		local renderer = self.FinishUI.SpriteGUIRendererComponent
 		if isvalid(renderer) == false then
 			return false
 		end
-
+		
 		self.FinishUI.Enable = false
 		renderer.AnimClipPlayType = SpriteAnimClipPlayType.Onetime
 		renderer.StartFrameIndex = 0
 		renderer:SetAlpha(1)
-
+		
 		self.IsFinishImagePlaying = true
 		self.FinishUI.Visible = true
 		self.FinishUI.Enable = true
@@ -340,11 +340,11 @@ script MinigameIntroUIComponent extends Component
 		if self.IsFinishImagePlaying == false then
 			return
 		end
-
+		
 		if event.Entity ~= self.FinishUI then
 			return
 		end
-
+		
 		self:HideFinish()
 		_MinigameEndLogic:NotifyFinishAnimationEnd()
 	end
@@ -352,7 +352,7 @@ script MinigameIntroUIComponent extends Component
 	@ExecSpace("ClientOnly")
 	method void HideFinish()
 		self.IsFinishImagePlaying = false
-
+		
 		if isvalid(self.FinishUI) then
 			self.FinishUI.Visible = false
 			self.FinishUI.Enable = false
@@ -404,12 +404,12 @@ script MinigameIntroUIComponent extends Component
 			self.CountdownUI.Enable = false
 			self.CountdownUI.Visible = false
 		end
-
+		
 		if isvalid(self.StartUI) then
 			self.StartUI.Enable = false
 			self.StartUI.Visible = false
 		end
-
+		
 		self:HideFinish()
 		
 		self.IsCountdownPlaying = false
